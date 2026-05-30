@@ -16,7 +16,7 @@ describe('messageSpanSamplesPanel', () => {
   let eventsRequestMock: jest.Mock;
   let eventsStatsRequestMock: jest.Mock;
   let samplesRequestMock: jest.Mock;
-  let traceItemAttributesMock: jest.Mock;
+  let spanFieldTagsMock: jest.Mock;
 
   jest.mocked(usePageFilters).mockReturnValue(
     PageFilterStateFixture({
@@ -124,8 +124,8 @@ describe('messageSpanSamplesPanel', () => {
       },
     });
 
-    traceItemAttributesMock = MockApiClient.addMockResponse({
-      url: `/organizations/${organization.slug}/trace-items/attributes/`,
+    spanFieldTagsMock = MockApiClient.addMockResponse({
+      url: `/organizations/${organization.slug}/spans/fields/`,
       method: 'GET',
       body: [
         {
@@ -137,6 +137,11 @@ describe('messageSpanSamplesPanel', () => {
           name: 'Bytes.Size',
         },
       ],
+    });
+
+    MockApiClient.addMockResponse({
+      url: '/organizations/org-slug/trace-items/attributes/',
+      body: [],
     });
 
     MockApiClient.addMockResponse({
@@ -176,7 +181,7 @@ describe('messageSpanSamplesPanel', () => {
       expect.objectContaining({
         method: 'GET',
         query: expect.objectContaining({
-          dataset: 'spans',
+          dataset: 'spansMetrics',
           environment: [],
           field: [
             'count()',
@@ -206,7 +211,7 @@ describe('messageSpanSamplesPanel', () => {
             'trace',
             'span.description',
             'measurements.messaging.message.body.size',
-            'messaging.message.receive.latency',
+            'measurements.messaging.message.receive.latency',
             'measurements.messaging.message.retry.count',
             'messaging.message.id',
             'trace.status',
@@ -225,31 +230,15 @@ describe('messageSpanSamplesPanel', () => {
         }),
       })
     );
-    expect(traceItemAttributesMock).toHaveBeenNthCalledWith(
+    expect(spanFieldTagsMock).toHaveBeenNthCalledWith(
       1,
-      `/organizations/${organization.slug}/trace-items/attributes/`,
+      `/organizations/${organization.slug}/spans/fields/`,
       expect.objectContaining({
         method: 'GET',
         query: {
-          attributeType: 'number',
-          itemType: 'spans',
           project: [],
-          statsPeriod: '10d',
-          substringMatch: undefined,
-        },
-      })
-    );
-    expect(traceItemAttributesMock).toHaveBeenNthCalledWith(
-      2,
-      `/organizations/${organization.slug}/trace-items/attributes/`,
-      expect.objectContaining({
-        method: 'GET',
-        query: {
-          attributeType: 'string',
-          itemType: 'spans',
-          project: [],
-          statsPeriod: '10d',
-          substringMatch: undefined,
+          environment: [],
+          statsPeriod: '1h',
         },
       })
     );
@@ -288,7 +277,7 @@ describe('messageSpanSamplesPanel', () => {
       expect.objectContaining({
         method: 'GET',
         query: expect.objectContaining({
-          dataset: 'spans',
+          dataset: 'spansMetrics',
           environment: [],
           field: [
             'count()',
@@ -318,7 +307,7 @@ describe('messageSpanSamplesPanel', () => {
             'trace',
             'span.description',
             'measurements.messaging.message.body.size',
-            'messaging.message.receive.latency',
+            'measurements.messaging.message.receive.latency',
             'measurements.messaging.message.retry.count',
             'messaging.message.id',
             'trace.status',
@@ -337,31 +326,14 @@ describe('messageSpanSamplesPanel', () => {
         }),
       })
     );
-    expect(traceItemAttributesMock).toHaveBeenNthCalledWith(
-      1,
-      `/organizations/${organization.slug}/trace-items/attributes/`,
+    expect(spanFieldTagsMock).toHaveBeenCalledWith(
+      `/organizations/${organization.slug}/spans/fields/`,
       expect.objectContaining({
         method: 'GET',
         query: {
-          attributeType: 'number',
-          itemType: 'spans',
           project: [],
-          statsPeriod: '10d',
-          substringMatch: undefined,
-        },
-      })
-    );
-    expect(traceItemAttributesMock).toHaveBeenNthCalledWith(
-      2,
-      `/organizations/${organization.slug}/trace-items/attributes/`,
-      expect.objectContaining({
-        method: 'GET',
-        query: {
-          attributeType: 'string',
-          itemType: 'spans',
-          project: [],
-          statsPeriod: '10d',
-          substringMatch: undefined,
+          environment: [],
+          statsPeriod: '1h',
         },
       })
     );

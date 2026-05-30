@@ -4,9 +4,10 @@ import {SearchFixture} from 'sentry-fixture/search';
 import {initializeOrg} from 'sentry-test/initializeOrg';
 import {render, screen, userEvent, waitFor} from 'sentry-test/reactTestingLibrary';
 
+import {DEFAULT_QUERY} from 'sentry/constants';
 import {SavedSearchType, SavedSearchVisibility} from 'sentry/types/group';
 import IssueListSetAsDefault from 'sentry/views/issueList/issueListSetAsDefault';
-import {DEFAULT_QUERY, IssueSortOptions} from 'sentry/views/issueList/utils';
+import {IssueSortOptions} from 'sentry/views/issueList/utils';
 
 describe('IssueListSetAsDefault', () => {
   const organization = OrganizationFixture();

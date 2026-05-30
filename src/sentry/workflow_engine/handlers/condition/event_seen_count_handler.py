@@ -11,5 +11,5 @@ class EventSeenCountConditionHandler(DataConditionHandler[WorkflowEventData]):
 
     @staticmethod
     def evaluate_value(event_data: WorkflowEventData, comparison: Any) -> bool:
-        group = event_data.group
-        return group.times_seen == comparison
+        event = event_data.event
+        return event.group.times_seen == comparison

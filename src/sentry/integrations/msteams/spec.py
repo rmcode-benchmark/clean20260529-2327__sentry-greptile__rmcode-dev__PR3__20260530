@@ -12,16 +12,17 @@ from sentry.integrations.messaging.spec import (
     MessagingIdentityLinkViewSet,
     MessagingIntegrationSpec,
 )
-from sentry.integrations.types import IntegrationProviderSlug
 from sentry.models.organization import Organization
 from sentry.notifications.models.notificationaction import ActionService
 from sentry.rules.actions import IntegrationEventAction
+
+PROVIDER = "msteams"
 
 
 class MsTeamsMessagingSpec(MessagingIntegrationSpec):
     @property
     def provider_slug(self) -> str:
-        return IntegrationProviderSlug.MSTEAMS.value
+        return PROVIDER
 
     @property
     def action_service(self) -> ActionService:

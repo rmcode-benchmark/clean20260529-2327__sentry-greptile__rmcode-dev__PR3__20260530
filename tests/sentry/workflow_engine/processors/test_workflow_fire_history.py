@@ -18,14 +18,11 @@ class TestWorkflowFireHistory(BaseWorkflowTest):
         self.group, self.event, self.group_event = self.create_group_event(
             occurrence=self.build_occurrence(evidence_data={"detector_id": self.detector.id})
         )
-        self.event_data = WorkflowEventData(event=self.group_event, group=self.group)
+        self.event_data = WorkflowEventData(event=self.group_event)
 
     def test_create_workflow_fire_histories(self):
         create_workflow_fire_histories(
-            self.detector,
-            Action.objects.filter(id=self.action.id),
-            self.event_data,
-            is_single_processing=True,
+            self.detector, Action.objects.filter(id=self.action.id), self.event_data
         )
         assert (
             WorkflowFireHistory.objects.filter(
@@ -33,7 +30,6 @@ class TestWorkflowFireHistory(BaseWorkflowTest):
                 workflow=self.workflow,
                 group=self.group,
                 event_id=self.group_event.event_id,
-                is_single_written=True,
             ).count()
             == 1
         )

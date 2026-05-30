@@ -1,6 +1,7 @@
 import styled from '@emotion/styled';
 
 import {openHelpSearchModal} from 'sentry/actionCreators/modal';
+import {Badge} from 'sentry/components/core/badge';
 import {FeatureBadge} from 'sentry/components/core/badge/featureBadge';
 import DeprecatedDropdownMenu from 'sentry/components/deprecatedDropdownMenu';
 import Hook from 'sentry/components/hook';
@@ -134,7 +135,7 @@ function SidebarHelp({orientation, collapsed, hidePanel, organization}: Props) {
                       });
                     }}
                   >
-                    {t('Try Our New Look')} <FeatureBadge type="beta" />
+                    {t('Try Our New Look')} <Badge type="internal">{t('Internal')}</Badge>
                   </SidebarMenuItem>
                 )
               ) : null}

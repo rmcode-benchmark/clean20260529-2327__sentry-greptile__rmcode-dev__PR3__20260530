@@ -8,13 +8,13 @@ import {
   useResourceSummarySeriesSearch,
 } from 'sentry/views/insights/common/components/widgets/hooks/useResourceSummarySeries';
 import type {LoadableChartWidgetProps} from 'sentry/views/insights/common/components/widgets/types';
-import {SpanFields} from 'sentry/views/insights/types';
+import {SpanMetricsField} from 'sentry/views/insights/types';
 
 const {
   HTTP_RESPONSE_CONTENT_LENGTH,
   HTTP_DECODED_RESPONSE_CONTENT_LENGTH,
   HTTP_RESPONSE_TRANSFER_SIZE,
-} = SpanFields;
+} = SpanMetricsField;
 
 export default function ResourceSummaryAverageSizeChartWidget(
   props: LoadableChartWidgetProps

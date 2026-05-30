@@ -1,9 +1,9 @@
 import {Fragment} from 'react';
 import styled from '@emotion/styled';
 
-import {ExternalLink} from 'sentry/components/core/link';
+import ExternalLink from 'sentry/components/links/externalLink';
 import {OnboardingCodeSnippet} from 'sentry/components/onboarding/gettingStartedDoc/onboardingCodeSnippet';
-import {StepType} from 'sentry/components/onboarding/gettingStartedDoc/types';
+import {StepType} from 'sentry/components/onboarding/gettingStartedDoc/step';
 import {
   type Docs,
   type DocsParams,

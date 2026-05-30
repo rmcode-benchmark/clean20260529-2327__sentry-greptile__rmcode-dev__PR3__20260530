@@ -14,7 +14,6 @@ import type {Organization} from 'sentry/types/organization';
 import {useLocation} from 'sentry/utils/useLocation';
 import usePageFilters from 'sentry/utils/usePageFilters';
 import {useReleaseStats} from 'sentry/utils/useReleaseStats';
-import {SAMPLING_MODE} from 'sentry/views/explore/hooks/useProgressiveQuery';
 import {CacheLandingPage} from 'sentry/views/insights/cache/views/cacheLandingPage';
 
 jest.mock('sentry/utils/useLocation');
@@ -97,8 +96,7 @@ describe('CacheLandingPage', function () {
         method: 'GET',
         query: {
           cursor: undefined,
-          dataset: 'spans',
-          sampling: SAMPLING_MODE.NORMAL,
+          dataset: 'spansMetrics',
           environment: [],
           excludeOther: 0,
           field: [],
@@ -121,8 +119,7 @@ describe('CacheLandingPage', function () {
       expect.objectContaining({
         method: 'GET',
         query: {
-          dataset: 'spans',
-          sampling: SAMPLING_MODE.NORMAL,
+          dataset: 'spansMetrics',
           environment: [],
           field: [
             'project',
@@ -147,14 +144,13 @@ describe('CacheLandingPage', function () {
       expect.objectContaining({
         method: 'GET',
         query: {
-          dataset: 'spans',
-          sampling: SAMPLING_MODE.NORMAL,
+          dataset: 'metrics',
           environment: [],
-          field: ['avg(span.duration)', 'transaction'],
+          field: ['avg(transaction.duration)', 'transaction'],
           per_page: 50,
           noPagination: true,
           project: [],
-          query: 'transaction:["my-transaction"] AND is_transaction:true',
+          query: 'transaction:["my-transaction"]',
           referrer: 'api.performance.cache.landing-cache-transaction-duration',
           statsPeriod: '10d',
         },
@@ -208,14 +204,13 @@ describe('CacheLandingPage', function () {
       expect.objectContaining({
         method: 'GET',
         query: {
-          dataset: 'spans',
-          sampling: SAMPLING_MODE.NORMAL,
+          dataset: 'metrics',
           environment: [],
-          field: ['avg(span.duration)', 'transaction'],
+          field: ['avg(transaction.duration)', 'transaction'],
           noPagination: true,
           per_page: 50,
           project: [],
-          query: 'transaction:["transaction with \\"quote\\""] AND is_transaction:true',
+          query: 'transaction:["transaction with \\"quote\\""]',
           referrer: 'api.performance.cache.landing-cache-transaction-duration',
           statsPeriod: '10d',
         },
@@ -412,13 +407,13 @@ const setRequestMocks = (organization: Organization) => {
       data: [
         {
           transaction: 'my-transaction',
-          'avg(span.duration)': 456,
+          'avg(transaction.duration)': 456,
         },
       ],
       meta: {
         fields: {
           transaction: 'string',
-          'avg(span.duration)': 'duration',
+          'avg(transaction.duration)': 'duration',
         },
         units: {},
       },

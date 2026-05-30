@@ -3,10 +3,11 @@ import styled from '@emotion/styled';
 import compassImage from 'sentry-images/spot/onboarding-compass.svg';
 
 import {Flex} from 'sentry/components/core/layout';
-import {Link} from 'sentry/components/core/link';
+import Link from 'sentry/components/links/link';
 import {MAX_PICKABLE_DAYS} from 'sentry/constants';
 import {t, tct} from 'sentry/locale';
 import HookStore from 'sentry/stores/hookStore';
+import {space} from 'sentry/styles/space';
 import {useLocation} from 'sentry/utils/useLocation';
 import useOrganization from 'sentry/utils/useOrganization';
 import {useParams} from 'sentry/utils/useParams';
@@ -76,9 +77,9 @@ export function EventMissingBanner() {
 
   return (
     <Flex align="center" justify="center">
-      <Flex align="center" gap="3xl">
+      <Flex align="center" gap={36}>
         <img src={compassImage} alt="Compass illustration" height={122} />
-        <Flex justify="center" direction="column" gap="md">
+        <Flex justify="center" direction="column" gap={space(1)}>
           <MainText>
             {tct("We couldn't track down [prep] event", {
               prep: isReservedEventId ? 'an' : 'that',

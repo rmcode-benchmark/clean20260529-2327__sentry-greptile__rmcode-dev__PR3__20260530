@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 
 import {Alert} from 'sentry/components/core/alert';
 import {Button} from 'sentry/components/core/button';
-import {ExternalLink} from 'sentry/components/core/link';
+import ExternalLink from 'sentry/components/links/externalLink';
 import {IconClose} from 'sentry/icons';
 import {t} from 'sentry/locale';
 import AlertStore from 'sentry/stores/alertStore';
@@ -18,6 +18,7 @@ function AlertMessage({alert, system}: Props) {
   return (
     <Alert
       type={alert.type}
+      showIcon
       system={system}
       trailingItems={
         <StyledCloseButton

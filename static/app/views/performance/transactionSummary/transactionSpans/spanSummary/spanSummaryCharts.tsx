@@ -21,12 +21,15 @@ import {
 } from 'sentry/views/insights/colors';
 import Chart, {ChartType} from 'sentry/views/insights/common/components/chart';
 import ChartPanel from 'sentry/views/insights/common/components/chartPanel';
-import {useSpanSeries} from 'sentry/views/insights/common/queries/useDiscoverSeries';
+import {useSpanMetricsSeries} from 'sentry/views/insights/common/queries/useDiscoverSeries';
 import {
   Block,
   BlockContainer,
 } from 'sentry/views/insights/common/views/spanSummaryPage/block';
-import {SpanFields, type SpanQueryFilters} from 'sentry/views/insights/types';
+import {
+  SpanMetricsField,
+  type SpanMetricsQueryFilters,
+} from 'sentry/views/insights/types';
 import {SpanSummaryReferrer} from 'sentry/views/performance/transactionSummary/transactionSpans/spanSummary/referrers';
 
 function SpanSummaryCharts() {
@@ -38,7 +41,7 @@ function SpanSummaryCharts() {
   const location = useLocation();
   const {transaction} = location.query;
 
-  const filters: SpanQueryFilters = {
+  const filters: SpanMetricsQueryFilters = {
     'span.group': groupId,
     'span.op': spanOp,
     transaction: transaction as string,
@@ -48,7 +51,7 @@ function SpanSummaryCharts() {
     isPending: isThroughputDataLoading,
     data: throughputData,
     error: throughputError,
-  } = useSpanSeries(
+  } = useSpanMetricsSeries(
     {
       search: MutableSearch.fromQueryObject(filters),
       yAxis: ['epm()'],
@@ -60,10 +63,10 @@ function SpanSummaryCharts() {
     isPending: isAvgDurationDataLoading,
     data: avgDurationData,
     error: avgDurationError,
-  } = useSpanSeries(
+  } = useSpanMetricsSeries(
     {
       search: MutableSearch.fromQueryObject(filters),
-      yAxis: [`avg(${SpanFields.SPAN_DURATION})`],
+      yAxis: [`avg(${SpanMetricsField.SPAN_DURATION})`],
     },
     SpanSummaryReferrer.SPAN_SUMMARY_DURATION_CHART
   );
@@ -123,7 +126,7 @@ function SpanSummaryCharts() {
         <ChartPanel title={t('Average Duration')}>
           <Chart
             height={160}
-            data={[avgDurationData?.[`avg(${SpanFields.SPAN_DURATION})`]]}
+            data={[avgDurationData?.[`avg(${SpanMetricsField.SPAN_DURATION})`]]}
             loading={isAvgDurationDataLoading}
             type={ChartType.LINE}
             definedAxisTicks={4}

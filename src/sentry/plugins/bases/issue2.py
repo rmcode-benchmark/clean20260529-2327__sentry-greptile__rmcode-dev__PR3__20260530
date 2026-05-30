@@ -129,9 +129,8 @@ class IssueTrackingPlugin2(Plugin):
             view_method_name = "view_%s" % action
             _urls.append(
                 re_path(
-                    rf"^{action}/",
+                    r"^%s/" % action,
                     PluginGroupEndpoint.as_view(view=getattr(self, view_method_name)),
-                    name=f"sentry-api-0-plugins-{self.slug}-{action}",
                 )
             )
         return _urls

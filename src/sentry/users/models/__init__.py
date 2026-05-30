@@ -3,7 +3,6 @@ from sentry.users.models.email import Email
 from sentry.users.models.identity import Identity
 from sentry.users.models.lostpasswordhash import LostPasswordHash
 from sentry.users.models.user import User
-from sentry.users.models.user_merge_verification_code import UserMergeVerificationCode
 from sentry.users.models.useremail import UserEmail
 from sentry.users.models.userip import UserIP
 from sentry.users.models.userpermission import UserPermission
@@ -17,7 +16,6 @@ __all__ = (
     "User",
     "UserEmail",
     "UserIP",
-    "UserMergeVerificationCode",
     "UserPermission",
     "UserRole",
 )

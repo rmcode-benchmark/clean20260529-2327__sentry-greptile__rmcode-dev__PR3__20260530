@@ -23,10 +23,10 @@ import {StarredSegmentCell} from 'sentry/views/insights/common/components/tableC
 import {QueryParameterNames} from 'sentry/views/insights/common/views/queryParameters';
 import {DataTitles} from 'sentry/views/insights/common/views/spans/types';
 import {TransactionCell} from 'sentry/views/insights/pages/transactionCell';
-import type {SpanResponse} from 'sentry/views/insights/types';
+import type {EAPSpanResponse} from 'sentry/views/insights/types';
 
 type Row = Pick<
-  SpanResponse,
+  EAPSpanResponse,
   | 'is_starred_transaction'
   | 'request.method'
   | 'transaction'
@@ -221,15 +221,11 @@ function renderBodyCell(
   }
 
   if (column.key === 'transaction') {
-    // In eap, blank transaction ops are set to `default` but not in non-eap.
-    // The transaction summary is not eap yet, so we should exclude the `default` transaction.op filter
-    const spanOp =
-      row['span.op'].toLowerCase() === 'default' ? undefined : row['span.op'];
     return (
       <TransactionCell
         project={row.project}
         transaction={row.transaction}
-        transactionMethod={spanOp}
+        transactionMethod={row['span.op']}
       />
     );
   }

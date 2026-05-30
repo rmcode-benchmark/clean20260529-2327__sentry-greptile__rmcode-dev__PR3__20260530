@@ -96,7 +96,6 @@ class TestEventAttributeCondition(ConditionTestCase):
         self.group_event = self.event.for_group(self.group)
         self.event_data = WorkflowEventData(
             event=self.group_event,
-            group=self.group,
             group_state=GroupState(
                 {
                     "id": 1,

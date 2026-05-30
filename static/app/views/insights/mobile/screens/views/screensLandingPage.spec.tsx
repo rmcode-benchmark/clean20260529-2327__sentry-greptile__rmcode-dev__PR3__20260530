@@ -5,7 +5,6 @@ import {ProjectFixture} from 'sentry-fixture/project';
 
 import {render, screen, waitFor, within} from 'sentry-test/reactTestingLibrary';
 
-import ProjectsStore from 'sentry/stores/projectsStore';
 import {useLocation} from 'sentry/utils/useLocation';
 import usePageFilters from 'sentry/utils/usePageFilters';
 import useCrossPlatformProject from 'sentry/views/insights/mobile/common/queries/useCrossPlatformProject';
@@ -20,14 +19,7 @@ describe('Screens Landing Page', function () {
   const organization = OrganizationFixture({
     features: [MODULE_FEATURE],
   });
-
-  const project = ProjectFixture({
-    hasInsightsScreenLoad: true,
-    firstTransactionEvent: true,
-    platform: 'react-native',
-  });
-
-  ProjectsStore.loadInitialData([project]);
+  const project = ProjectFixture({platform: 'react-native'});
 
   jest.mocked(useLocation).mockReturnValue({
     action: 'PUSH',
@@ -125,12 +117,10 @@ describe('Screens Landing Page', function () {
             isMetricsExtractedData: false,
             tips: {},
             datasetReason: 'unchanged',
-            dataset: 'spans',
+            dataset: 'metrics',
           },
         },
-        match: [
-          MockApiClient.matchQuery({referrer: 'api.starfish.mobile-screens-metrics'}),
-        ],
+        match: [MockApiClient.matchQuery({dataset: 'metrics'})],
       });
 
       const spanMetricsMock = MockApiClient.addMockResponse({
@@ -158,14 +148,10 @@ describe('Screens Landing Page', function () {
             isMetricsExtractedData: false,
             tips: {},
             datasetReason: 'unchanged',
-            dataset: 'spans',
+            dataset: 'spansMetrics',
           },
         },
-        match: [
-          MockApiClient.matchQuery({
-            referrer: 'api.starfish.mobile-screens-span-metrics',
-          }),
-        ],
+        match: [MockApiClient.matchQuery({dataset: 'spansMetrics'})],
       });
 
       render(<ScreensLandingPage />, {organization, deprecatedRouterMocks: true});

@@ -55,7 +55,7 @@ describe('ScreenLoadSpansTable', function () {
       expect.anything(),
       expect.objectContaining({
         query: expect.objectContaining({
-          dataset: 'spans',
+          dataset: 'spansMetrics',
           environment: [],
           field: ['span.op', 'count()'],
           per_page: 25,
@@ -74,7 +74,7 @@ describe('ScreenLoadSpansTable', function () {
       expect.anything(),
       expect.objectContaining({
         query: expect.objectContaining({
-          dataset: 'spans',
+          dataset: 'spansMetrics',
           environment: [],
           field: [
             'project.id',

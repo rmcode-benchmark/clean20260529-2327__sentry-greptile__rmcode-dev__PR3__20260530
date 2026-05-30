@@ -259,7 +259,7 @@ export function Threads({data, event, projectSlug, groupingCurrentLevel, group}:
               <ThreadHeading>{t('Threads')}</ThreadHeading>
               {activeThread && (
                 <Wrapper>
-                  <ButtonBar merged gap="none">
+                  <ButtonBar merged>
                     <Button
                       title={t('Previous Thread')}
                       tooltipProps={{delay: 1000}}
@@ -409,7 +409,7 @@ export function Threads({data, event, projectSlug, groupingCurrentLevel, group}:
         type={SectionKey.STACKTRACE}
         disableCollapsePersistence
       >
-        <Flex direction="column" gap="xl">
+        <Flex direction="column" gap={space(2)}>
           {threadComponent}
         </Flex>
       </InterimSection>

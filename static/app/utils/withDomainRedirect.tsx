@@ -7,7 +7,6 @@ import Redirect from 'sentry/components/redirect';
 import ConfigStore from 'sentry/stores/configStore';
 import type {RouteComponent, RouteComponentProps} from 'sentry/types/legacyReactRouter';
 import recreateRoute from 'sentry/utils/recreateRoute';
-import {testableWindowLocation} from 'sentry/utils/testableWindowLocation';
 import normalizeUrl from 'sentry/utils/url/normalizeUrl';
 
 import useOrganization from './useOrganization';
@@ -52,7 +51,7 @@ function withDomainRedirect<P extends RouteComponentProps>(
         (currentOrganization.slug !== customerDomain.subdomain ||
           !features.has('system:multi-region'))
       ) {
-        testableWindowLocation.replace(redirectURL);
+        window.location.replace(redirectURL);
         return null;
       }
 

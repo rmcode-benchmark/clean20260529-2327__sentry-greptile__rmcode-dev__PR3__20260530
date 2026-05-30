@@ -25,7 +25,6 @@ from sentry.incidents.endpoints.serializers.incident import (
     DetailedIncidentSerializerResponse,
     IncidentSerializer,
 )
-from sentry.incidents.grouptype import MetricIssue
 from sentry.incidents.models.alert_rule import (
     AlertRuleDetectionType,
     AlertRuleThresholdType,
@@ -44,7 +43,7 @@ from sentry.incidents.typings.metric_detector import (
     OpenPeriodContext,
 )
 from sentry.integrations.metric_alerts import get_metric_count_from_incident
-from sentry.integrations.types import ExternalProviders, IntegrationProviderSlug
+from sentry.integrations.types import ExternalProviders
 from sentry.models.organization import Organization
 from sentry.models.organizationmember import OrganizationMember
 from sentry.models.project import Project
@@ -319,15 +318,15 @@ class EmailActionHandler(ActionHandler):
 
 
 @AlertRuleTriggerAction.register_type(
-    IntegrationProviderSlug.PAGERDUTY.value,
+    "pagerduty",
     AlertRuleTriggerAction.Type.PAGERDUTY,
     [AlertRuleTriggerAction.TargetType.SPECIFIC],
-    integration_provider=IntegrationProviderSlug.PAGERDUTY.value,
+    integration_provider="pagerduty",
 )
 class PagerDutyActionHandler(DefaultActionHandler):
     @property
     def provider(self) -> str:
-        return IntegrationProviderSlug.PAGERDUTY.value
+        return "pagerduty"
 
     def send_alert(
         self,
@@ -504,8 +503,6 @@ def generate_incident_trigger_email_context(
     user: User | RpcUser | None = None,
     notification_uuid: str | None = None,
 ):
-    from sentry.notifications.notification_action.utils import should_fire_workflow_actions
-
     snuba_query = metric_issue_context.snuba_query
     is_active = trigger_status == TriggerStatus.ACTIVE
     is_threshold_type_above = alert_context.threshold_type == AlertRuleThresholdType.ABOVE
@@ -582,7 +579,7 @@ def generate_incident_trigger_email_context(
             ),
             query=urlencode(alert_link_params),
         )
-    elif should_fire_workflow_actions(organization, MetricIssue.type_id):
+    elif features.has("organizations:workflow-engine-trigger-actions", organization):
         # lookup the incident_id from the open_period_identifier
         try:
             incident_group_open_period = IncidentGroupOpenPeriod.objects.get(

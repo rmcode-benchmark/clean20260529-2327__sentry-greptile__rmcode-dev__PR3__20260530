@@ -12,7 +12,6 @@ from sentry.models.pullrequest import PullRequest
 from sentry.models.repository import Repository
 from sentry.organizations.services.organization.model import RpcOrganization
 from sentry.plugins.providers import IntegrationRepositoryProvider
-from sentry.plugins.providers.integration_repository import RepositoryConfig
 from sentry.shared_integrations.exceptions import ApiError, IntegrationError
 
 WEBHOOK_EVENTS = ["push", "pull_request"]
@@ -52,8 +51,8 @@ class GitHubRepositoryProvider(IntegrationRepositoryProvider):
         return config
 
     def build_repository_config(
-        self, organization: RpcOrganization, data: dict[str, Any]
-    ) -> RepositoryConfig:
+        self, organization: RpcOrganization, data: Mapping[str, Any]
+    ) -> Mapping[str, Any]:
         return {
             "name": data["identifier"],
             "external_id": data["external_id"],

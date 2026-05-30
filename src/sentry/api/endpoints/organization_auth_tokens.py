@@ -10,7 +10,6 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from sentry import analytics, audit_log, roles
-from sentry.analytics.events.org_auth_token_created import OrgAuthTokenCreated
 from sentry.api.api_owners import ApiOwner
 from sentry.api.api_publish_status import ApiPublishStatus
 from sentry.api.base import control_silo_endpoint
@@ -136,10 +135,9 @@ class OrganizationAuthTokensEndpoint(ControlSiloOrganizationEndpoint):
             )
 
         analytics.record(
-            OrgAuthTokenCreated(
-                user_id=request.user.id,
-                organization_id=organization.id,
-            )
+            "org_auth_token.created",
+            user_id=request.user.id,
+            organization_id=organization.id,
         )
 
         # This is THE ONLY TIME that the token is available

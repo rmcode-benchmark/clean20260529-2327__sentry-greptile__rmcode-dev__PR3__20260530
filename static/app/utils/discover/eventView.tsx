@@ -791,7 +791,7 @@ class EventView {
     return this.fields.length;
   }
 
-  getColumns(): Array<TableColumn<string>> {
+  getColumns(): Array<TableColumn<string | number>> {
     return decodeColumnOrder(this.fields);
   }
 

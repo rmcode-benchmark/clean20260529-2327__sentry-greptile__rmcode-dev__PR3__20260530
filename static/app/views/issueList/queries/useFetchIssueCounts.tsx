@@ -11,6 +11,7 @@ interface FetchIssueCountsParameters {
   sort?: string;
   start?: string | null;
   statsPeriod?: string | null;
+  useGroupSnubaDataset?: boolean;
 }
 
 const makeFetchIssueCounts = ({

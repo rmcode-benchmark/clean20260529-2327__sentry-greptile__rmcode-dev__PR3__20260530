@@ -16,7 +16,6 @@ import ModalStore from 'sentry/stores/modalStore';
 import type {CustomRepoType} from 'sentry/types/debugFiles';
 import type {Event} from 'sentry/types/event';
 import type {Group, IssueOwnership} from 'sentry/types/group';
-import type {OnboardingSelectedSDK} from 'sentry/types/onboarding';
 import type {MissingMember, Organization, OrgRole, Team} from 'sentry/types/organization';
 import type {Project} from 'sentry/types/project';
 import type {Theme} from 'sentry/utils/theme';
@@ -389,19 +388,6 @@ export async function openProjectCreationModal(options: {defaultCategory: Catego
   openModal(deps => <Modal {...deps} {...options} />, {modalCss});
 }
 
-export async function openConsoleModal(options: {
-  selectedPlatform: OnboardingSelectedSDK;
-  onClose?: () => void;
-}) {
-  const {ConsoleModal: Modal, modalCss} = await import(
-    'sentry/components/onboarding/consoleModal'
-  );
-  openModal(deps => <Modal {...deps} {...options} />, {
-    modalCss,
-    onClose: options.onClose,
-  });
-}
-
 export async function openBulkEditMonitorsModal({onClose, ...options}: ModalOptions) {
   const {BulkEditMonitorsModal, modalCss} = await import(
     'sentry/components/modals/bulkEditMonitorsModal'
@@ -435,14 +421,6 @@ export async function openAddTempestCredentialsModal(options: {
 export async function openSaveQueryModal(options: SaveQueryModalProps) {
   const {default: Modal} = await import(
     'sentry/components/modals/explore/saveQueryModal'
-  );
-
-  openModal(deps => <Modal {...deps} {...options} />);
-}
-
-export async function openTokenRegenerationConfirmationModal(options: ModalOptions) {
-  const {default: Modal} = await import(
-    'sentry/components/modals/tokenRegenerationConfirmationModal'
   );
 
   openModal(deps => <Modal {...deps} {...options} />);

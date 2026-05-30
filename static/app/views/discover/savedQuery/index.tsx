@@ -21,9 +21,10 @@ import {CreateAlertFromViewButton} from 'sentry/components/createAlertButton';
 import type {MenuItemProps} from 'sentry/components/dropdownMenu';
 import {DropdownMenu} from 'sentry/components/dropdownMenu';
 import {Hovercard} from 'sentry/components/hovercard';
+import Link from 'sentry/components/links/link';
 import {Overlay, PositionWrapper} from 'sentry/components/overlay';
 import {IconBookmark, IconDelete, IconEllipsis, IconStar} from 'sentry/icons';
-import {t} from 'sentry/locale';
+import {t, tct} from 'sentry/locale';
 import {space} from 'sentry/styles/space';
 import type {InjectedRouter} from 'sentry/types/legacyReactRouter';
 import type {Organization, SavedQuery} from 'sentry/types/organization';
@@ -51,7 +52,6 @@ import {deprecateTransactionAlerts} from 'sentry/views/insights/common/utils/has
 import {
   getDatasetFromLocationOrSavedQueryDataset,
   getSavedQueryDataset,
-  getTransactionDeprecationMessage,
   handleCreateQuery,
   handleDeleteQuery,
   handleResetHomepageQuery,
@@ -111,7 +111,7 @@ function SaveAsDropdown({
             <StyledOverlay arrowProps={arrowProps} animated>
               <FocusScope contain restoreFocus autoFocus>
                 <form onSubmit={modifiedHandleCreateQuery}>
-                  <Flex gap="md" direction="column">
+                  <Flex gap={space(1)} direction="column">
                     <Input
                       type="text"
                       name="query_name"
@@ -374,7 +374,12 @@ class SavedQueryButtonGroup extends PureComponent<Props, State> {
           !organization.features.includes('discover-saved-queries-deprecation')
         }
         isHoverable
-        title={getTransactionDeprecationMessage(tracesUrl)}
+        title={tct(
+          'Discover\u2192Transactions is going to be merged into Explore\u2192Traces soon. Please save any transaction related queries from [traces:Explore\u2192Traces]',
+          {
+            traces: <Link to={tracesUrl} />,
+          }
+        )}
       >
         <SaveAsDropdown
           queryName={queryName}
@@ -388,46 +393,23 @@ class SavedQueryButtonGroup extends PureComponent<Props, State> {
 
   renderButtonSave(disabled: boolean) {
     const {isNewQuery, isEditingQuery} = this.state;
-    const {organization, savedQuery, location} = this.props;
-
-    const currentDataset = getDatasetFromLocationOrSavedQueryDataset(
-      location,
-      savedQuery?.queryDataset
-    );
-
-    const deprecatingTransactionsDataset =
-      currentDataset === DiscoverDatasets.TRANSACTIONS &&
-      organization.features.includes('discover-saved-queries-deprecation');
 
     if (!isNewQuery && !isEditingQuery) {
       return null;
     }
     // Existing query with edits, show save and save as.
     if (!isNewQuery && isEditingQuery) {
-      const tracesUrl = getExploreUrl({
-        organization,
-        query: 'is_transaction:true',
-      });
-
       return (
         <Fragment>
-          <Tooltip
-            title={
-              deprecatingTransactionsDataset &&
-              getTransactionDeprecationMessage(tracesUrl)
-            }
-            isHoverable
+          <Button
+            onClick={this.handleUpdateQuery}
+            data-test-id="discover2-savedquery-button-update"
+            disabled={disabled}
+            size="sm"
           >
-            <Button
-              onClick={this.handleUpdateQuery}
-              data-test-id="discover2-savedquery-button-update"
-              disabled={disabled || deprecatingTransactionsDataset}
-              size="sm"
-            >
-              <IconUpdate />
-              {t('Save Changes')}
-            </Button>
-          </Tooltip>
+            <IconUpdate />
+            {t('Save Changes')}
+          </Button>
           {this.renderButtonSaveAs(disabled)}
         </Fragment>
       );
@@ -640,7 +622,7 @@ class SavedQueryButtonGroup extends PureComponent<Props, State> {
       savedQuery?.queryDataset
     );
 
-    const deprecatingTransactionsDataset =
+    const deprecatingAddToDashboard =
       currentDataset === DiscoverDatasets.TRANSACTIONS &&
       organization.features.includes('discover-saved-queries-deprecation');
 
@@ -655,10 +637,15 @@ class SavedQueryButtonGroup extends PureComponent<Props, State> {
       contextMenuItems.push({
         key: 'add-to-dashboard',
         label: t('Add to Dashboard'),
-        disabled: deprecatingTransactionsDataset,
-        tooltipOptions: {isHoverable: true},
+        disabled: deprecatingAddToDashboard,
         tooltip:
-          deprecatingTransactionsDataset && getTransactionDeprecationMessage(tracesUrl),
+          deprecatingAddToDashboard &&
+          tct(
+            'Discover\u2192Transactions is going to be merged into Explore\u2192Traces soon. Please save any transaction related queries from [traces:Explore\u2192Traces]',
+            {
+              traces: <Link to={tracesUrl} />,
+            }
+          ),
         onAction: () => {
           handleAddQueryToDashboard({
             organization,
@@ -710,7 +697,7 @@ class SavedQueryButtonGroup extends PureComponent<Props, State> {
     );
 
     return (
-      <ResponsiveButtonBar>
+      <ResponsiveButtonBar gap={1}>
         {this.renderQueryButton(disabled => this.renderSaveAsHomepage(disabled))}
         {this.renderQueryButton(disabled => this.renderButtonSave(disabled))}
         <Feature organization={organization} features="incidents">

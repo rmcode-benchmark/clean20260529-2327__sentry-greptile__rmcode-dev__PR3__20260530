@@ -43,7 +43,6 @@ from sentry.snuba.metrics import (
     get_series,
 )
 from sentry.snuba.metrics.naming_layer.mri import SessionMRI
-from sentry.snuba.referrer import Referrer
 from sentry.snuba.sessions import _make_stats, get_rollup_starts_and_buckets
 from sentry.snuba.sessions_v2 import QueryDefinition
 from sentry.utils.dates import to_datetime
@@ -353,21 +352,20 @@ class MetricsReleaseHealthBackend(ReleaseHealthBackend):
         sessions_per_project: dict[int, int] = _count_sessions(
             total=True,
             project_ids=project_ids,
-            referrer=Referrer.RELEASE_HEALTH_METRICS_GET_RELEASE_ADOPTION_TOTAL_SESSIONS,
+            referrer="release_health.metrics.get_release_adoption.total_sessions",
         )
         users_per_project: dict[int, int] = _count_users(
-            total=True, referrer=Referrer.RELEASE_HEALTH_METRICS_GET_RELEASE_ADOPTION_TOTAL_USERS
+            total=True, referrer="release_health.metrics.get_release_adoption.total_users"
         )
 
         # Count of sessions/users for given list of environments and timerange AND GIVEN RELEASES, per-project
         sessions_per_release: dict[tuple[int, str], int] = _count_sessions(
             total=False,
             project_ids=project_ids,
-            referrer=Referrer.RELEASE_HEALTH_METRICS_GET_RELEASE_ADOPTION_RELEASES_SESSIONS,
+            referrer="release_health.metrics.get_release_adoption.releases_sessions",
         )
         users_per_release: dict[tuple[int, str], int] = _count_users(
-            total=False,
-            referrer=Referrer.RELEASE_HEALTH_METRICS_GET_RELEASE_ADOPTION_RELEASES_USERS,
+            total=False, referrer="release_health.metrics.get_release_adoption.releases_users"
         )
 
         rv = {}

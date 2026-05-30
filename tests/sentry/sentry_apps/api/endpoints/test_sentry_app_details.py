@@ -91,6 +91,7 @@ class GetSentryAppDetailsTest(SentryAppDetailsTest):
             == "User must be in the app owner's organization for unpublished apps"
         )
         assert response.data["context"] == {
+            "integration": self.internal_integration.slug,
             "user_organizations": [],
         }
 
@@ -101,6 +102,7 @@ class GetSentryAppDetailsTest(SentryAppDetailsTest):
             == "User must be in the app owner's organization for unpublished apps"
         )
         assert response.data["context"] == {
+            "integration": self.unowned_unpublished_app.slug,
             "user_organizations": [self.organization.slug],
         }
 
@@ -466,6 +468,7 @@ class UpdateSentryAppDetailsTest(SentryAppDetailsTest):
             == "User must be in the app owner's organization for unpublished apps"
         )
         assert response.data["context"] == {
+            "integration": app.slug,
             "user_organizations": [self.organization.slug],
         }
 
@@ -770,6 +773,7 @@ class DeleteSentryAppDetailsTest(SentryAppDetailsTest):
             == "User must be in the app owner's organization for unpublished apps"
         )
         assert response.data["context"] == {
+            "integration": self.unpublished_app.slug,
             "user_organizations": [],
         }
 

@@ -27,6 +27,7 @@ export interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export function Alert({
+  showIcon,
   icon,
   system,
   expand,
@@ -63,14 +64,12 @@ export function Alert({
     }
   }
 
-  const showIcon = props.showIcon ?? true;
-
   return (
     <AlertContainer
       system={system}
       expand={expand}
       trailingItems={trailingItems}
-      showIcon={showIcon as false}
+      showIcon={showIcon}
       onClick={handleClick}
       hovered={isHovered && !expandIsHovered}
       className={classNames(type ? `ref-${type}` : '', className)}

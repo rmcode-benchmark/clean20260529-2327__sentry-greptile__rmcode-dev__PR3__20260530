@@ -12,6 +12,7 @@ import {LinkButton} from 'sentry/components/core/button/linkButton';
 import CreateAlertButton from 'sentry/components/createAlertButton';
 import ErrorBoundary from 'sentry/components/errorBoundary';
 import FeedbackWidgetButton from 'sentry/components/feedback/widget/feedbackWidgetButton';
+import GlobalEventProcessingAlert from 'sentry/components/globalEventProcessingAlert';
 import IdBadge from 'sentry/components/idBadge';
 import * as Layout from 'sentry/components/layouts/thirds';
 import LoadingError from 'sentry/components/loadingError';
@@ -179,7 +180,7 @@ export default function ProjectDetail({router, location, organization}: Props) {
               </Layout.HeaderContent>
 
               <Layout.HeaderActions>
-                <ButtonBar>
+                <ButtonBar gap={1}>
                   <FeedbackWidgetButton />
                   <LinkButton
                     size="sm"
@@ -209,6 +210,9 @@ export default function ProjectDetail({router, location, organization}: Props) {
             </Layout.Header>
 
             <Layout.Body noRowGap>
+              <ErrorBoundary customComponent={null}>
+                {project && <StyledGlobalEventProcessingAlert projects={[project]} />}
+              </ErrorBoundary>
               <Layout.Main>
                 <ProjectFiltersWrapper>
                   <ProjectFilters
@@ -294,4 +298,10 @@ export default function ProjectDetail({router, location, organization}: Props) {
 
 const ProjectFiltersWrapper = styled('div')`
   margin-bottom: ${space(2)};
+`;
+
+const StyledGlobalEventProcessingAlert = styled(GlobalEventProcessingAlert)`
+  @media (min-width: ${p => p.theme.breakpoints.md}) {
+    margin-bottom: 0;
+  }
 `;

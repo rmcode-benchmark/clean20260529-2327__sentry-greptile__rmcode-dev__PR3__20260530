@@ -5,6 +5,8 @@ import InteractionStateLayer from 'sentry/components/core/interactionStateLayer'
 import {Tooltip} from 'sentry/components/core/tooltip';
 // eslint-disable-next-line boundaries/element-types
 import {IconDefaultsProvider} from 'sentry/icons/useIconDefaults';
+// eslint-disable-next-line boundaries/element-types
+import {space} from 'sentry/styles/space';
 
 import {
   DO_NOT_USE_BUTTON_ICON_SIZES as BUTTON_ICON_SIZES,
@@ -98,8 +100,8 @@ const Icon = styled('span')<{
   margin-right: ${p =>
     p.hasChildren
       ? p.size === 'xs' || p.size === 'zero'
-        ? p.theme.space.sm
-        : p.theme.space.md
+        ? space(0.75)
+        : space(1)
       : '0'};
   flex-shrink: 0;
 `;

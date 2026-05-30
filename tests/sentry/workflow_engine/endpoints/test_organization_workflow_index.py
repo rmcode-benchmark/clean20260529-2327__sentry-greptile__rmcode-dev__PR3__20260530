@@ -226,14 +226,6 @@ class OrganizationWorkflowIndexBaseTest(OrganizationWorkflowAPITestCase):
             == self.workflow.name
         )
 
-        # wildcard
-        response2 = self.get_success_response(
-            self.organization.slug, qs_params={"query": "name:ap*"}
-        )
-        assert len(response2.data) == 1
-        assert response2.data[0]["name"] == self.workflow.name
-
-        # Non-match
         response3 = self.get_success_response(
             self.organization.slug, qs_params={"query": "Chicago"}
         )
@@ -284,9 +276,7 @@ class OrganizationWorkflowIndexBaseTest(OrganizationWorkflowAPITestCase):
     def test_query_filter_by_action(self):
         self._create_action_for_workflow(self.workflow, Action.Type.SLACK, self.FAKE_SLACK_CONFIG)
         self._create_action_for_workflow(self.workflow, Action.Type.SLACK, self.FAKE_SLACK_CONFIG)
-        self._create_action_for_workflow(
-            self.workflow_two, Action.Type.EMAIL, self.FAKE_EMAIL_CONFIG
-        )
+        self._create_action_for_workflow(self.workflow, Action.Type.EMAIL, self.FAKE_EMAIL_CONFIG)
 
         # Two actions should match, but they are from the same workflow so we only expect
         # one result.
@@ -315,12 +305,6 @@ class OrganizationWorkflowIndexBaseTest(OrganizationWorkflowAPITestCase):
             self.organization.slug, qs_params={"query": "action:discord"}
         )
         assert len(response2.data) == 0
-
-        response3 = self.get_success_response(
-            self.organization.slug, qs_params={"query": "action:[slack,email]"}
-        )
-        assert len(response3.data) == 2
-        assert {self.workflow.name, self.workflow_two.name} == {w["name"] for w in response3.data}
 
     def test_compound_query(self):
         self.create_detector_workflow(
@@ -359,7 +343,7 @@ class OrganizationWorkflowCreateTest(OrganizationWorkflowAPITestCase):
             "enabled": True,
             "config": {},
             "triggers": {"logicType": "any", "conditions": []},
-            "actionFilters": [],
+            "action_filters": [],
         }
 
     def test_create_workflow__basic(self):
@@ -390,7 +374,7 @@ class OrganizationWorkflowCreateTest(OrganizationWorkflowAPITestCase):
                 {
                     "type": "eq",
                     "comparison": 1,
-                    "conditionResult": True,
+                    "condition_result": True,
                 }
             ],
         }
@@ -408,23 +392,23 @@ class OrganizationWorkflowCreateTest(OrganizationWorkflowAPITestCase):
         )
 
     def test_create_workflow__with_actions(self):
-        self.valid_workflow["actionFilters"] = [
+        self.valid_workflow["action_filters"] = [
             {
                 "logicType": "any",
                 "conditions": [
                     {
                         "type": "eq",
                         "comparison": 1,
-                        "conditionResult": True,
+                        "condition_result": True,
                     }
                 ],
                 "actions": [
                     {
                         "type": Action.Type.SLACK,
                         "config": {
-                            "targetIdentifier": "test",
-                            "targetDisplay": "Test",
-                            "targetType": 0,
+                            "target_identifier": "test",
+                            "target_display": "Test",
+                            "target_type": 0,
                         },
                         "data": {},
                         "integrationId": 1,
@@ -461,7 +445,7 @@ class OrganizationWorkflowCreateTest(OrganizationWorkflowAPITestCase):
             "conditions": [
                 {
                     "comparison": 1,
-                    "conditionResult": True,
+                    "condition_result": True,
                 }
             ],
         }
@@ -480,7 +464,7 @@ class OrganizationWorkflowCreateTest(OrganizationWorkflowAPITestCase):
                 "conditions": [
                     {
                         "comparison": 1,
-                        "conditionResult": True,
+                        "condition_result": True,
                     }
                 ],
                 "actions": [

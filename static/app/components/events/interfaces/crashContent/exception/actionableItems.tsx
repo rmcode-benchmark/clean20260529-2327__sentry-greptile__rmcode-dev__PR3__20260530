@@ -456,6 +456,7 @@ export function ActionableItems({event, project}: ActionableItemsProps) {
   return (
     <StyledAlert
       defaultExpanded
+      showIcon
       type={hasErrorAlert ? 'error' : 'warning'}
       expand={
         <Fragment>

@@ -8,6 +8,7 @@ import orjson
 from django.urls import reverse
 from urllib3.response import HTTPResponse
 
+from sentry.autofix.utils import SeerAutomationSource
 from sentry.eventstore.models import Event
 from sentry.grouping.grouptype import ErrorGroupType
 from sentry.incidents.logic import CRITICAL_TRIGGER_LABEL
@@ -53,7 +54,6 @@ from sentry.models.rule import Rule as IssueAlertRule
 from sentry.models.team import Team
 from sentry.notifications.utils.actions import MessageAction
 from sentry.seer.anomaly_detection.types import StoreDataResponse
-from sentry.seer.autofix.constants import SeerAutomationSource
 from sentry.silo.base import SiloMode
 from sentry.testutils.cases import PerformanceIssueTestCase, TestCase
 from sentry.testutils.factories import EventType
@@ -1401,6 +1401,7 @@ class BuildIncidentAttachmentTest(TestCase):
         }
 
     @with_feature("organizations:anomaly-detection-alerts")
+    @with_feature("organizations:anomaly-detection-rollout")
     @patch(
         "sentry.seer.anomaly_detection.store_data.seer_anomaly_detection_connection_pool.urlopen"
     )
@@ -1617,6 +1618,7 @@ class BuildMetricAlertAttachmentTest(TestCase):
         }
 
     @with_feature("organizations:anomaly-detection-alerts")
+    @with_feature("organizations:anomaly-detection-rollout")
     @patch(
         "sentry.seer.anomaly_detection.store_data.seer_anomaly_detection_connection_pool.urlopen"
     )

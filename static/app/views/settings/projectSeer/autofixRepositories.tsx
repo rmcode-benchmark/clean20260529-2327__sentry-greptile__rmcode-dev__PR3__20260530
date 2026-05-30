@@ -6,12 +6,12 @@ import {Alert} from 'sentry/components/core/alert';
 import {Button} from 'sentry/components/core/button';
 import {LinkButton} from 'sentry/components/core/button/linkButton';
 import {Flex} from 'sentry/components/core/layout';
-import {Link} from 'sentry/components/core/link';
 import {Tooltip} from 'sentry/components/core/tooltip';
 import {useOrganizationRepositories} from 'sentry/components/events/autofix/preferences/hooks/useOrganizationRepositories';
 import {useProjectSeerPreferences} from 'sentry/components/events/autofix/preferences/hooks/useProjectSeerPreferences';
 import {useUpdateProjectSeerPreferences} from 'sentry/components/events/autofix/preferences/hooks/useUpdateProjectSeerPreferences';
 import type {RepoSettings} from 'sentry/components/events/autofix/types';
+import Link from 'sentry/components/links/link';
 import LoadingIndicator from 'sentry/components/loadingIndicator';
 import Panel from 'sentry/components/panels/panel';
 import PanelHeader from 'sentry/components/panels/panelHeader';
@@ -112,14 +112,8 @@ export function AutofixRepositories({project}: ProjectSeerProps) {
       );
       const reposData = selectedRepos.map(repo => {
         const [owner, name] = (repo.name || '/').split('/');
-        let provider = repo.provider?.id || '';
-        if (provider?.startsWith('integrations:')) {
-          provider = provider.split(':')[1]!;
-        }
-
         return {
-          integration_id: repo.integrationId,
-          provider,
+          provider: repo.provider?.name?.toLowerCase() || '',
           owner: owner || '',
           name: name || repo.name || '',
           external_id: repo.externalId,
@@ -193,7 +187,7 @@ export function AutofixRepositories({project}: ProjectSeerProps) {
     );
 
     const filteredSelected = selected.filter(
-      repo => repo.provider?.id && repo.provider.id !== 'unknown' && repo.integrationId
+      repo => repo.provider?.id && repo.provider.id !== 'unknown'
     );
 
     return {
@@ -220,7 +214,7 @@ export function AutofixRepositories({project}: ProjectSeerProps) {
   return (
     <Panel>
       <PanelHeader hasButtons>
-        <Flex align="center" gap="xs">
+        <Flex align="center" gap={space(0.5)}>
           {t('Working Repositories')}
           <QuestionTooltip
             title={tct(
@@ -264,13 +258,6 @@ export function AutofixRepositories({project}: ProjectSeerProps) {
               icon={<IconAdd />}
               disabled={isRepoLimitReached || unselectedRepositories?.length === 0}
               onClick={openAddRepoModal}
-              priority={
-                !isFetchingRepositories &&
-                !isLoadingPreferences &&
-                filteredSelectedRepositories.length === 0
-                  ? 'primary'
-                  : 'default'
-              }
             >
               {t('Add Repos')}
             </Button>
@@ -279,7 +266,7 @@ export function AutofixRepositories({project}: ProjectSeerProps) {
       </PanelHeader>
 
       {showSaveNotice && (
-        <Alert type="info" system>
+        <Alert type="info" showIcon system>
           {t(
             'Changes will apply on future Seer runs. Hit "Start Over" in the Seer panel to start a new run and use your new selected repositories.'
           )}
@@ -292,7 +279,7 @@ export function AutofixRepositories({project}: ProjectSeerProps) {
         </LoadingContainer>
       ) : filteredSelectedRepositories.length === 0 ? (
         <EmptyMessage>
-          {t("Seer can't see your code. Click 'Add Repos' to give Seer access.")}
+          {t('No repositories selected. Click "Add Repos" to get started.')}
         </EmptyMessage>
       ) : (
         <ReposContainer>
@@ -326,7 +313,7 @@ const ReposContainer = styled('div')`
 
 const EmptyMessage = styled('div')`
   padding: ${space(2)};
-  color: ${p => p.theme.errorText};
+  color: ${p => p.theme.subText};
   text-align: center;
   font-size: ${p => p.theme.fontSize.md};
 `;

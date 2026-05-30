@@ -1,15 +1,16 @@
-import {ExternalLink} from 'sentry/components/core/link';
+import {Fragment} from 'react';
+
+import ExternalLink from 'sentry/components/links/externalLink';
 import {buildSdkConfig} from 'sentry/components/onboarding/gettingStartedDoc/buildSdkConfig';
 import crashReportCallout from 'sentry/components/onboarding/gettingStartedDoc/feedback/crashReportCallout';
 import widgetCallout from 'sentry/components/onboarding/gettingStartedDoc/feedback/widgetCallout';
-import {tracePropagationBlock} from 'sentry/components/onboarding/gettingStartedDoc/replay/tracePropagationMessage';
+import TracePropagationMessage from 'sentry/components/onboarding/gettingStartedDoc/replay/tracePropagationMessage';
+import {StepType} from 'sentry/components/onboarding/gettingStartedDoc/step';
 import type {
-  ContentBlock,
   Docs,
   DocsParams,
   OnboardingConfig,
 } from 'sentry/components/onboarding/gettingStartedDoc/types';
-import {StepType} from 'sentry/components/onboarding/gettingStartedDoc/types';
 import {
   getAIRulesForCodeEditorStep,
   getUploadSourceMapsStep,
@@ -21,6 +22,10 @@ import {
   getFeedbackConfigOptions,
   getFeedbackConfigureDescription,
 } from 'sentry/components/onboarding/gettingStartedDoc/utils/feedbackOnboarding';
+import {
+  getProfilingDocumentHeaderConfigurationStep,
+  MaybeBrowserProfilingBetaWarning,
+} from 'sentry/components/onboarding/gettingStartedDoc/utils/profilingOnboarding';
 import {
   getReplayConfigOptions,
   getReplayConfigureDescription,
@@ -120,9 +125,9 @@ const getVerifySnippet = () => `
 return <button onClick={() => {throw new Error("This is your first error!");}}>Break the world</button>;
 `;
 
-// TODO: Remove once the other product areas support content blocks
 const getInstallConfig = () => [
   {
+    language: 'bash',
     code: [
       {
         label: 'npm',
@@ -146,63 +151,39 @@ const getInstallConfig = () => [
   },
 ];
 
-const installSnippetBlock: ContentBlock = {
-  type: 'code',
-  tabs: [
-    {
-      label: 'npm',
-      language: 'bash',
-      code: 'npm install --save @sentry/react',
-    },
-    {
-      label: 'yarn',
-      language: 'bash',
-      code: 'yarn add @sentry/react',
-    },
-    {
-      label: 'pnpm',
-      language: 'bash',
-      code: 'pnpm add @sentry/react',
-    },
-  ],
-};
-
 const onboarding: OnboardingConfig = {
-  introduction: () =>
-    tct(
-      "In this quick guide you'll use [strong:npm], [strong:yarn], or [strong:pnpm] to set up:",
-      {
-        strong: <strong />,
-      }
-    ),
+  introduction: params => (
+    <Fragment>
+      <MaybeBrowserProfilingBetaWarning {...params} />
+      <p>
+        {tct(
+          "In this quick guide you'll use [strong:npm], [strong:yarn], or [strong:pnpm] to set up:",
+          {
+            strong: <strong />,
+          }
+        )}
+      </p>
+    </Fragment>
+  ),
   install: () => [
     {
       type: StepType.INSTALL,
-      content: [
-        {
-          type: 'text',
-          text: tct(
-            'Add the Sentry SDK as a dependency using [code:npm], [code:yarn], or [code:pnpm]:',
-            {code: <code />}
-          ),
-        },
-        installSnippetBlock,
-      ],
+      description: tct(
+        'Add the Sentry SDK as a dependency using [code:npm], [code:yarn], or [code:pnpm]:',
+        {code: <code />}
+      ),
+      configurations: getInstallConfig(),
     },
   ],
   configure: (params: Params) => [
     {
       type: StepType.CONFIGURE,
-      content: [
+      description: t(
+        "Initialize Sentry as early as possible in your application's lifecycle."
+      ),
+      configurations: [
         {
-          type: 'text',
-          text: t(
-            "Initialize Sentry as early as possible in your application's lifecycle."
-          ),
-        },
-        {
-          type: 'code',
-          tabs: [
+          code: [
             {
               label: 'JavaScript',
               value: 'javascript',
@@ -210,12 +191,11 @@ const onboarding: OnboardingConfig = {
               code: getSdkSetupSnippet(params),
             },
           ],
+          additionalInfo: params.isReplaySelected ? <TracePropagationMessage /> : null,
         },
-        {
-          type: 'conditional',
-          condition: params.isReplaySelected,
-          content: [tracePropagationBlock],
-        },
+        ...(params.isProfilingSelected
+          ? [getProfilingDocumentHeaderConfigurationStep()]
+          : []),
       ],
     },
     getUploadSourceMapsStep({
@@ -352,16 +332,12 @@ logger.fatal("Database connection pool exhausted", {
   verify: () => [
     {
       type: StepType.VERIFY,
-      content: [
+      description: t(
+        "This snippet contains an intentional error and can be used as a test to make sure that everything's working as expected."
+      ),
+      configurations: [
         {
-          type: 'text',
-          text: t(
-            "This snippet contains an intentional error and can be used as a test to make sure that everything's working as expected."
-          ),
-        },
-        {
-          type: 'code',
-          tabs: [
+          code: [
             {
               label: 'React',
               value: 'react',
@@ -496,16 +472,12 @@ const performanceOnboarding: OnboardingConfig = {
   configure: params => [
     {
       type: StepType.CONFIGURE,
-      content: [
+      configurations: [
         {
-          type: 'text',
-          text: t(
+          language: 'javascript',
+          description: t(
             "Configuration should happen as early as possible in your application's lifecycle."
           ),
-        },
-        {
-          type: 'code',
-          language: 'javascript',
           code: `
 import React from "react";
 import ReactDOM from "react-dom";
@@ -529,10 +501,7 @@ ReactDOM.render(<App />, document.getElementById("root"));
 // Can also use with React Concurrent Mode
 // ReactDOM.createRoot(document.getElementById('root')).render(<App />);
 `,
-        },
-        {
-          type: 'text',
-          text: tct(
+          additionalInfo: tct(
             'We recommend adjusting the value of [code:tracesSampleRate] in production. Learn more about tracing [linkTracingOptions:options], how to use the [linkTracesSampler:traces_sampler] function, or how to do [linkSampleTransactions:sampling].',
             {
               code: <code />,
@@ -548,14 +517,9 @@ ReactDOM.render(<App />, document.getElementById("root"));
             }
           ),
         },
-      ],
-    },
-    {
-      title: t('Add Distributed Tracing (Optional)'),
-      content: [
         {
-          type: 'text',
-          text: tct(
+          language: 'javascript',
+          description: tct(
             "If you're using the current version of our JavaScript SDK and have enabled the [code: BrowserTracing] integration, distributed tracing will work out of the box. To get around possible [link:Browser CORS] issues, define your [code:tracePropagationTargets].",
             {
               code: <code />,
@@ -564,10 +528,6 @@ ReactDOM.render(<App />, document.getElementById("root"));
               ),
             }
           ),
-        },
-        {
-          type: 'code',
-          language: 'javascript',
           code: `
 Sentry.init({
   dsn: "${params.dsn.public}",
@@ -582,19 +542,14 @@ Sentry.init({
   verify: () => [
     {
       type: StepType.VERIFY,
-      content: [
+      description: tct(
+        'Verify that performance monitoring is working correctly with our [link:automatic instrumentation] by simply using your React application.',
         {
-          type: 'text',
-          text: tct(
-            'Verify that performance monitoring is working correctly with our [link:automatic instrumentation] by simply using your React application.',
-            {
-              link: (
-                <ExternalLink href="https://docs.sentry.io/platforms/javascript/guides/react/tracing/instrumentation/automatic-instrumentation/" />
-              ),
-            }
+          link: (
+            <ExternalLink href="https://docs.sentry.io/platforms/javascript/guides/react/tracing/instrumentation/automatic-instrumentation/" />
           ),
-        },
-      ],
+        }
+      ),
     },
   ],
   nextSteps: () => [],

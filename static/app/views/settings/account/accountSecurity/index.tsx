@@ -23,7 +23,6 @@ import type {Authenticator} from 'sentry/types/auth';
 import type {RouteComponentProps} from 'sentry/types/legacyReactRouter';
 import type {OrganizationSummary} from 'sentry/types/organization';
 import oxfordizeArray from 'sentry/utils/oxfordizeArray';
-import {testableWindowLocation} from 'sentry/utils/testableWindowLocation';
 import useApi from 'sentry/utils/useApi';
 import RemoveConfirm from 'sentry/views/settings/account/accountSecurity/components/removeConfirm';
 import TwoFactorRequired from 'sentry/views/settings/account/accountSecurity/components/twoFactorRequired';
@@ -62,7 +61,7 @@ function AccountSecurity({
         method: 'DELETE',
         data: {all: true},
       });
-      testableWindowLocation.assign('/auth/login/');
+      window.location.assign('/auth/login/');
     } catch (err) {
       addErrorMessage(t('There was a problem closing all sessions'));
       throw err;
@@ -182,7 +181,7 @@ function AccountSecurity({
                     </AuthenticatorTitle>
                     <AuthenticatorDescription>{description}</AuthenticatorDescription>
                   </AuthenticatorDetails>
-                  <ButtonBar>
+                  <ButtonBar gap={1}>
                     {!isBackupInterface && !isEnrolled && hasVerifiedEmail && (
                       <LinkButton
                         to={`/settings/account/security/mfa/${id}/enroll/`}

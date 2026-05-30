@@ -70,7 +70,7 @@ function PageUpsellOverlay({
             {requiredPlanContents}
           </Body>
           <Body>
-            <StyledButtonBar>
+            <StyledButtonBar gap={1}>
               {subscription?.canSelfServe && (
                 <UpsellProvider
                   source={source}

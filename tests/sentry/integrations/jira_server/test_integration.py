@@ -11,7 +11,6 @@ from django.urls import reverse
 from fixtures.integrations.jira.stub_client import StubJiraApiClient
 from fixtures.integrations.stub_service import StubService
 from sentry.integrations.jira_server.integration import JiraServerIntegration
-from sentry.integrations.mixins.issues import IntegrationSyncTargetNotFound
 from sentry.integrations.models.external_actor import ExternalActor
 from sentry.integrations.models.external_issue import ExternalIssue
 from sentry.integrations.models.integration_external_project import IntegrationExternalProject
@@ -20,12 +19,7 @@ from sentry.integrations.services.integration import integration_service
 from sentry.integrations.types import ExternalProviders
 from sentry.models.grouplink import GroupLink
 from sentry.models.groupmeta import GroupMeta
-from sentry.shared_integrations.exceptions import (
-    ApiError,
-    ApiUnauthorized,
-    IntegrationError,
-    IntegrationInstallationConfigurationError,
-)
+from sentry.shared_integrations.exceptions import ApiError, ApiUnauthorized, IntegrationError
 from sentry.silo.base import SiloMode
 from sentry.silo.safety import unguarded_write
 from sentry.testutils.cases import APITestCase
@@ -825,9 +819,9 @@ class JiraServerRegionIntegrationTest(JiraServerIntegrationBaseTest):
             ],
         )
 
-        with pytest.raises(IntegrationSyncTargetNotFound) as e:
+        with pytest.raises(IntegrationError) as e:
             self.installation.sync_assignee_outbound(external_issue, user)
-        assert str(e.value) == "No matching Jira Server user found"
+        assert str(e.value) == "Failed to assign user to Jira Server issue"
 
         # No sync made as jira users don't have email addresses
         assert len(responses.calls) == 1
@@ -883,7 +877,7 @@ class JiraServerRegionIntegrationTest(JiraServerIntegrationBaseTest):
                 }
             ],
         )
-        with pytest.raises(IntegrationInstallationConfigurationError) as exc_info:
+        with pytest.raises(IntegrationError) as exc_info:
             self.installation.sync_assignee_outbound(
                 external_issue=external_issue, user=user, assign=True
             )
@@ -908,7 +902,7 @@ class JiraServerRegionIntegrationTest(JiraServerIntegrationBaseTest):
                 {
                     "accountId": "deadbeef123",
                     "displayName": "Dead Beef",
-                    "emailAddress": "bob@example.com",
+                    "username": "bob@example.com",
                 }
             ],
         )

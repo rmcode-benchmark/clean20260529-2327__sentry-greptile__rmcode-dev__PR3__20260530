@@ -15,7 +15,6 @@ import {
   type RawCrumb,
 } from 'sentry/types/breadcrumbs';
 import {defined} from 'sentry/utils';
-import {ellipsize} from 'sentry/utils/string/ellipsize';
 import {isUrl} from 'sentry/utils/string/isUrl';
 import {usePrismTokens} from 'sentry/utils/usePrismTokens';
 
@@ -56,7 +55,11 @@ export default function BreadcrumbItemContent({
         />
       ) : (
         <StructuredData
-          value={ellipsize(bc.message, MESSAGE_PREVIEW_CHAR_LIMIT)}
+          value={
+            bc.message.length > MESSAGE_PREVIEW_CHAR_LIMIT
+              ? bc.message.substring(0, MESSAGE_PREVIEW_CHAR_LIMIT) + '\u2026'
+              : bc.message
+          }
           // Note: Annotations applying to trimmed content will not be applied.
           meta={meta?.message}
           {...structuredDataProps}

@@ -11,7 +11,7 @@ import PerformanceScoreRingWithTooltips from 'sentry/views/insights/browser/webV
 import type {ProjectData} from 'sentry/views/insights/browser/webVitals/components/webVitalMeters';
 import {getWebVitalScoresFromTableDataRow} from 'sentry/views/insights/browser/webVitals/queries/storedScoreQueries/getWebVitalScoresFromTableDataRow';
 import type {ProjectScore} from 'sentry/views/insights/browser/webVitals/types';
-import {useSpans} from 'sentry/views/insights/common/queries/useDiscover';
+import {useEAPSpans} from 'sentry/views/insights/common/queries/useDiscover';
 import {Referrer} from 'sentry/views/insights/pages/platform/laravel/referrers';
 import {usePageFilterChartParams} from 'sentry/views/insights/pages/platform/laravel/utils';
 import {WidgetVisualizationStates} from 'sentry/views/insights/pages/platform/laravel/widgetVisualizationStates';
@@ -19,9 +19,9 @@ import {getPreviousPeriod} from 'sentry/views/insights/pages/platform/nextjs/uti
 import {ModalChartContainer} from 'sentry/views/insights/pages/platform/shared/styles';
 import {Toolbar} from 'sentry/views/insights/pages/platform/shared/toolbar';
 import {useTransactionNameQuery} from 'sentry/views/insights/pages/platform/shared/useTransactionNameQuery';
-import type {SpanProperty} from 'sentry/views/insights/types';
+import type {EAPSpanProperty} from 'sentry/views/insights/types';
 
-const FIELDS: SpanProperty[] = [
+const FIELDS: EAPSpanProperty[] = [
   'avg(measurements.score.total)',
   'performance_score(measurements.score.lcp)',
   'performance_score(measurements.score.fcp)',
@@ -63,7 +63,7 @@ type ProjectScoreQuery = {
 function usePerformanceScoreData({query}: {query?: string}): ProjectScoreQuery {
   const {interval: _, ...pageFilterChartParams} = usePageFilterChartParams();
 
-  const currentRequest = useSpans(
+  const currentRequest = useEAPSpans(
     {
       search: query,
       fields: FIELDS,
@@ -85,7 +85,7 @@ function usePerformanceScoreData({query}: {query?: string}): ProjectScoreQuery {
     ]
   );
 
-  const previousRequest = useSpans(
+  const previousRequest = useEAPSpans(
     {
       pageFilters: {
         projects: pageFilterChartParams.project,
@@ -202,7 +202,7 @@ function WebVitalsWidgetVisualization({
         differenceToPreviousPeriod={differenceToPreviousPeriod}
         text={text}
         width={260}
-        height={240}
+        height={220}
         y={46}
         x={60}
         size={130}

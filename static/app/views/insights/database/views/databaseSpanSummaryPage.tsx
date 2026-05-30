@@ -21,9 +21,10 @@ import {ReadoutRibbon, ToolRibbon} from 'sentry/views/insights/common/components
 import {DatabaseSpanDescription} from 'sentry/views/insights/common/components/spanDescription';
 import DatabaseSummaryDurationChartWidget from 'sentry/views/insights/common/components/widgets/databaseSummaryDurationChartWidget';
 import DatabaseSummaryThroughputChartWidget from 'sentry/views/insights/common/components/widgets/databaseSummaryThroughputChartWidget';
-import {useSpans} from 'sentry/views/insights/common/queries/useDiscover';
-import {useModuleTitle} from 'sentry/views/insights/common/utils/useModuleTitle';
-import {useModuleURL} from 'sentry/views/insights/common/utils/useModuleURL';
+import {
+  useSpanMetrics,
+  useSpansIndexed,
+} from 'sentry/views/insights/common/queries/useDiscover';
 import {useSamplesDrawer} from 'sentry/views/insights/common/utils/useSamplesDrawer';
 import {QueryParameterNames} from 'sentry/views/insights/common/views/queryParameters';
 import {
@@ -34,8 +35,13 @@ import {SampleList} from 'sentry/views/insights/common/views/spanSummaryPage/sam
 import {isAValidSort} from 'sentry/views/insights/database/components/tables/queriesTable';
 import {QueryTransactionsTable} from 'sentry/views/insights/database/components/tables/queryTransactionsTable';
 import {BackendHeader} from 'sentry/views/insights/pages/backend/backendPageHeader';
-import type {SpanQueryFilters} from 'sentry/views/insights/types';
-import {ModuleName, SpanFields, SpanFunction} from 'sentry/views/insights/types';
+import type {SpanMetricsQueryFilters} from 'sentry/views/insights/types';
+import {
+  ModuleName,
+  SpanFunction,
+  SpanIndexedField,
+  SpanMetricsField,
+} from 'sentry/views/insights/types';
 import {TraceViewSources} from 'sentry/views/performance/newTraceDetails/traceHeader/breadcrumbs';
 
 type Query = {
@@ -48,13 +54,11 @@ type Query = {
 type Props = RouteComponentProps<{groupId: string}, Record<string, unknown>, any, Query>;
 
 export function DatabaseSpanSummaryPage({params}: Props) {
-  const moduleTitle = useModuleTitle(ModuleName.DB);
-  const moduleURL = useModuleURL(ModuleName.DB);
   const location = useLocation<Query>();
 
   const {groupId} = params;
 
-  const filters: SpanQueryFilters = {
+  const filters: SpanMetricsQueryFilters = {
     'span.group': groupId,
   };
 
@@ -67,39 +71,40 @@ export function DatabaseSpanSummaryPage({params}: Props) {
   const sort = decodeSorts(sortField).find(isAValidSort) ?? DEFAULT_SORT;
 
   const {data: indexedSpansByGroupId, isPending: areIndexedSpansByGroupIdLoading} =
-    useSpans(
+    useSpansIndexed(
       {
         search: MutableSearch.fromQueryObject({'span.group': params.groupId}),
         limit: 1,
-        sorts: [{field: SpanFields.CODE_FILEPATH, kind: 'desc'}],
+        sorts: [{field: SpanIndexedField.CODE_FILEPATH, kind: 'desc'}],
         fields: [
-          SpanFields.PROJECT_ID,
-          SpanFields.SPAN_DESCRIPTION,
-          SpanFields.DB_SYSTEM,
-          SpanFields.CODE_FILEPATH,
-          SpanFields.CODE_LINENO,
-          SpanFields.CODE_FUNCTION,
-          SpanFields.SDK_NAME,
-          SpanFields.SDK_VERSION,
-          SpanFields.RELEASE,
-          SpanFields.PLATFORM,
+          SpanIndexedField.PROJECT_ID,
+          SpanIndexedField.TRANSACTION_ID, // TODO: remove this with `useInsightsEap`, it's only needed to get the full event when eap is off
+          SpanIndexedField.SPAN_DESCRIPTION,
+          SpanIndexedField.DB_SYSTEM,
+          SpanIndexedField.CODE_FILEPATH,
+          SpanIndexedField.CODE_LINENO,
+          SpanIndexedField.CODE_FUNCTION,
+          SpanIndexedField.SDK_NAME,
+          SpanIndexedField.SDK_VERSION,
+          SpanIndexedField.RELEASE,
+          SpanIndexedField.PLATFORM,
         ],
       },
       'api.starfish.span-description'
     );
 
-  const {data, isPending: areSpanMetricsLoading} = useSpans(
+  const {data, isPending: areSpanMetricsLoading} = useSpanMetrics(
     {
       search: MutableSearch.fromQueryObject(filters),
       fields: [
-        SpanFields.SPAN_OP,
-        SpanFields.SPAN_DESCRIPTION,
-        SpanFields.SPAN_ACTION,
-        SpanFields.SPAN_DOMAIN,
+        SpanMetricsField.SPAN_OP,
+        SpanMetricsField.SPAN_DESCRIPTION,
+        SpanMetricsField.SPAN_ACTION,
+        SpanMetricsField.SPAN_DOMAIN,
         'count()',
         `${SpanFunction.EPM}()`,
-        `sum(${SpanFields.SPAN_SELF_TIME})`,
-        `avg(${SpanFields.SPAN_SELF_TIME})`,
+        `sum(${SpanMetricsField.SPAN_SELF_TIME})`,
+        `avg(${SpanMetricsField.SPAN_SELF_TIME})`,
         `${SpanFunction.HTTP_RESPONSE_COUNT}(5)`,
       ],
       enabled: Boolean(groupId),
@@ -115,15 +120,15 @@ export function DatabaseSpanSummaryPage({params}: Props) {
     meta: transactionsListMeta,
     error: transactionsListError,
     pageLinks: transactionsListPageLinks,
-  } = useSpans(
+  } = useSpanMetrics(
     {
       search: MutableSearch.fromQueryObject(filters),
       fields: [
         'transaction',
         'transaction.method',
         'epm()',
-        `sum(${SpanFields.SPAN_SELF_TIME})`,
-        `avg(${SpanFields.SPAN_SELF_TIME})`,
+        `sum(${SpanMetricsField.SPAN_SELF_TIME})`,
+        `avg(${SpanMetricsField.SPAN_SELF_TIME})`,
         `${SpanFunction.HTTP_RESPONSE_COUNT}(5)`,
       ],
       sorts: [sort],
@@ -135,19 +140,19 @@ export function DatabaseSpanSummaryPage({params}: Props) {
 
   const span = {
     ...spanMetrics,
-    [SpanFields.SPAN_GROUP]: groupId,
+    [SpanMetricsField.SPAN_GROUP]: groupId,
   } as {
-    [SpanFields.SPAN_OP]: string;
-    [SpanFields.SPAN_DESCRIPTION]: string;
-    [SpanFields.SPAN_ACTION]: string;
-    [SpanFields.SPAN_DOMAIN]: string[];
-    [SpanFields.SPAN_GROUP]: string;
+    [SpanMetricsField.SPAN_OP]: string;
+    [SpanMetricsField.SPAN_DESCRIPTION]: string;
+    [SpanMetricsField.SPAN_ACTION]: string;
+    [SpanMetricsField.SPAN_DOMAIN]: string[];
+    [SpanMetricsField.SPAN_GROUP]: string;
   };
 
   useSamplesDrawer({
     Component: (
       <SampleList
-        groupId={span[SpanFields.SPAN_GROUP]}
+        groupId={span[SpanMetricsField.SPAN_GROUP]}
         moduleName={ModuleName.DB}
         referrer={TraceViewSources.QUERIES_MODULE}
       />
@@ -162,15 +167,10 @@ export function DatabaseSpanSummaryPage({params}: Props) {
         headerTitle={t('Query Summary')}
         breadcrumbs={[
           {
-            label: moduleTitle,
-            to: moduleURL,
-          },
-          {
             label: t('Query Summary'),
           },
         ]}
         module={ModuleName.DB}
-        hideDefaultTabs
       />
 
       <ModuleBodyUpsellHook moduleName={ModuleName.DB}>
@@ -198,7 +198,7 @@ export function DatabaseSpanSummaryPage({params}: Props) {
                     <MetricReadout
                       title={DataTitles.avg}
                       // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
-                      value={spanMetrics?.[`avg(${SpanFields.SPAN_SELF_TIME})`]}
+                      value={spanMetrics?.[`avg(${SpanMetricsField.SPAN_SELF_TIME})`]}
                       unit={DurationUnit.MILLISECOND}
                       isLoading={areSpanMetricsLoading}
                     />

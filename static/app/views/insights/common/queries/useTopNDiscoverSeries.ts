@@ -19,7 +19,13 @@ import {
   getRetryDelay,
   shouldRetryHandler,
 } from 'sentry/views/insights/common/utils/retryHandlers';
-import type {SpanProperty} from 'sentry/views/insights/types';
+import {useInsightsEap} from 'sentry/views/insights/common/utils/useEap';
+import type {
+  MetricsProperty,
+  SpanFunctions,
+  SpanIndexedField,
+  SpanMetricsProperty,
+} from 'sentry/views/insights/types';
 
 import {convertDiscoverTimeseriesResponse} from './convertDiscoverTimeseriesResponse';
 
@@ -38,7 +44,28 @@ interface UseMetricsSeriesOptions<Fields> {
   transformAliasToInputFormat?: boolean;
 }
 
-export const useTopNSpanSeries = <Fields extends SpanProperty[]>(
+export const useTopNSpanMetricsSeries = <Fields extends SpanMetricsProperty[]>(
+  options: UseMetricsSeriesOptions<Fields>,
+  referrer: string,
+  pageFilters?: PageFilters
+) => {
+  const useEap = useInsightsEap();
+  return useTopNDiscoverSeries<Fields>(
+    options,
+    useEap ? DiscoverDatasets.SPANS_EAP_RPC : DiscoverDatasets.SPANS_METRICS,
+    referrer,
+    pageFilters
+  );
+};
+
+export const useTopNSpanEAPSeries = <
+  Fields extends
+    | MetricsProperty[]
+    | SpanMetricsProperty[]
+    | SpanIndexedField[]
+    | SpanFunctions[]
+    | string[],
+>(
   options: UseMetricsSeriesOptions<Fields>,
   referrer: string,
   pageFilters?: PageFilters
@@ -70,6 +97,9 @@ const useTopNDiscoverSeries = <T extends string[]>(
   const location = useLocation();
   const organization = useOrganization();
 
+  // TODO: remove this check with eap
+  const shouldSetSamplingMode = dataset === DiscoverDatasets.SPANS_EAP_RPC;
+
   const eventView = getSeriesEventView(
     search,
     fields,
@@ -99,7 +129,7 @@ const useTopNDiscoverSeries = <T extends string[]>(
       orderby: sort ? encodeSort(sort) : undefined,
       interval: eventView.interval,
       transformAliasToInputFormat: options.transformAliasToInputFormat ? '1' : '0',
-      sampling: samplingMode,
+      sampling: shouldSetSamplingMode ? samplingMode : undefined,
     }),
     options: {
       enabled: options.enabled && defaultPageFilters.isReady,

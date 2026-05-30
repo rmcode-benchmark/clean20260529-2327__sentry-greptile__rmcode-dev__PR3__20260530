@@ -67,15 +67,13 @@ describe('ProjectSeer', function () {
           id: '1',
           name: 'getsentry/sentry',
           externalId: '101',
-          provider: {id: 'integrations:github', name: 'GitHub'},
-          integrationId: '201',
+          provider: {id: 'github', name: 'GitHub'},
         }),
         RepositoryFixture({
           id: '2',
           name: 'getsentry/seer',
           externalId: '102',
-          provider: {id: 'integrations:github', name: 'GitHub'},
-          integrationId: '202',
+          provider: {id: 'github', name: 'GitHub'},
         }),
       ],
     });
@@ -169,7 +167,6 @@ describe('ProjectSeer', function () {
                 name: 'sentry',
                 owner: 'getsentry',
                 provider: 'github',
-                integration_id: '201',
               },
               {
                 branch_name: '',
@@ -178,7 +175,6 @@ describe('ProjectSeer', function () {
                 name: 'seer',
                 owner: 'getsentry',
                 provider: 'github',
-                integration_id: '202',
               },
             ],
           },
@@ -227,7 +223,6 @@ describe('ProjectSeer', function () {
                 provider: 'github',
                 branch_name: 'develop',
                 instructions: 'Use Conventional Commits',
-                integration_id: '201',
               },
             ],
           },
@@ -276,7 +271,7 @@ describe('ProjectSeer', function () {
   it('can update the autofix autorun threshold setting', async function () {
     const initialProject: Project = {
       ...project,
-      autofixAutomationTuning: 'high', // Start from high
+      autofixAutomationTuning: 'medium', // Start from medium
       seerScannerAutomation: true,
     };
 
@@ -289,30 +284,24 @@ describe('ProjectSeer', function () {
     const projectPutRequest = MockApiClient.addMockResponse({
       url: `/projects/${organization.slug}/${project.slug}/`,
       method: 'PUT',
-      body: {
-        autofixAutomationTuning: 'high',
-      },
+      body: {},
     });
 
     render(<ProjectSeer project={initialProject} />, {organization});
 
     // Find the select menu
     const select = await screen.findByRole('textbox', {
-      name: /Auto-Triggered Fixes/i,
+      name: /Automate Issue Fixes/i,
     });
 
     act(() => {
       select.focus();
     });
 
-    // Open the menu and select a new value
+    // Open the menu and select a new value (e.g., 'Minimally Actionable and Above')
     await userEvent.click(select);
-
     const option = await screen.findByText('Minimally Actionable and Above');
     await userEvent.click(option);
-
-    const option2 = await screen.findByText('Highly Actionable and Above');
-    await userEvent.click(option2);
 
     // Form has saveOnBlur=true, so wait for the PUT request
     await waitFor(() => {
@@ -321,7 +310,7 @@ describe('ProjectSeer', function () {
     await waitFor(() => {
       expect(projectPutRequest).toHaveBeenCalledWith(
         expect.any(String),
-        expect.objectContaining({data: {autofixAutomationTuning: 'low'}})
+        expect.objectContaining({data: {autofixAutomationTuning: 'high'}})
       );
     });
   });
@@ -348,7 +337,7 @@ describe('ProjectSeer', function () {
 
     // Find the toggle for Automate Issue Scans
     const toggle = await screen.findByRole('checkbox', {
-      name: /Scan Issues/i,
+      name: /Automate Issue Scans/i,
     });
     expect(toggle).toBeInTheDocument();
     expect(toggle).not.toBeChecked();
@@ -394,9 +383,9 @@ describe('ProjectSeer', function () {
 
     render(<ProjectSeer project={initialProject} />, {organization});
 
-    // Find the select menu for Stopping Point for Auto-Triggered Fixes
+    // Find the select menu for Stopping Point for Automatic Fixes
     const select = await screen.findByRole('textbox', {
-      name: /Stopping Point for Auto-Triggered Fixes/i,
+      name: /Stopping Point for Automatic Fixes/i,
     });
 
     act(() => {

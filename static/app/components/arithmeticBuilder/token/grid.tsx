@@ -12,13 +12,11 @@ import type {Token} from 'sentry/components/arithmeticBuilder/token';
 import {
   isTokenFreeText,
   isTokenFunction,
-  isTokenLiteral,
   isTokenOperator,
   isTokenParenthesis,
 } from 'sentry/components/arithmeticBuilder/token';
 import {ArithmeticTokenFreeText} from 'sentry/components/arithmeticBuilder/token/freeText';
 import {ArithmeticTokenFunction} from 'sentry/components/arithmeticBuilder/token/function';
-import {ArithmeticTokenLiteral} from 'sentry/components/arithmeticBuilder/token/literal';
 import {ArithmeticTokenOperator} from 'sentry/components/arithmeticBuilder/token/operator';
 import {ArithmeticTokenParenthesis} from 'sentry/components/arithmeticBuilder/token/parenthesis';
 import {computeNextAllowedTokenKinds} from 'sentry/components/arithmeticBuilder/validator';
@@ -158,17 +156,6 @@ function GridList({showPlaceholder, ...props}: GridListProps) {
         if (isTokenFunction(token)) {
           return (
             <ArithmeticTokenFunction
-              key={item.key}
-              item={item}
-              state={state}
-              token={token}
-            />
-          );
-        }
-
-        if (isTokenLiteral(token)) {
-          return (
-            <ArithmeticTokenLiteral
               key={item.key}
               item={item}
               state={state}

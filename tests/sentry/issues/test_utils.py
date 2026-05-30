@@ -95,7 +95,6 @@ class StatusChangeTestMixin:
             "new_status": 1,
             "new_substatus": 1,
             "detector_id": None,
-            "activity_data": {"test": "test"},
         }
         kwargs.update(overrides)  # type: ignore[typeddict-item]
 

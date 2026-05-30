@@ -261,7 +261,7 @@ function BaseEventFeatureFlagList({event, group, project}: EventFeatureFlagSecti
   }
 
   const actions = (
-    <ButtonBar>
+    <ButtonBar gap={1}>
       {feedbackButton}
       <FeatureFlagSettingsButton orgSlug={organization.slug} />
       {hasFlags && (

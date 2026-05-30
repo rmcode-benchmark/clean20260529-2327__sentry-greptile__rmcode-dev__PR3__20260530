@@ -4,7 +4,10 @@ import {queryIsValid} from 'sentry/components/searchQueryBuilder/utils';
 import {useEffectAfterFirstRender} from 'sentry/utils/useEffectAfterFirstRender';
 import usePrevious from 'sentry/utils/usePrevious';
 
-export function useOnChange({onChange}: Pick<SearchQueryBuilderProps, 'onChange'>) {
+export function useOnChange({
+  onChange,
+  searchOnChange,
+}: Pick<SearchQueryBuilderProps, 'onChange' | 'searchOnChange'>) {
   const {committedQuery, handleSearch, parseQuery} = useSearchQueryBuilder();
 
   const previousCommittedQuery = usePrevious(committedQuery);
@@ -16,7 +19,16 @@ export function useOnChange({onChange}: Pick<SearchQueryBuilderProps, 'onChange'
         onChange(committedQuery, {parsedQuery, queryIsValid: queryIsValid(parsedQuery)});
       }
 
-      handleSearch(committedQuery);
+      if (searchOnChange) {
+        handleSearch(committedQuery);
+      }
     }
-  }, [committedQuery, previousCommittedQuery, onChange, handleSearch, parseQuery]);
+  }, [
+    committedQuery,
+    previousCommittedQuery,
+    onChange,
+    handleSearch,
+    searchOnChange,
+    parseQuery,
+  ]);
 }

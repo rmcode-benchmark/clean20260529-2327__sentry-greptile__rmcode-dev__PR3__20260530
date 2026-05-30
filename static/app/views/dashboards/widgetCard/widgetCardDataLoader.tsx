@@ -9,7 +9,6 @@ import useApi from 'sentry/utils/useApi';
 import useOrganization from 'sentry/utils/useOrganization';
 import type {DashboardFilters, Widget} from 'sentry/views/dashboards/types';
 import {WidgetType} from 'sentry/views/dashboards/types';
-import {shouldForceQueryToSpans} from 'sentry/views/dashboards/utils/shouldForceQueryToSpans';
 import SpansWidgetQueries from 'sentry/views/dashboards/widgetCard/spansWidgetQueries';
 
 import IssueWidgetQueries from './issueWidgetQueries';
@@ -105,7 +104,7 @@ export function WidgetCardDataLoader({
     );
   }
 
-  if (widget.widgetType === WidgetType.SPANS || shouldForceQueryToSpans(widget)) {
+  if (widget.widgetType === WidgetType.SPANS) {
     return (
       <SpansWidgetQueries
         api={api}

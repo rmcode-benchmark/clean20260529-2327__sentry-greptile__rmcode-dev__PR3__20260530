@@ -7,6 +7,7 @@ import QuestionTooltip from 'sentry/components/questionTooltip';
 import {useReplayContext} from 'sentry/components/replays/replayContext';
 import StructuredEventData from 'sentry/components/structuredEventData';
 import {t} from 'sentry/locale';
+import {space} from 'sentry/styles/space';
 import {formatBytesBase10} from 'sentry/utils/bytes/formatBytesBase10';
 import type {
   NetworkMetaWarning,
@@ -119,7 +120,7 @@ export function RequestHeadersSection({item}: SectionProps) {
       return {
         key,
         value: warn ? (
-          <Flex align="center" gap="xs">
+          <Flex align="center" gap={space(0.5)}>
             {value}
             <QuestionTooltip
               size="xs"
@@ -155,7 +156,7 @@ export function ResponseHeadersSection({item}: SectionProps) {
       return {
         key,
         value: warn ? (
-          <Flex align="center" gap="xs">
+          <Flex align="center" gap={space(0.5)}>
             {value}
             <QuestionTooltip
               size="xs"

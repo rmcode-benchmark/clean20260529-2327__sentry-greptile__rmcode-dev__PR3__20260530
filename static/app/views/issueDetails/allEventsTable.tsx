@@ -201,10 +201,6 @@ const getPlatformColumns = (
       fields: [],
       columnTitles: [],
     },
-    [PlatformCategory.GAMING]: {
-      fields: [],
-      columnTitles: [],
-    },
     [PlatformCategory.OTHER]: {
       fields: [],
       columnTitles: [],

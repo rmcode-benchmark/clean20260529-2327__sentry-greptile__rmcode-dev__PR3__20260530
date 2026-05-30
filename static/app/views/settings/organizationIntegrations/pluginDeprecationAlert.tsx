@@ -33,6 +33,7 @@ class PluginDeprecationAlert extends Component<Props, State> {
         <Alert.Container>
           <Alert
             type="warning"
+            showIcon
             trailingItems={
               <UpgradeNowButton
                 href={`${upgradeUrl}${queryParams}`}

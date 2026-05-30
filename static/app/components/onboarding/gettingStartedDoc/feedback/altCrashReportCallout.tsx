@@ -1,11 +1,11 @@
 import {Alert} from 'sentry/components/core/alert';
-import {ExternalLink} from 'sentry/components/core/link';
+import ExternalLink from 'sentry/components/links/externalLink';
 import {tct} from 'sentry/locale';
 
 export default function altCrashReportCallout() {
   return (
     <Alert.Container>
-      <Alert type="info">
+      <Alert type="info" showIcon>
         {tct(
           `Want to add an embeddable, JavaScript-based, crash-report modal to your website instead? [link:Read the docs] to learn how.`,
           {

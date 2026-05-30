@@ -68,6 +68,7 @@ export default function ProfileAndTransactionProvider(
     >
       <ProfileTransactionContext value={profileTransaction}>
         <ContinuousProfileHeader
+          projectId={projectSlug}
           transaction={
             profileTransaction.type === 'resolved' ? profileTransaction.data : null
           }

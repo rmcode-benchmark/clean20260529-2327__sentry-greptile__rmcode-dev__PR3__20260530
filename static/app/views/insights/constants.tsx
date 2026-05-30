@@ -2,11 +2,18 @@ import type {FilterKeySection} from 'sentry/components/searchQueryBuilder/types'
 import {t} from 'sentry/locale';
 import type {AggregationOutputType} from 'sentry/utils/discover/fields';
 import {type FieldDefinition, FieldKind, FieldValueType} from 'sentry/utils/fields';
-import {SpanFields, SpanFunction} from 'sentry/views/insights/types';
+import {SpanFunction, SpanIndexedField} from 'sentry/views/insights/types';
 
-export const STARFISH_AGGREGATION_FIELDS: Partial<
-  Record<SpanFunction, FieldDefinition & {defaultOutputType: AggregationOutputType}>
+export const STARFISH_AGGREGATION_FIELDS: Record<
+  SpanFunction,
+  FieldDefinition & {defaultOutputType: AggregationOutputType}
 > = {
+  [SpanFunction.SPS]: {
+    desc: t('Spans per second'),
+    kind: FieldKind.FUNCTION,
+    defaultOutputType: 'number',
+    valueType: FieldValueType.NUMBER,
+  },
   [SpanFunction.EPM]: {
     desc: t('Events per second'),
     kind: FieldKind.FUNCTION,
@@ -78,17 +85,17 @@ export const STARFISH_AGGREGATION_FIELDS: Partial<
 const RELEASE_FILTERS: FilterKeySection = {
   value: 'release_filters',
   label: 'Release',
-  children: [SpanFields.RELEASE],
+  children: [SpanIndexedField.RELEASE],
 };
 
 const TRANSACTION_FILTERS: FilterKeySection = {
   value: 'transaction_filters',
   label: 'Transaction',
   children: [
-    SpanFields.TRANSACTION_METHOD,
-    SpanFields.TRANSACTION_OP,
-    SpanFields.TRANSACTION,
-    SpanFields.TRANSACTION_SPAN_ID,
+    SpanIndexedField.TRANSACTION_METHOD,
+    SpanIndexedField.TRANSACTION_OP,
+    SpanIndexedField.TRANSACTION,
+    SpanIndexedField.TRANSACTION_ID,
   ],
 };
 
@@ -96,12 +103,12 @@ const USER_CONTEXT_FILTERS: FilterKeySection = {
   value: 'user_context_filters',
   label: 'User',
   children: [
-    SpanFields.USER,
-    SpanFields.USER_ID,
-    SpanFields.USER_IP,
-    SpanFields.USER_EMAIL,
-    SpanFields.USER_USERNAME,
-    SpanFields.USER_GEO_SUBREGION,
+    SpanIndexedField.USER,
+    SpanIndexedField.USER_ID,
+    SpanIndexedField.USER_IP,
+    SpanIndexedField.USER_EMAIL,
+    SpanIndexedField.USER_USERNAME,
+    SpanIndexedField.USER_GEO_SUBREGION,
   ],
 };
 
@@ -109,14 +116,14 @@ const SPAN_FILTERS: FilterKeySection = {
   value: 'span_filters',
   label: 'Span',
   children: [
-    SpanFields.SPAN_OP,
-    SpanFields.SPAN_DURATION,
-    SpanFields.SPAN_SELF_TIME,
-    SpanFields.SPAN_DESCRIPTION,
-    SpanFields.SPAN_STATUS,
-    SpanFields.SPAN_ACTION,
-    SpanFields.SPAN_DOMAIN,
-    SpanFields.SPAN_CATEGORY,
+    SpanIndexedField.SPAN_OP,
+    SpanIndexedField.SPAN_DURATION,
+    SpanIndexedField.SPAN_SELF_TIME,
+    SpanIndexedField.SPAN_DESCRIPTION,
+    SpanIndexedField.SPAN_STATUS,
+    SpanIndexedField.SPAN_ACTION,
+    SpanIndexedField.SPAN_DOMAIN,
+    SpanIndexedField.SPAN_CATEGORY,
   ],
 };
 

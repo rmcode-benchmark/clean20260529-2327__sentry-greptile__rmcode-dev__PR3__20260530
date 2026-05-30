@@ -1,15 +1,17 @@
 from sentry import analytics
-from sentry.analytics import Event, eventclass
 
 
-@eventclass("release.created")
-class ReleaseCreatedEvent(Event):
-    user_id: int | None = None
-    organization_id: int
-    project_ids: list[int]
-    user_agent: str | None = None
-    auth_type: str | None = None
-    created_status: int
+class ReleaseCreatedEvent(analytics.Event):
+    type = "release.created"
+
+    attributes = (
+        analytics.Attribute("user_id", required=False),
+        analytics.Attribute("organization_id"),
+        analytics.Attribute("project_ids"),
+        analytics.Attribute("user_agent", required=False),
+        analytics.Attribute("auth_type", required=False),
+        analytics.Attribute("created_status"),
+    )
 
 
 analytics.register(ReleaseCreatedEvent)

@@ -1,4 +1,4 @@
-import {ExternalLink} from 'sentry/components/core/link';
+import ExternalLink from 'sentry/components/links/externalLink';
 import {t} from 'sentry/locale';
 import type {Organization} from 'sentry/types/organization';
 

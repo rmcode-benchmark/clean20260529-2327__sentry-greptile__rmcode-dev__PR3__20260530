@@ -37,13 +37,9 @@ from sentry.integrations.messaging.metrics import (
 )
 from sentry.integrations.messaging.spec import MessagingIntegrationSpec
 from sentry.integrations.msteams import parsing
-from sentry.integrations.msteams.spec import MsTeamsMessagingSpec
+from sentry.integrations.msteams.spec import PROVIDER, MsTeamsMessagingSpec
 from sentry.integrations.services.integration import integration_service
-from sentry.integrations.types import (
-    EventLifecycleOutcome,
-    IntegrationProviderSlug,
-    IntegrationResponse,
-)
+from sentry.integrations.types import EventLifecycleOutcome, IntegrationResponse
 from sentry.models.activity import ActivityIntegration
 from sentry.models.apikey import ApiKey
 from sentry.models.group import Group
@@ -188,7 +184,7 @@ class MsTeamsWebhookEndpoint(Endpoint):
     }
     authentication_classes = ()
     permission_classes = ()
-    provider = IntegrationProviderSlug.MSTEAMS.value
+    provider = PROVIDER
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -558,9 +554,7 @@ class MsTeamsWebhookEndpoint(Endpoint):
             )
             return self.respond(status=404)
 
-        idp = identity_service.get_provider(
-            provider_type=IntegrationProviderSlug.MSTEAMS.value, provider_ext_id=team_id
-        )
+        idp = identity_service.get_provider(provider_type="msteams", provider_ext_id=team_id)
         if idp is None:
             logger.info(
                 "msteams.action.invalid-team-id",

@@ -1,4 +1,4 @@
-import {ExternalLink} from 'sentry/components/core/link';
+import ExternalLink from 'sentry/components/links/externalLink';
 import {t, tct} from 'sentry/locale';
 import {InsightsLineChartWidget} from 'sentry/views/insights/common/components/insightsLineChartWidget';
 import type {LoadableChartWidgetProps} from 'sentry/views/insights/common/components/widgets/types';

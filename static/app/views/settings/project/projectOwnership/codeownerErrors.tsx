@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import uniqBy from 'lodash/uniqBy';
 
 import {Alert} from 'sentry/components/core/alert';
-import {ExternalLink} from 'sentry/components/core/link';
+import ExternalLink from 'sentry/components/links/externalLink';
 import {space} from 'sentry/styles/space';
 import type {CodeOwner, RepositoryProjectPathConfig} from 'sentry/types/integrations';
 
@@ -162,6 +162,7 @@ export function CodeOwnerErrors({
             <Alert
               key={id}
               type="error"
+              showIcon
               expand={
                 <AlertContentContainer key="container">
                   {errorPairs.map(([type, values]) => (

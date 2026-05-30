@@ -1,12 +1,6 @@
 import {Fragment} from 'react';
 
-import {
-  render,
-  screen,
-  userEvent,
-  waitFor,
-  waitForElementToBeRemoved,
-} from 'sentry-test/reactTestingLibrary';
+import {render, screen, userEvent, waitFor} from 'sentry-test/reactTestingLibrary';
 
 import {DropdownMenu} from 'sentry/components/dropdownMenu';
 
@@ -138,7 +132,6 @@ describe('DropdownMenu', function () {
 
   it('renders submenus', async function () {
     const onAction = jest.fn();
-    const onOpenChange = jest.fn();
 
     render(
       <DropdownMenu
@@ -161,12 +154,10 @@ describe('DropdownMenu', function () {
           },
         ]}
         triggerLabel="Menu"
-        onOpenChange={onOpenChange}
       />
     );
 
     await userEvent.click(screen.getByRole('button', {name: 'Menu'}));
-    expect(onOpenChange).toHaveBeenCalledTimes(1);
 
     // Sub item won't be visible until we hover over its parent
     expect(
@@ -199,7 +190,6 @@ describe('DropdownMenu', function () {
     expect(onAction).toHaveBeenCalled();
 
     // Entire menu system is closed
-    expect(onOpenChange).toHaveBeenCalledTimes(2);
     expect(screen.getByRole('button', {name: 'Menu'})).toHaveAttribute(
       'aria-expanded',
       'false'
@@ -207,11 +197,9 @@ describe('DropdownMenu', function () {
 
     // Pressing Esc closes the entire menu system
     await userEvent.click(screen.getByRole('button', {name: 'Menu'}));
-    expect(onOpenChange).toHaveBeenCalledTimes(3);
     await userEvent.hover(screen.getByRole('menuitemradio', {name: 'Item'}));
     await userEvent.hover(screen.getByRole('menuitemradio', {name: 'Sub Item'}));
     await userEvent.keyboard('{Escape}');
-    expect(onOpenChange).toHaveBeenCalledTimes(4);
     expect(screen.getByRole('button', {name: 'Menu'})).toHaveAttribute(
       'aria-expanded',
       'false'
@@ -219,11 +207,9 @@ describe('DropdownMenu', function () {
 
     // Clicking outside closes the entire menu system
     await userEvent.click(screen.getByRole('button', {name: 'Menu'}));
-    expect(onOpenChange).toHaveBeenCalledTimes(5);
     await userEvent.hover(screen.getByRole('menuitemradio', {name: 'Item'}));
     await userEvent.hover(screen.getByRole('menuitemradio', {name: 'Sub Item'}));
     await userEvent.click(document.body);
-    expect(onOpenChange).toHaveBeenCalledTimes(6);
     expect(screen.getByRole('button', {name: 'Menu'})).toHaveAttribute(
       'aria-expanded',
       'false'
@@ -280,6 +266,8 @@ describe('DropdownMenu', function () {
   });
 
   it('closes after clicking external link', async function () {
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
     render(
       <DropdownMenu
         items={[{key: 'item1', label: 'Item One', externalHref: 'https://example.com'}]}
@@ -289,7 +277,12 @@ describe('DropdownMenu', function () {
 
     await userEvent.click(screen.getByRole('button', {name: 'Menu'}));
     await userEvent.click(screen.getByRole('menuitemradio', {name: 'Item One'}));
-    await waitForElementToBeRemoved(screen.queryByRole('menuitemradio'));
+    await waitFor(() => {
+      expect(screen.queryByRole('menuitemradio')).not.toBeInTheDocument();
+    });
+
+    // JSDOM throws an error on navigation to random urls
+    expect(errorSpy).toHaveBeenCalledTimes(1);
   });
 
   it('navigates to link on enter', async function () {
@@ -346,6 +339,8 @@ describe('DropdownMenu', function () {
     const onAction = jest.fn();
     const user = userEvent.setup();
 
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
     render(
       <DropdownMenu
         items={[
@@ -366,6 +361,8 @@ describe('DropdownMenu', function () {
     await user.keyboard('{Enter}');
 
     expect(onAction).toHaveBeenCalledTimes(1);
+    // JSDOM throws an error on navigation
+    expect(errorSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should allow opening of a nearby menu', async function () {

@@ -71,10 +71,10 @@ class DiscoverSavedQueryProject(Model):
     __relocation_scope__ = RelocationScope.Excluded
 
     project = FlexibleForeignKey("sentry.Project")
-    discover_saved_query = FlexibleForeignKey("discover.DiscoverSavedQuery")
+    discover_saved_query = FlexibleForeignKey("sentry.DiscoverSavedQuery")
 
     class Meta:
-        app_label = "discover"
+        app_label = "sentry"
         db_table = "sentry_discoversavedqueryproject"
         unique_together = (("project", "discover_saved_query"),)
 
@@ -108,15 +108,9 @@ class DiscoverSavedQuery(Model):
         default=DatasetSourcesTypes.UNKNOWN.value,
         db_default=DatasetSourcesTypes.UNKNOWN.value,
     )
-    # This field is used for the discover transactions -> explore migration.
-    # Migrated discover transactions queries will have this reference along with DISCOVER_TRANSACTIONS as the dataset
-    # in the ExploreSavedQuery.
-    explore_query = FlexibleForeignKey(
-        "explore.ExploreSavedQuery", null=True, on_delete=models.SET_NULL
-    )
 
     class Meta:
-        app_label = "discover"
+        app_label = "sentry"
         db_table = "sentry_discoversavedquery"
         constraints = [
             UniqueConstraint(

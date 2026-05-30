@@ -26,7 +26,7 @@ import type {
   Subscription,
 } from 'getsentry/types';
 import {OnDemandBudgetMode, PlanName, PlanTier} from 'getsentry/types';
-import {isByteCategory, isContinuousProfiling} from 'getsentry/utils/dataCategory';
+import {isContinuousProfiling} from 'getsentry/utils/dataCategory';
 import titleCase from 'getsentry/utils/titleCase';
 import {displayPriceWithCents} from 'getsentry/views/amCheckout/utils';
 
@@ -104,6 +104,13 @@ export const getSlot = (
   return Math.min(s, slots.length - 1);
 };
 
+type ReservedSku =
+  | Subscription['reservedErrors']
+  | Subscription['reservedTransactions']
+  | Subscription['reservedAttachments']
+  | number
+  | null;
+
 /**
  * isAbbreviated: Shortens the number using K for thousand, M for million, etc
  *                Useful for Errors/Transactions but not recommended to be used
@@ -126,7 +133,7 @@ type FormatOptions = {
  * If isReservedBudget is true, the reservedQuantity is in cents
  */
 export function formatReservedWithUnits(
-  reservedQuantity: number | null,
+  reservedQuantity: ReservedSku,
   dataCategory: DataCategory,
   options: FormatOptions = {
     isAbbreviated: false,
@@ -138,7 +145,7 @@ export function formatReservedWithUnits(
   if (isReservedBudget) {
     return displayPriceWithCents({cents: reservedQuantity ?? 0});
   }
-  if (!isByteCategory(dataCategory)) {
+  if (dataCategory !== DataCategory.ATTACHMENTS) {
     return formatReservedNumberToString(reservedQuantity, options);
   }
   // convert reservedQuantity to BYTES to check for unlimited
@@ -151,23 +158,23 @@ export function formatReservedWithUnits(
     return `${formatted} GB`;
   }
 
-  return formatByteUnits(reservedQuantity || 0, 3);
+  return formatAttachmentUnits(reservedQuantity || 0, 3);
 }
 
 /**
  * This expects values from CustomerUsageEndpoint, which contains usage
  * quantities for the data categories that we sell.
  *
- * Note: usageQuantity for Attachments and Logs should be in BYTES
+ * Note: usageQuantity for Attachments should be in BYTES
  */
 export function formatUsageWithUnits(
   usageQuantity = 0,
   dataCategory: DataCategory,
   options: FormatOptions = {isAbbreviated: false, useUnitScaling: false}
 ) {
-  if (isByteCategory(dataCategory)) {
+  if (dataCategory === DataCategory.ATTACHMENTS) {
     if (options.useUnitScaling) {
-      return formatByteUnits(usageQuantity);
+      return formatAttachmentUnits(usageQuantity);
     }
 
     const usageGb = usageQuantity / GIGABYTE;
@@ -194,7 +201,7 @@ export function formatUsageWithUnits(
  * Helper method for formatReservedWithUnits
  */
 function formatReservedNumberToString(
-  reservedQuantity: number | null,
+  reservedQuantity: ReservedSku,
   options: FormatOptions = {
     isAbbreviated: false,
     isGifted: false,
@@ -235,7 +242,7 @@ function formatReservedNumberToString(
  * For storage/memory/file sizes, please take a look at the function in
  * sentry/utils/formatBytes.
  */
-function formatByteUnits(bytes: number, u = 0) {
+function formatAttachmentUnits(bytes: number, u = 0) {
   const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
   const threshold = 1000;
 
@@ -500,17 +507,11 @@ export function getBestActionToIncreaseEventLimits(
     return UsageAction.START_TRIAL;
   }
   // paid plans should add events without changing plans
-  const hasAnyUsageExceeded = Object.values(subscription.categories).some(
-    category => category.usageExceeded
-  );
-  if (isPaidPlan && hasPerformance(subscription.planDetails) && hasAnyUsageExceeded) {
+  if (isPaidPlan && hasPerformance(subscription.planDetails)) {
     return hasBillingPerms ? UsageAction.ADD_EVENTS : UsageAction.REQUEST_ADD_EVENTS;
   }
-  // otherwise, we want them to upgrade to a different plan if they're not already on a Business plan
-  if (!isBizPlanFamily(subscription.planDetails)) {
-    return hasBillingPerms ? UsageAction.SEND_TO_CHECKOUT : UsageAction.REQUEST_UPGRADE;
-  }
-  return '';
+  // otherwise, we want them to upgrade to a different plan
+  return hasBillingPerms ? UsageAction.SEND_TO_CHECKOUT : UsageAction.REQUEST_UPGRADE;
 }
 
 /**

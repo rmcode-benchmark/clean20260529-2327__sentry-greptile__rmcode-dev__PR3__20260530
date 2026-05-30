@@ -3,8 +3,8 @@ import {useTheme} from '@emotion/react';
 import styled from '@emotion/styled';
 
 import {openInsightChartModal} from 'sentry/actionCreators/modal';
-import {ExternalLink} from 'sentry/components/core/link';
 import Count from 'sentry/components/count';
+import ExternalLink from 'sentry/components/links/externalLink';
 import {t, tct} from 'sentry/locale';
 import useOrganization from 'sentry/utils/useOrganization';
 import {Bars} from 'sentry/views/dashboards/widgets/timeSeriesWidget/plottables/bars';
@@ -12,15 +12,14 @@ import {TimeSeriesWidgetVisualization} from 'sentry/views/dashboards/widgets/tim
 import {Widget} from 'sentry/views/dashboards/widgets/widget/widget';
 import {Mode} from 'sentry/views/explore/contexts/pageParamsContext/mode';
 import {ModelName} from 'sentry/views/insights/agentMonitoring/components/modelName';
-import {useCombinedQuery} from 'sentry/views/insights/agentMonitoring/hooks/useCombinedQuery';
 import {
   AI_MODEL_ID_ATTRIBUTE,
   getAIGenerationsFilter,
 } from 'sentry/views/insights/agentMonitoring/utils/query';
 import {Referrer} from 'sentry/views/insights/agentMonitoring/utils/referrers';
 import {ChartType} from 'sentry/views/insights/common/components/chart';
-import {useSpans} from 'sentry/views/insights/common/queries/useDiscover';
-import {useTopNSpanSeries} from 'sentry/views/insights/common/queries/useTopNDiscoverSeries';
+import {useEAPSpans} from 'sentry/views/insights/common/queries/useDiscover';
+import {useTopNSpanEAPSeries} from 'sentry/views/insights/common/queries/useTopNDiscoverSeries';
 import {convertSeriesToTimeseries} from 'sentry/views/insights/common/utils/convertSeriesToTimeseries';
 import {usePageFilterChartParams} from 'sentry/views/insights/pages/platform/laravel/utils';
 import {WidgetVisualizationStates} from 'sentry/views/insights/pages/platform/laravel/widgetVisualizationStates';
@@ -31,18 +30,21 @@ import {
   WidgetFooterTable,
 } from 'sentry/views/insights/pages/platform/shared/styles';
 import {Toolbar} from 'sentry/views/insights/pages/platform/shared/toolbar';
+import {useTransactionNameQuery} from 'sentry/views/insights/pages/platform/shared/useTransactionNameQuery';
 import {GenericWidgetEmptyStateWarning} from 'sentry/views/performance/landing/widgets/components/selectableList';
 
 export default function LLMGenerationsWidget() {
   const organization = useOrganization();
+  const {query} = useTransactionNameQuery();
   const pageFilterChartParams = usePageFilterChartParams({
     granularity: 'spans-low',
   });
 
   const theme = useTheme();
-  const fullQuery = useCombinedQuery(getAIGenerationsFilter());
 
-  const generationsRequest = useSpans(
+  const fullQuery = `${getAIGenerationsFilter()} ${query}`.trim();
+
+  const generationsRequest = useEAPSpans(
     {
       fields: [AI_MODEL_ID_ATTRIBUTE, 'count()'],
       sorts: [{field: 'count()', kind: 'desc'}],
@@ -52,7 +54,7 @@ export default function LLMGenerationsWidget() {
     Referrer.LLM_GENERATIONS_WIDGET
   );
 
-  const timeSeriesRequest = useTopNSpanSeries(
+  const timeSeriesRequest = useTopNSpanEAPSeries(
     {
       ...pageFilterChartParams,
       search: fullQuery,
@@ -102,9 +104,8 @@ export default function LLMGenerationsWidget() {
         plottables: timeSeries.map(
           (ts, index) =>
             new Bars(convertSeriesToTimeseries(ts), {
-              color:
-                ts.seriesName === 'Other' ? theme.chart.neutral : colorPalette[index],
-              alias: ts.seriesName, // Ensures that the tooltip shows the full series name
+              color: ts.seriesName === 'Other' ? theme.gray200 : colorPalette[index],
+              alias: ts.seriesName,
               stack: 'stack',
             })
         ),

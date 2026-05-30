@@ -64,7 +64,7 @@ describe('IssueDetailsEventNavigation', () => {
         deprecatedRouterMocks: true,
       });
 
-      await userEvent.click(await screen.findByRole('tab', {name: 'Latest'}));
+      await userEvent.click(await screen.findByRole('tab', {name: 'Last'}));
 
       expect(router.push).toHaveBeenCalledWith({
         pathname: '/organizations/org-slug/issues/group-id/events/latest/',

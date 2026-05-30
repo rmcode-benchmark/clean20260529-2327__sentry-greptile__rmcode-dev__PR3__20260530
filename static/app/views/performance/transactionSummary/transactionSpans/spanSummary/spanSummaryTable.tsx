@@ -31,13 +31,13 @@ import useOrganization from 'sentry/utils/useOrganization';
 import {useParams} from 'sentry/utils/useParams';
 import {renderHeadCell} from 'sentry/views/insights/common/components/tableCells/renderHeadCell';
 import {SpanIdCell} from 'sentry/views/insights/common/components/tableCells/spanIdCell';
-import {useSpans} from 'sentry/views/insights/common/queries/useDiscover';
+import {useSpansIndexed} from 'sentry/views/insights/common/queries/useDiscover';
 import {QueryParameterNames} from 'sentry/views/insights/common/views/queryParameters';
 import {
   ModuleName,
-  SpanFields,
-  type SpanQueryFilters,
-  type SpanResponse,
+  SpanIndexedField,
+  type SpanIndexedResponse,
+  type SpanMetricsQueryFilters,
 } from 'sentry/views/insights/types';
 import {TraceViewSources} from 'sentry/views/performance/newTraceDetails/traceHeader/breadcrumbs';
 import Tab from 'sentry/views/performance/transactionSummary/tabs';
@@ -46,32 +46,35 @@ import {SpanSummaryReferrer} from 'sentry/views/performance/transactionSummary/t
 import {useSpanSummarySort} from 'sentry/views/performance/transactionSummary/transactionSpans/spanSummary/useSpanSummarySort';
 
 type DataRowKeys =
-  | SpanFields.SPAN_ID
-  | SpanFields.TIMESTAMP
-  | SpanFields.SPAN_DURATION
-  | SpanFields.TRANSACTION_SPAN_ID
-  | SpanFields.TRACE
-  | SpanFields.PROJECT;
+  | SpanIndexedField.SPAN_ID
+  | SpanIndexedField.TIMESTAMP
+  | SpanIndexedField.SPAN_DURATION
+  | SpanIndexedField.TRANSACTION_ID
+  | SpanIndexedField.TRACE
+  | SpanIndexedField.PROJECT;
 
-type ColumnKeys = SpanFields.SPAN_ID | SpanFields.TIMESTAMP | SpanFields.SPAN_DURATION;
+type ColumnKeys =
+  | SpanIndexedField.SPAN_ID
+  | SpanIndexedField.TIMESTAMP
+  | SpanIndexedField.SPAN_DURATION;
 
-type DataRow = Pick<SpanResponse, DataRowKeys> & {'transaction.duration': number};
+type DataRow = Pick<SpanIndexedResponse, DataRowKeys> & {'transaction.duration': number};
 
 type Column = GridColumnHeader<ColumnKeys>;
 
 const COLUMN_ORDER: Column[] = [
   {
-    key: SpanFields.SPAN_ID,
+    key: SpanIndexedField.SPAN_ID,
     name: t('Span ID'),
     width: COL_WIDTH_UNDEFINED,
   },
   {
-    key: SpanFields.TIMESTAMP,
+    key: SpanIndexedField.TIMESTAMP,
     name: t('Timestamp'),
     width: COL_WIDTH_UNDEFINED,
   },
   {
-    key: SpanFields.SPAN_DURATION,
+    key: SpanIndexedField.SPAN_DURATION,
     name: t('Span Duration'),
     width: COL_WIDTH_UNDEFINED,
   },
@@ -104,7 +107,7 @@ export default function SpanSummaryTable(props: Props) {
   const spansCursor = decodeScalar(location.query?.[QueryParameterNames.SPANS_CURSOR]);
   const spansQuery = decodeScalar(location.query.spansQuery, '');
 
-  const filters: SpanQueryFilters = {
+  const filters: SpanMetricsQueryFilters = {
     'span.group': groupId,
     'span.op': spanOp,
     transaction: transaction as string,
@@ -119,15 +122,15 @@ export default function SpanSummaryTable(props: Props) {
     data: rowData,
     pageLinks,
     isPending: isRowDataLoading,
-  } = useSpans(
+  } = useSpansIndexed(
     {
       fields: [
-        SpanFields.SPAN_ID,
-        SpanFields.TRANSACTION_SPAN_ID,
-        SpanFields.TIMESTAMP,
-        SpanFields.SPAN_DURATION,
-        SpanFields.TRACE,
-        SpanFields.PROJECT,
+        SpanIndexedField.SPAN_ID,
+        SpanIndexedField.TRANSACTION_ID,
+        SpanIndexedField.TIMESTAMP,
+        SpanIndexedField.SPAN_DURATION,
+        SpanIndexedField.TRACE,
+        SpanIndexedField.PROJECT,
       ],
       search,
       limit: LIMIT,
@@ -137,7 +140,7 @@ export default function SpanSummaryTable(props: Props) {
     SpanSummaryReferrer.SPAN_SUMMARY_TABLE
   );
 
-  const transactionIds = rowData?.map(row => row[SpanFields.TRANSACTION_SPAN_ID]);
+  const transactionIds = rowData?.map(row => row[SpanIndexedField.TRANSACTION_ID]);
 
   const eventView = EventView.fromNewQueryWithLocation(
     {
@@ -186,8 +189,8 @@ export default function SpanSummaryTable(props: Props) {
   });
 
   const mergedData: DataRow[] =
-    rowData?.map((row: Pick<SpanResponse, DataRowKeys>) => {
-      const transactionId = row[SpanFields.TRANSACTION_SPAN_ID];
+    rowData?.map((row: Pick<SpanIndexedResponse, DataRowKeys>) => {
+      const transactionId = row[SpanIndexedField.TRANSACTION_ID];
       const newRow = {
         ...row,
         'transaction.duration': transactionDurationMap[transactionId]!,
@@ -273,12 +276,12 @@ function renderBodyCell(
   theme: Theme
 ) {
   return function (column: Column, dataRow: DataRow): React.ReactNode {
-    const {timestamp, span_id, trace} = dataRow;
-    const spanDuration = dataRow[SpanFields.SPAN_DURATION];
-    const transactionId = dataRow[SpanFields.TRANSACTION_SPAN_ID];
+    const {timestamp, span_id, trace, project} = dataRow;
+    const spanDuration = dataRow[SpanIndexedField.SPAN_DURATION];
+    const transactionId = dataRow[SpanIndexedField.TRANSACTION_ID];
     const transactionDuration = dataRow['transaction.duration'];
 
-    if (column.key === SpanFields.SPAN_DURATION) {
+    if (column.key === SpanIndexedField.SPAN_DURATION) {
       if (isTxnDurationDataLoading) {
         return <EmptySpanDurationBar />;
       }
@@ -305,7 +308,7 @@ function renderBodyCell(
       );
     }
 
-    if (column.key === SpanFields.SPAN_ID) {
+    if (column.key === SpanIndexedField.SPAN_ID) {
       if (!defined(span_id)) {
         return null;
       }
@@ -313,6 +316,7 @@ function renderBodyCell(
       return (
         <SpanIdCell
           moduleName={ModuleName.OTHER}
+          projectSlug={project}
           spanId={span_id}
           timestamp={timestamp}
           traceId={trace}

@@ -156,7 +156,7 @@ export function generateTraceLink(dateSelection: any, view?: DomainView) {
   };
 }
 
-export function generateTransactionIdLink(view?: DomainView) {
+export function generateTransactionIdLink(transactionName?: string, view?: DomainView) {
   return (
     organization: Organization,
     tableRow: TableDataRow,
@@ -167,9 +167,11 @@ export function generateTransactionIdLink(view?: DomainView) {
       eventId: tableRow.id,
       timestamp: tableRow.timestamp!,
       traceSlug: tableRow.trace?.toString()!,
+      projectSlug: tableRow['project.name']?.toString()!,
       location,
       organization,
       spanId,
+      transactionName,
       source: TraceViewSources.PERFORMANCE_TRANSACTION_SUMMARY,
       view,
     });

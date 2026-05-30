@@ -1,33 +1,24 @@
-from dataclasses import dataclass
 from datetime import datetime, timezone
 from unittest.mock import patch
 
 import pytest
 
-from sentry.analytics import Event, eventclass
-from sentry.analytics.attribute import Attribute
+from sentry.analytics import Attribute, Event, Map
 from sentry.testutils.cases import TestCase
 
 
-@dataclass
-class DummyType:
-    key: str = "value"
-
-
-@eventclass("example")
 class ExampleEvent(Event):
-    id: int
-    map: dict | DummyType
-    optional: bool | None = None
+    type = "example"
+
+    attributes = (
+        Attribute("id", type=int),
+        Map("map", (Attribute("key"),)),
+        Attribute("optional", type=bool, required=False),
+    )
 
 
-class ExampleEventOldStyle(Event):
-    type = "example-old-style"
-    attributes = [
-        Attribute("id", int),
-        Attribute("map", dict),
-        Attribute("optional", bool),
-    ]
+class DummyType:
+    key = "value"
 
 
 class EventTest(TestCase):
@@ -36,81 +27,31 @@ class EventTest(TestCase):
         mock_uuid1.return_value = self.get_mock_uuid()
 
         result = ExampleEvent(
-            id="1",  # type: ignore[arg-type]
-            map={"key": "value"},
-            optional=False,
-        )
-        result.datetime_ = datetime(2001, 4, 18, tzinfo=timezone.utc)
-
-        assert result.serialize() == {
-            "data": {
-                "id": 1,
-                "map": {"key": "value"},
-                "optional": False,
-            },
-            "type": "example",
-            "timestamp": 987552000,
-            "uuid": b"AAEC",
-        }
-
-    @patch("sentry.analytics.event.uuid1")
-    def test_simple_from_instance(self, mock_uuid1):
-        mock_uuid1.return_value = self.get_mock_uuid()
-
-        result = ExampleEvent.from_instance(
-            None,
             id="1",
             map={"key": "value"},
             optional=False,
+            datetime=datetime(2001, 4, 18, tzinfo=timezone.utc),
         )
-        result.datetime_ = datetime(2001, 4, 18, tzinfo=timezone.utc)
-
+        assert result.data == {"id": 1, "map": {"key": "value"}, "optional": False}
         assert result.serialize() == {
-            "data": {
-                "id": 1,
-                "map": {"key": "value"},
-                "optional": False,
-            },
+            "data": {"id": 1, "map": {"key": "value"}, "optional": False},
             "type": "example",
-            "timestamp": 987552000,
-            "uuid": b"AAEC",
-        }
-
-    @patch("sentry.analytics.event.uuid1")
-    def test_simple_old_style(self, mock_uuid1):
-        mock_uuid1.return_value = self.get_mock_uuid()
-
-        result = ExampleEventOldStyle.from_instance(
-            None,
-            id="1",
-            map={"key": "value"},
-            optional=False,
-        )
-        result.datetime_ = datetime(2001, 4, 18, tzinfo=timezone.utc)
-
-        assert result.serialize() == {
-            "data": {
-                "id": 1,
-                "map": {"key": "value"},
-                "optional": False,
-            },
-            "type": "example-old-style",
             "timestamp": 987552000,
             "uuid": b"AAEC",
         }
 
     def test_optional_is_optional(self):
-        result = ExampleEvent(id="1", map={"key": "value"})  # type: ignore[arg-type]
-        assert result.serialize()["data"] == {"id": 1, "map": {"key": "value"}, "optional": None}
+        result = ExampleEvent(id="1", map={"key": "value"})
+        assert result.data == {"id": 1, "map": {"key": "value"}, "optional": None}
 
     def test_required_cannot_be_none(self):
-        with pytest.raises(TypeError):
-            ExampleEvent(map={"key": None})  # type: ignore[call-arg]
+        with pytest.raises(ValueError):
+            ExampleEvent(id="1", map={"key": None})
 
     def test_invalid_map(self):
         with pytest.raises(ValueError):
-            ExampleEvent(id="1", map="foo")  # type: ignore[arg-type]
+            ExampleEvent(id="1", map="foo")
 
     def test_map_with_instance(self):
-        result = ExampleEvent(id="1", map=DummyType())  # type: ignore[arg-type]
-        assert result.serialize()["data"]["map"] == {"key": "value"}
+        result = ExampleEvent(id="1", map=DummyType())
+        assert result.data["map"] == {"key": "value"}

@@ -3,7 +3,6 @@ import styled from '@emotion/styled';
 
 import {Alert} from 'sentry/components/core/alert';
 import {LinkButton} from 'sentry/components/core/button/linkButton';
-import {Link} from 'sentry/components/core/link';
 import {Select} from 'sentry/components/core/select';
 import ErrorBoundary from 'sentry/components/errorBoundary';
 import {
@@ -15,6 +14,7 @@ import {
   NavigationCrumbs,
 } from 'sentry/components/events/eventDrawer';
 import ProjectBadge from 'sentry/components/idBadge/projectBadge';
+import Link from 'sentry/components/links/link';
 import LoadingIndicator from 'sentry/components/loadingIndicator';
 import {t} from 'sentry/locale';
 import {space} from 'sentry/styles/space';
@@ -172,7 +172,7 @@ function EnsureSingleProject({
   return (
     <EventDrawerBody>
       <ProjectSelectContainer>
-        <Alert type="info" showIcon={false}>
+        <Alert type="info">
           {t(
             'This release exists in multiple projects. Please select a project to view details.'
           )}
@@ -307,7 +307,7 @@ export function ReleasesDrawerDetails({
           />
         ) : (
           <EventDrawerBody>
-            <Alert type="error" showIcon={false}>
+            <Alert type="error">
               {project || isMetaError ? t('Release not found') : t('Project not found')}
             </Alert>
           </EventDrawerBody>

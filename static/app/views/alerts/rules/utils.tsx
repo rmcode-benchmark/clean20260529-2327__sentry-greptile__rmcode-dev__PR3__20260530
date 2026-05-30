@@ -11,12 +11,11 @@ import {parseFunction} from 'sentry/utils/discover/fields';
 import {isActiveSuperuser} from 'sentry/utils/isActiveSuperuser';
 import normalizeUrl from 'sentry/utils/url/normalizeUrl';
 import type {TimePeriodType} from 'sentry/views/alerts/rules/metric/details/constants';
+import {TIME_WINDOW_TO_INTERVAL} from 'sentry/views/alerts/rules/metric/triggers/chart';
 import type {MetricRule} from 'sentry/views/alerts/rules/metric/types';
 import {Dataset, EventTypes} from 'sentry/views/alerts/rules/metric/types';
-import {TIME_WINDOW_TO_INTERVAL} from 'sentry/views/alerts/utils/timePeriods';
 import type {AlertType} from 'sentry/views/alerts/wizard/options';
 import {hasDatasetSelector} from 'sentry/views/dashboards/utils';
-import {LOGS_QUERY_KEY} from 'sentry/views/explore/contexts/logs/logsPageParams';
 import {getExploreUrl} from 'sentry/views/explore/utils';
 import {ChartType} from 'sentry/views/insights/common/components/chart';
 
@@ -139,9 +138,8 @@ export function getAlertRuleExploreUrl({
   if (rule.dataset !== Dataset.EVENTS_ANALYTICS_PLATFORM) {
     return '';
   }
-
-  const interval =
-    TIME_WINDOW_TO_INTERVAL[rule.timeWindow as keyof typeof TIME_WINDOW_TO_INTERVAL];
+  // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+  const interval = TIME_WINDOW_TO_INTERVAL[rule.timeWindow];
 
   return getExploreUrl({
     organization,
@@ -193,7 +191,7 @@ export function getAlertRuleLogsUrl({
   const queryParams: Record<string, any> = {
     project: [parseInt(projectId, 10)],
     environment: rule.environment,
-    [LOGS_QUERY_KEY]: rule.query,
+    query: rule.query,
   };
 
   if (timePeriod.usingPeriod) {
@@ -226,6 +224,8 @@ export function isEapAlertType(alertType?: AlertType) {
     'trace_item_apdex',
     'trace_item_failure_rate',
     'trace_item_lcp',
+    'trace_item_fid',
+    'trace_item_cls',
     'trace_item_logs',
   ].includes(alertType);
 }

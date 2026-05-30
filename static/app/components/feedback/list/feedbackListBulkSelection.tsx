@@ -6,12 +6,13 @@ import type decodeMailbox from 'sentry/components/feedback/decodeMailbox';
 import useBulkEditFeedbacks from 'sentry/components/feedback/list/useBulkEditFeedbacks';
 import {IconEllipsis} from 'sentry/icons/iconEllipsis';
 import {t, tct} from 'sentry/locale';
+import {space} from 'sentry/styles/space';
 import {GroupStatus} from 'sentry/types/group';
-import type {useListItemCheckboxContext} from 'sentry/utils/list/useListItemCheckboxState';
+import type useListItemCheckboxState from 'sentry/utils/list/useListItemCheckboxState';
 
 interface Props
   extends Pick<
-    ReturnType<typeof useListItemCheckboxContext>,
+    ReturnType<typeof useListItemCheckboxState>,
     'countSelected' | 'deselectAll' | 'selectedIds'
   > {
   mailbox: ReturnType<typeof decodeMailbox>;
@@ -44,7 +45,7 @@ export default function FeedbackListBulkSelection({
     mailbox === 'ignored' ? GroupStatus.UNRESOLVED : GroupStatus.IGNORED;
 
   return (
-    <Flex gap="md" align="center" justify="space-between" flex="1 0 auto">
+    <Flex gap={space(1)} align="center" justify="space-between" flex="1 0 auto">
       <span>
         <strong>
           {tct('[countSelected] Selected', {
@@ -52,7 +53,7 @@ export default function FeedbackListBulkSelection({
           })}
         </strong>
       </span>
-      <Flex gap="md" justify="flex-end">
+      <Flex gap={space(1)} justify="flex-end">
         <ErrorBoundary mini>
           <Button
             size="xs"

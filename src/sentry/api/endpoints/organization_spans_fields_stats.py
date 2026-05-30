@@ -61,10 +61,7 @@ class OrganizationSpansFieldsStatsEndpoint(OrganizationEventsV2EndpointBase):
             params=snuba_params, config=SearchResolverConfig(), definitions=SPAN_DEFINITIONS
         )
 
-        meta = resolver.resolve_meta(
-            referrer=Referrer.API_SPANS_FREQUENCY_STATS_RPC.value,
-            sampling_mode=snuba_params.sampling_mode,
-        )
+        meta = resolver.resolve_meta(referrer=Referrer.API_SPANS_FREQUENCY_STATS_RPC.value)
         query = request.GET.get("query")
         filter, _, _ = resolver.resolve_query(query)
 
@@ -74,6 +71,7 @@ class OrganizationSpansFieldsStatsEndpoint(OrganizationEventsV2EndpointBase):
                 max_attributes=serialized.get("max_attributes"),
             )
         )
+
         rpc_request = TraceItemStatsRequest(
             filter=filter,
             meta=meta,

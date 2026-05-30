@@ -5,7 +5,6 @@ import {render, waitFor} from 'sentry-test/reactTestingLibrary';
 
 import {useLocation} from 'sentry/utils/useLocation';
 import usePageFilters from 'sentry/utils/usePageFilters';
-import {SAMPLING_MODE} from 'sentry/views/explore/hooks/useProgressiveQuery';
 import PageOverview from 'sentry/views/insights/browser/webVitals/views/pageOverview';
 
 jest.mock('sentry/utils/useLocation');
@@ -70,7 +69,7 @@ describe('PageOverview', function () {
       expect.anything(),
       expect.objectContaining({
         query: expect.objectContaining({
-          dataset: 'spans',
+          dataset: 'metrics',
           field: [
             'p75(measurements.lcp)',
             'p75(measurements.fcp)',
@@ -80,7 +79,7 @@ describe('PageOverview', function () {
             'count()',
           ],
           query:
-            'span.op:[ui.interaction.click,ui.interaction.hover,ui.interaction.drag,ui.interaction.press,ui.webvital.cls,ui.webvital.lcp,pageload,""] !transaction:"<< unparameterized >>"',
+            'transaction.op:[pageload,""] span.op:[ui.interaction.click,ui.interaction.hover,ui.interaction.drag,ui.interaction.press,ui.webvital.cls,""] !transaction:"<< unparameterized >>"',
         }),
       })
     );
@@ -90,7 +89,7 @@ describe('PageOverview', function () {
       expect.anything(),
       expect.objectContaining({
         query: expect.objectContaining({
-          dataset: 'spans',
+          dataset: 'metrics',
           field: [
             'performance_score(measurements.score.lcp)',
             'performance_score(measurements.score.fcp)',
@@ -112,7 +111,7 @@ describe('PageOverview', function () {
             `count_scores(measurements.score.inp)`,
           ],
           query:
-            'span.op:[ui.interaction.click,ui.interaction.hover,ui.interaction.drag,ui.interaction.press,ui.webvital.cls,ui.webvital.lcp,pageload,""] !transaction:"<< unparameterized >>"',
+            'transaction.op:[pageload,""] span.op:[ui.interaction.click,ui.interaction.hover,ui.interaction.drag,ui.interaction.press,ui.webvital.cls,""] !transaction:"<< unparameterized >>"',
         }),
       })
     );
@@ -140,8 +139,7 @@ describe('PageOverview', function () {
         '/organizations/org-slug/events/',
         expect.objectContaining({
           query: expect.objectContaining({
-            dataset: 'spans',
-            sampling: SAMPLING_MODE.NORMAL,
+            dataset: 'spansIndexed',
             field: [
               'measurements.inp',
               'measurements.score.ratio.inp',
@@ -163,7 +161,6 @@ describe('PageOverview', function () {
               'span.op',
               'lcp.element',
               'cls.source.1',
-              'id',
             ],
             query:
               'has:message !span.description:<unknown> transaction:/  span.op:[ui.interaction.click,ui.interaction.hover,ui.interaction.drag,ui.interaction.press] ',
@@ -198,8 +195,7 @@ describe('PageOverview', function () {
         '/organizations/org-slug/events/',
         expect.objectContaining({
           query: expect.objectContaining({
-            dataset: 'spans',
-            sampling: SAMPLING_MODE.NORMAL,
+            dataset: 'spansIndexed',
             field: [
               'measurements.inp',
               'measurements.score.ratio.inp',
@@ -221,7 +217,6 @@ describe('PageOverview', function () {
               'span.op',
               'lcp.element',
               'cls.source.1',
-              'id',
             ],
             query:
               'has:message !span.description:<unknown> transaction:"/page-with-a-\\*/"  span.op:[ui.interaction.click,ui.interaction.hover,ui.interaction.drag,ui.interaction.press] ',

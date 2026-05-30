@@ -151,7 +151,7 @@ class OrganizationMemberDetailsEndpoint(OrganizationMemberEndpoint):
                     help_text=_team_roles_description,
                     required=False,
                     allow_null=True,
-                    default=list,
+                    default=[],
                     child=serializers.JSONField(),
                 ),
             },

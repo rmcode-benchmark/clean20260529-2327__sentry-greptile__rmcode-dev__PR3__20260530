@@ -2,7 +2,8 @@ import {useTheme} from '@emotion/react';
 import type {LocationDescriptor} from 'history';
 
 import {Flex} from 'sentry/components/core/layout';
-import {Link} from 'sentry/components/core/link';
+import Link from 'sentry/components/links/link';
+import {space} from 'sentry/styles/space';
 import {defined} from 'sentry/utils';
 import {formatAbbreviatedNumber} from 'sentry/utils/formatters';
 import {formatPercentage} from 'sentry/utils/number/formatPercentage';
@@ -45,7 +46,7 @@ export function ErrorRateCell({
 
   return (
     <ThresholdCell value={errorRate}>
-      <Flex align="center" justify="flex-end" gap="xs">
+      <Flex align="center" justify="flex-end" gap={space(0.5)}>
         {formatPercentage(errorRate, 2, {minimumValue: 0.0001})}
         {defined(errorCount) ? errorCountElement : null}
       </Flex>

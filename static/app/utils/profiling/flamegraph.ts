@@ -217,7 +217,7 @@ export class Flamegraph {
       this.depth = Math.max(stackTop.depth, this.depth);
     };
 
-    profile.forEach(openFrame.bind(this), closeFrame.bind(this));
+    profile.forEach(openFrame, closeFrame);
     return frames;
   }
 
@@ -244,7 +244,7 @@ export class Flamegraph {
     this.root = virtualRoot;
     let idx = 0;
 
-    const unboundOpenFrame = (node: CallTreeNode, value: number) => {
+    const openFrame = (node: CallTreeNode, value: number) => {
       const parent = stack[stack.length - 1] ?? this.root;
       const frame: FlamegraphFrame = {
         key: idx,
@@ -268,7 +268,7 @@ export class Flamegraph {
       idx++;
     };
 
-    const unboundCloseFrame = (_node: CallTreeNode, value: number) => {
+    const closeFrame = (_node: CallTreeNode, value: number) => {
       const stackTop = stack.pop();
 
       if (!stackTop) {
@@ -286,9 +286,6 @@ export class Flamegraph {
       this.depth = Math.max(stackTop.depth, this.depth);
     };
 
-    const openFrame = unboundOpenFrame.bind(this);
-    const closeFrame = unboundCloseFrame.bind(this);
-
     function visit(node: CallTreeNode, start: number) {
       if (!node.frame.isRoot) {
         openFrame(node, start);
@@ -304,8 +301,7 @@ export class Flamegraph {
         closeFrame(node, start + node.totalWeight);
       }
     }
-
-    visit.bind(this)(profile.callTree, 0);
+    visit(profile.callTree, 0);
     return frames;
   }
 

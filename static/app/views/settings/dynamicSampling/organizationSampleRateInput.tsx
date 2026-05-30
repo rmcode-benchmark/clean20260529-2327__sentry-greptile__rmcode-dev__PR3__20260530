@@ -54,7 +54,7 @@ export function OrganizationSampleRateInput({
         <HelpText>{help}</HelpText>
       </Description>
       <InputWrapper>
-        <Flex gap="md">
+        <Flex gap={space(1)}>
           {showBulkEditButton && (
             <Button
               title={t('Proportionally scale project rates')}

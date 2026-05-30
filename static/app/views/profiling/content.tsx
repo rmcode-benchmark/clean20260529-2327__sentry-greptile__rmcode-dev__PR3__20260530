@@ -175,11 +175,7 @@ export default function ProfilingContent({location}: ProfilingContentProps) {
                       <LandingWidgetSelector
                         cursorName={RIGHT_WIDGET_CURSOR}
                         widgetHeight="410px"
-                        defaultWidget={
-                          organization.features.includes('profiling-function-trends')
-                            ? 'regressed functions'
-                            : 'slowest functions avg'
-                        }
+                        defaultWidget="regressed functions"
                         storageKey="profiling-landing-widget-1"
                         onDataState={updateWidget2DataState}
                       />
@@ -307,7 +303,9 @@ function TransactionsTab({onDataState, location, selection}: TabbedContentProps)
       </SearchbarContainer>
       {transactionsError && (
         <Alert.Container>
-          <Alert type="error">{transactionsError}</Alert>
+          <Alert type="error" showIcon>
+            {transactionsError}
+          </Alert>
         </Alert.Container>
       )}
       <ProfileEventsTable

@@ -28,7 +28,7 @@ import OverviewCacheMissChartWidget from 'sentry/views/insights/common/component
 import OverviewJobsChartWidget from 'sentry/views/insights/common/components/widgets/overviewJobsChartWidget';
 import OverviewRequestsChartWidget from 'sentry/views/insights/common/components/widgets/overviewRequestsChartWidget';
 import OverviewSlowQueriesChartWidget from 'sentry/views/insights/common/components/widgets/overviewSlowQueriesChartWidget';
-import {useSpans} from 'sentry/views/insights/common/queries/useDiscover';
+import {useEAPSpans} from 'sentry/views/insights/common/queries/useDiscover';
 import {useOnboardingProject} from 'sentry/views/insights/common/queries/useOnboardingProject';
 import {useInsightsEap} from 'sentry/views/insights/common/utils/useEap';
 import {QueryParameterNames} from 'sentry/views/insights/common/views/queryParameters';
@@ -38,6 +38,7 @@ import {
   isAValidSort,
   type ValidSort,
 } from 'sentry/views/insights/pages/backend/backendTable';
+import {EAPExperimentButton} from 'sentry/views/insights/pages/backend/eapExperimentButton';
 import {OldBackendOverviewPage} from 'sentry/views/insights/pages/backend/oldBackendOverviewPage';
 import {
   BACKEND_LANDING_TITLE,
@@ -55,7 +56,7 @@ import {IssuesWidget} from 'sentry/views/insights/pages/platform/shared/issuesWi
 import {TransactionNameSearchBar} from 'sentry/views/insights/pages/transactionNameSearchBar';
 import {useOverviewPageTrackPageload} from 'sentry/views/insights/pages/useOverviewPageTrackAnalytics';
 import {categorizeProjects} from 'sentry/views/insights/pages/utils';
-import type {SpanProperty} from 'sentry/views/insights/types';
+import type {EAPSpanProperty} from 'sentry/views/insights/types';
 import {LegacyOnboarding} from 'sentry/views/performance/onboarding';
 
 function BackendOverviewPage() {
@@ -152,7 +153,7 @@ function EAPBackendOverviewPage() {
 
   const sorts: [ValidSort, ValidSort] = [
     {
-      field: 'is_starred_transaction' satisfies SpanProperty,
+      field: 'is_starred_transaction' satisfies EAPSpanProperty,
       kind: 'desc',
     },
     decodeSorts(location.query?.sort).find(isAValidSort) ?? DEFAULT_SORT,
@@ -160,7 +161,7 @@ function EAPBackendOverviewPage() {
 
   existingQuery.addFilterValue('is_transaction', 'true');
 
-  const response = useSpans(
+  const response = useEAPSpans(
     {
       search: existingQuery,
       sorts,
@@ -193,7 +194,10 @@ function EAPBackendOverviewPage() {
       organization={organization}
       renderDisabled={NoAccess}
     >
-      <BackendHeader headerTitle={BACKEND_LANDING_TITLE} />
+      <BackendHeader
+        headerTitle={BACKEND_LANDING_TITLE}
+        headerActions={<EAPExperimentButton />}
+      />
       <Layout.Body>
         <Layout.Main fullWidth>
           <ModuleLayout.Layout>

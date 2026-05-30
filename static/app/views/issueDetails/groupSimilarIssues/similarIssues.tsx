@@ -38,7 +38,9 @@ function GroupSimilarIssues() {
       <Feature features="similarity-view" project={project}>
         <SimilarStackTrace project={project} />
       </Feature>
-      <GroupRelatedIssues group={group} />
+      <Feature features="related-issues">
+        <GroupRelatedIssues group={group} />
+      </Feature>
     </Fragment>
   );
 }

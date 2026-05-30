@@ -1,15 +1,19 @@
-import React from 'react';
+import {Component} from 'react';
 
-import {ExternalLink} from 'sentry/components/core/link';
 import type {Organization} from 'sentry/types/organization';
 import withOrganization from 'sentry/utils/withOrganization';
 import {activateZendesk, zendeskIsLoaded} from 'sentry/utils/zendesk';
 
 import trackGetsentryAnalytics from 'getsentry/utils/trackGetsentryAnalytics';
 
+type AnchorProps = {
+  href: string;
+  onClick: (e: React.MouseEvent) => void;
+};
+
 type Props = {
   organization: Organization;
-  Component?: typeof ExternalLink;
+  Component?: React.ComponentType<AnchorProps>;
   address?: string;
   children?: React.ReactNode;
   className?: string;
@@ -17,7 +21,7 @@ type Props = {
   subject?: string;
 };
 
-class ZendeskLink extends React.Component<Props> {
+class ZendeskLink extends Component<Props> {
   componentDidMount() {
     const {organization, source} = this.props;
     if (organization) {
@@ -38,7 +42,7 @@ class ZendeskLink extends React.Component<Props> {
 
   render() {
     const {
-      Component,
+      Component: LinkComponent,
       subject,
       address,
       source: _source,
@@ -51,12 +55,12 @@ class ZendeskLink extends React.Component<Props> {
       mailto = `${mailto}?subject=${window.encodeURIComponent(subject)}`;
     }
 
-    const LinkComponent = Component ?? ExternalLink;
+    const Link = LinkComponent ?? 'a';
 
     return (
-      <LinkComponent href={mailto} onClick={this.activateSupportWidget} {...props}>
+      <Link href={mailto} onClick={this.activateSupportWidget} {...props}>
         {this.props.children}
-      </LinkComponent>
+      </Link>
     );
   }
 }

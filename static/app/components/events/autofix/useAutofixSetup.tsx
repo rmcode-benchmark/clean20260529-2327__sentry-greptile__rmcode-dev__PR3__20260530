@@ -59,7 +59,7 @@ export function useAutofixSetup(
     ...queryData,
     canStartAutofix: Boolean(
       queryData.data?.integration.ok &&
-        queryData.data?.setupAcknowledgement.orgHasAcknowledged
+        queryData.data?.setupAcknowledgement.userHasAcknowledged
     ),
     canCreatePullRequests: Boolean(queryData.data?.githubWriteIntegration?.ok),
     hasAutofixQuota: Boolean(queryData.data?.billing?.hasAutofixQuota),

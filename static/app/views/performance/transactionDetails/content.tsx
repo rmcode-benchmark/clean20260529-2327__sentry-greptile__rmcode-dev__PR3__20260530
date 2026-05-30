@@ -170,7 +170,7 @@ function EventDetailsContent(props: Props) {
                     </Layout.Title>
                   </Layout.HeaderContent>
                   <Layout.HeaderActions>
-                    <ButtonBar>
+                    <ButtonBar gap={1}>
                       <Button
                         size="sm"
                         onClick={() => setIsSidebarVisible(prev => !prev)}
@@ -208,6 +208,7 @@ function EventDetailsContent(props: Props) {
                         projectId={projectId}
                         location={location}
                         errorDest="issue"
+                        transactionDest="performance"
                       />
                     </Layout.Main>
                   )}
@@ -341,7 +342,9 @@ function EventDetailsContent(props: Props) {
 
     return (
       <Alert.Container>
-        <Alert type="error">{error.message}</Alert>
+        <Alert type="error" showIcon>
+          {error.message}
+        </Alert>
       </Alert.Container>
     );
   }

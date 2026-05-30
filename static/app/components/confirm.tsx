@@ -318,15 +318,13 @@ function ConfirmModal({
       <Body>
         {isError && (
           <Alert.Container>
-            <Alert type="error" showIcon={false}>
-              {errorMessage}
-            </Alert>
+            <Alert type="error">{errorMessage}</Alert>
           </Alert.Container>
         )}
         {makeConfirmMessage()}
       </Body>
       <Footer>
-        <ButtonBar gap="xl">
+        <ButtonBar gap={2}>
           {renderCancelButton ? (
             renderCancelButton({
               closeModal,

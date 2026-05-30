@@ -129,23 +129,19 @@ export function DrawerHeader({
   const {onClose} = useDrawerContentContext();
 
   return (
-    <Header
-      ref={ref}
-      className={className}
-      hideCloseButton={hideCloseButton}
-      hideBar={hideBar}
-    >
+    <Header ref={ref} className={className}>
       {!hideCloseButton && (
         <Fragment>
-          <Button
-            priority="transparent"
+          <CloseButton
+            priority="link"
             size="xs"
+            borderless
             aria-label={t('Close Drawer')}
             icon={<IconClose />}
             onClick={onClose}
           >
             {t('Close')}
-          </Button>
+          </CloseButton>
           {!hideBar && <HeaderBar />}
         </Fragment>
       )}
@@ -154,25 +150,28 @@ export function DrawerHeader({
   );
 }
 
+const CloseButton = styled(Button)`
+  color: ${p => p.theme.subText};
+  &:hover {
+    color: ${p => p.theme.textColor};
+  }
+`;
+
 const HeaderBar = styled('div')`
   margin: 0 ${space(2)};
-  margin-left: ${space(1)};
   border-right: 1px solid ${p => p.theme.border};
 `;
 
-const Header = styled('header')<{hideBar?: boolean; hideCloseButton?: boolean}>`
+const Header = styled('header')`
   position: sticky;
   top: 0;
   z-index: ${p => p.theme.zIndex.drawer + 1};
   background: ${p => p.theme.background};
   justify-content: flex-start;
   display: flex;
-  gap: ${p => (p.hideBar ? space(1) : 0)};
   padding: ${space(1.5)};
   box-shadow: ${p => p.theme.border} 0 1px;
-  padding-left: ${p => (p.hideCloseButton ? '24px' : space(2))};
-  padding-top: ${p => (p.hideCloseButton ? space(1.5) : space(0.75))};
-  padding-bottom: ${p => (p.hideCloseButton ? space(1.5) : space(0.75))};
+  padding-left: 24px;
 `;
 
 export const DrawerBody = styled('aside')`
@@ -229,10 +228,10 @@ const DrawerSlidePanel = styled(SlideOverPanel)`
 
 const ResizeHandle = styled('div')`
   position: absolute;
-  left: -2px;
+  left: -4px;
   top: 0;
   bottom: 0;
-  width: 8px;
+  width: 16px;
   cursor: ew-resize;
   z-index: ${p => p.theme.zIndex.drawer + 2};
 
@@ -254,7 +253,7 @@ const ResizeHandle = styled('div')`
   &::after {
     content: '';
     position: absolute;
-    left: 2px;
+    left: 4px;
     top: 0;
     bottom: 0;
     width: 4px;

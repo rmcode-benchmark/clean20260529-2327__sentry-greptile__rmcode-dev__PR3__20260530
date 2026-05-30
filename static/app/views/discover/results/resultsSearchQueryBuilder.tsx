@@ -124,7 +124,6 @@ const getHasTag = (tags: TagCollection) => ({
 type Props = {
   customMeasurements?: CustomMeasurementCollection;
   dataset?: DiscoverDatasets;
-  disabled?: boolean;
   fields?: readonly Field[];
   includeSessionTagsValues?: boolean;
   includeTransactions?: boolean;
@@ -153,7 +152,6 @@ function ResultsSearchQueryBuilder(props: Props) {
     includeTransactions = true,
     placeholder,
     portalTarget,
-    disabled,
   } = props;
 
   const api = useApi();
@@ -352,8 +350,8 @@ function ResultsSearchQueryBuilder(props: Props) {
 
   return (
     <SearchQueryBuilder
+      searchOnChange={organization.features.includes('ui-search-on-change')}
       placeholder={placeholderText}
-      disabled={disabled}
       filterKeys={getTagList}
       initialQuery={props.query ?? ''}
       onSearch={props.onSearch}
@@ -363,6 +361,7 @@ function ResultsSearchQueryBuilder(props: Props) {
       getTagValues={getEventFieldValues}
       recentSearches={props.recentSearches ?? SavedSearchType.EVENT}
       portalTarget={portalTarget}
+      showUnsubmittedIndicator
     />
   );
 }

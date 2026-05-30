@@ -208,30 +208,29 @@ def track_enhancers_coverage():
             )
 
 
-def _strip_sensitive_keys(data, keep_keys):
+def _strip_sensitive_keys(data, keys):
     if not data:
         return False
 
-    keys_stripped = False
-
+    rv = False
     for key in list(data):
-        if key not in keep_keys:
+        if key not in keys:
             del data[key]
-            keys_stripped = True
+            rv = True
 
         elif data[key] is None:
             del data[key]
-            keys_stripped = True
+            rv = True
 
         elif any(x in key.lower() for x in _DELETE_KEYWORDS):
             del data[key]
-            keys_stripped = True
+            rv = True
 
         elif any(x in json.dumps(data[key]).lower() for x in _DELETE_KEYWORDS):
             del data[key]
-            keys_stripped = True
+            rv = True
 
-    return keys_stripped
+    return rv
 
 
 def _pre_scrub_event(data):

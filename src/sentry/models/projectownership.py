@@ -350,12 +350,7 @@ class ProjectOwnership(Model):
                         "codeowners.assignment"
                         if activity_details.get("integration")
                         == ActivityIntegration.CODEOWNERS.value
-                        else (
-                            "suspectcommit.assignment"
-                            if activity_details.get("integration")
-                            == ActivityIntegration.SUSPECT_COMMITTER.value
-                            else "issueowners.assignment"
-                        )
+                        else "issueowners.assignment"
                     ),
                     organization_id=organization_id or ownership.project.organization_id,
                     project_id=project_id,

@@ -1,4 +1,3 @@
-import sentry_sdk
 from django.db import IntegrityError, router, transaction
 from rest_framework import status
 from rest_framework.exceptions import ParseError
@@ -62,12 +61,7 @@ class OrganizationDashboardsStarredEndpoint(OrganizationEndpoint):
         return self.paginate(
             request=request,
             paginator=GenericOffsetPaginator(data_fn=data_fn),
-            on_results=lambda x: serialize(
-                x,
-                request.user,
-                serializer=DashboardListSerializer(),
-                context={"organization": organization},
-            ),
+            on_results=lambda x: serialize(x, request.user, serializer=DashboardListSerializer()),
             default_per_page=25,
         )
 
@@ -106,8 +100,7 @@ class OrganizationDashboardsStarredOrderEndpoint(OrganizationEndpoint):
                     user_id=request.user.id,
                     new_dashboard_positions=dashboard_ids,
                 )
-        except (IntegrityError, ValueError) as e:
-            sentry_sdk.capture_exception(e)
+        except (IntegrityError, ValueError):
             raise ParseError("Mismatch between existing and provided starred dashboards.")
 
         return Response(status=status.HTTP_204_NO_CONTENT)

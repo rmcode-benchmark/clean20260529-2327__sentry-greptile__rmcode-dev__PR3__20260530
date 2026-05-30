@@ -2,7 +2,7 @@ import {Fragment, useCallback, useState} from 'react';
 
 import AnalyticsArea from 'sentry/components/analyticsArea';
 import {Alert} from 'sentry/components/core/alert';
-import {ExternalLink} from 'sentry/components/core/link';
+import ExternalLink from 'sentry/components/links/externalLink';
 import Panel from 'sentry/components/panels/panel';
 import PanelBody from 'sentry/components/panels/panelBody';
 import PanelHeader from 'sentry/components/panels/panelHeader';
@@ -44,7 +44,7 @@ function OrganizationFeatureFlagsNewSecet() {
         )}
       </TextBlock>
       <Alert.Container>
-        <Alert type="info">
+        <Alert type="info" showIcon>
           {t('Note that each provider can only have one associated signing secret.')}
         </Alert>
       </Alert.Container>

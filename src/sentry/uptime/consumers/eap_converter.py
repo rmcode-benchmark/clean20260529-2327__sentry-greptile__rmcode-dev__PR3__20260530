@@ -21,7 +21,6 @@ from sentry_protos.snuba.v1.trace_item_pb2 import AnyValue, TraceItem
 
 from sentry import quotas
 from sentry.models.project import Project
-from sentry.uptime.types import IncidentStatus
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +56,6 @@ def convert_uptime_request_to_trace_item(
     request_info: RequestInfo | None,
     request_sequence: int,
     item_id: bytes,
-    incident_status: IncidentStatus,
 ) -> TraceItem:
     """
     Convert an individual request to a denormalized UptimeResult TraceItem.
@@ -97,7 +95,6 @@ def convert_uptime_request_to_trace_item(
 
     attributes["check_id"] = _anyvalue(result["guid"])
     attributes["request_sequence"] = _anyvalue(request_sequence)
-    attributes["incident_status"] = _anyvalue(incident_status.value)
 
     if request_info is not None:
         attributes["request_type"] = _anyvalue(request_info["request_type"])
@@ -144,7 +141,6 @@ def convert_uptime_request_to_trace_item(
 def convert_uptime_result_to_trace_items(
     project: Project,
     result: CheckResult,
-    incident_status: IncidentStatus,
 ) -> list[TraceItem]:
     """
     Convert a complete uptime result to a list of denormalized TraceItems.
@@ -169,7 +165,7 @@ def convert_uptime_result_to_trace_items(
             item_id = request_id.encode("utf-8")[:16].ljust(16, b"\x00")
 
         request_item = convert_uptime_request_to_trace_item(
-            project, result, request_info, sequence, item_id, incident_status
+            project, result, request_info, sequence, item_id
         )
         trace_items.append(request_item)
 

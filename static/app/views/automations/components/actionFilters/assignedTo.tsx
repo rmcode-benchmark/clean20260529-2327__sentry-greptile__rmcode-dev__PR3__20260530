@@ -2,20 +2,21 @@ import styled from '@emotion/styled';
 
 import SelectMembers from 'sentry/components/selectMembers';
 import TeamSelector from 'sentry/components/teamSelector';
-import {
-  AutomationBuilderSelect,
+import AutomationBuilderSelectField, {
   selectControlStyles,
-} from 'sentry/components/workflowEngine/form/automationBuilderSelect';
+} from 'sentry/components/workflowEngine/form/automationBuilderSelectField';
 import {t, tct} from 'sentry/locale';
-import type {SelectValue} from 'sentry/types/core';
 import type {DataCondition} from 'sentry/types/workflowEngine/dataConditions';
 import useOrganization from 'sentry/utils/useOrganization';
 import {useTeamsById} from 'sentry/utils/useTeamsById';
 import useUserFromId from 'sentry/utils/useUserFromId';
-import {TargetType} from 'sentry/views/automations/components/actionFilters/constants';
-import {useAutomationBuilderErrorContext} from 'sentry/views/automations/components/automationBuilderErrorContext';
-import type {ValidateDataConditionProps} from 'sentry/views/automations/components/automationFormData';
 import {useDataConditionNodeContext} from 'sentry/views/automations/components/dataConditionNodes';
+
+enum TargetType {
+  UNASSIGNED = 'Unassigned',
+  TEAM = 'Team',
+  MEMBER = 'Member',
+}
 
 const TARGET_TYPE_CHOICES = [
   {value: TargetType.UNASSIGNED, label: 'No One'},
@@ -56,27 +57,17 @@ export function AssignedToNode() {
 function TargetTypeField() {
   const {condition, condition_id, onUpdate} = useDataConditionNodeContext();
   return (
-    <AutomationBuilderSelect
+    <AutomationBuilderSelectField
       name={`${condition_id}.comparison.targetType`}
-      aria-label={t('Assignee type')}
       value={condition.comparison.targetType}
       options={TARGET_TYPE_CHOICES}
-      onChange={(option: SelectValue<string>) =>
-        onUpdate({
-          comparison: {
-            ...condition.comparison,
-            targetType: option.value,
-            targetIdentifier: '',
-          },
-        })
-      }
+      onChange={(value: string) => onUpdate({targetType: value, targetIdentifier: ''})}
     />
   );
 }
 
 function IdentifierField() {
   const {condition, condition_id, onUpdate} = useDataConditionNodeContext();
-  const {removeError} = useAutomationBuilderErrorContext();
   const organization = useOrganization();
 
   if (condition.comparison.targetType === TargetType.TEAM) {
@@ -84,14 +75,8 @@ function IdentifierField() {
       <SelectWrapper>
         <TeamSelector
           name={`${condition_id}.data.targetIdentifier`}
-          aria-label={t('Team')}
           value={condition.comparison.targetIdentifier}
-          onChange={(option: SelectValue<string>) => {
-            onUpdate({
-              comparison: {...condition.comparison, targetIdentifier: option.value},
-            });
-            removeError(condition.id);
-          }}
+          onChange={(value: any) => onUpdate({targetIdentifier: value})}
           useId
           styles={selectControlStyles}
         />
@@ -105,14 +90,8 @@ function IdentifierField() {
         <SelectMembers
           organization={organization}
           key={`${condition_id}.data.targetIdentifier`}
-          aria-label={t('Member')}
           value={condition.comparison.targetIdentifier}
-          onChange={(value: any) => {
-            onUpdate({
-              comparison: {...condition.comparison, targetIdentifier: value.actor.id},
-            });
-            removeError(condition.id);
-          }}
+          onChange={(value: any) => onUpdate({targetIdentifier: value.actor.id})}
           styles={selectControlStyles}
         />
       </SelectWrapper>
@@ -120,27 +99,6 @@ function IdentifierField() {
   }
 
   return null;
-}
-
-export function validateAssignedToCondition({
-  condition,
-}: ValidateDataConditionProps): string | undefined {
-  if (!condition.comparison.targetType) {
-    return t('You must specify an assignee type.');
-  }
-  if (
-    condition.comparison.targetType === TargetType.TEAM &&
-    !condition.comparison.targetIdentifier
-  ) {
-    return t('You must specify a team.');
-  }
-  if (
-    condition.comparison.targetType === TargetType.MEMBER &&
-    !condition.comparison.targetIdentifier
-  ) {
-    return t('You must specify a member.');
-  }
-  return undefined;
 }
 
 const SelectWrapper = styled('div')`

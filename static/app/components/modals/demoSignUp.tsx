@@ -49,7 +49,7 @@ function DemoSignUpModal({closeModal}: Props) {
             )}
           </p>
         </TrialCheckInfo>
-        <StyledButtonBar>
+        <StyledButtonBar gap={1}>
           <LinkButton
             priority="primary"
             href={signupUrl}

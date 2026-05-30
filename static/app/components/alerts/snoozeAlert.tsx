@@ -167,7 +167,7 @@ function SnoozeAlert({
     );
   }
   return (
-    <ButtonBar gap="none">
+    <ButtonBar>
       <MuteButton
         size="sm"
         icon={<IconSound />}

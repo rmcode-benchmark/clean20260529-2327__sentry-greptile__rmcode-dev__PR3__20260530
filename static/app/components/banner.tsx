@@ -73,7 +73,7 @@ function Banner({
       <BannerContent>
         <BannerTitle>{title}</BannerTitle>
         <BannerSubtitle>{subtitle}</BannerSubtitle>
-        <StyledButtonBar>{children}</StyledButtonBar>
+        <StyledButtonBar gap={1}>{children}</StyledButtonBar>
       </BannerContent>
     </BannerWrapper>
   );

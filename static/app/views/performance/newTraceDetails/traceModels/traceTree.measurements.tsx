@@ -3,7 +3,6 @@ import {MobileVital, WebVital} from 'sentry/utils/fields';
 import {
   isEAPMeasurements,
   isEAPMeasurementValue,
-  isStandaloneSpanMeasurementNode,
 } from 'sentry/views/performance/newTraceDetails/traceGuards';
 
 import type {TraceTree} from './traceTree';
@@ -149,15 +148,9 @@ export function collectTraceMeasurements(
       continue;
     }
 
-    // Standalone span measurements occur at the exact start timestamp of the span.
-    // We pass in 0 as the measurement value to prevent applying any unnecessary offset.
     const timestamp = traceMeasurementToTimestamp(
       start_timestamp,
-      isStandaloneSpanMeasurementNode(node)
-        ? 0
-        : isEAPMeasurementValue(value)
-          ? value
-          : value.value,
+      isEAPMeasurementValue(value) ? value : value.value,
       isEAPMeasurementValue(value) ? 'millisecond' : (value.unit ?? 'millisecond')
     );
 

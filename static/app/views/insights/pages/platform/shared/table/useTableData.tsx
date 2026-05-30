@@ -2,15 +2,16 @@ import {useMemo} from 'react';
 
 import {useLocation} from 'sentry/utils/useLocation';
 import {useTableSortParams} from 'sentry/views/insights/agentMonitoring/components/headSortCell';
-import {useSpans} from 'sentry/views/insights/common/queries/useDiscover';
-import type {SpanProperty} from 'sentry/views/insights/types';
+import {useEAPSpans} from 'sentry/views/insights/common/queries/useDiscover';
+import {useTransactionNameQuery} from 'sentry/views/insights/pages/platform/shared/useTransactionNameQuery';
+import type {EAPSpanProperty} from 'sentry/views/insights/types';
 
 const PER_PAGE = 10;
 
-export function useSpanTableData<Fields extends SpanProperty>({
+export function useTableData<Fields extends EAPSpanProperty>({
   fields,
   referrer,
-  query,
+  query: baseQuery,
   cursorParamName,
 }: {
   cursorParamName: string;
@@ -19,14 +20,13 @@ export function useSpanTableData<Fields extends SpanProperty>({
   referrer: string;
 }) {
   const location = useLocation();
+  const {query} = useTransactionNameQuery();
   const {sortField, sortOrder} = useTableSortParams();
 
-  const isValidSortKey = fields.includes(sortField as Fields);
-
-  return useSpans(
+  return useEAPSpans(
     {
-      search: query,
-      sorts: isValidSortKey ? [{field: sortField, kind: sortOrder}] : undefined,
+      search: `${baseQuery ?? ''} ${query}`.trim(),
+      sorts: [{field: sortField, kind: sortOrder}],
       fields,
       limit: PER_PAGE,
       keepPreviousData: true,
@@ -39,7 +39,7 @@ export function useSpanTableData<Fields extends SpanProperty>({
   );
 }
 
-export function useTableDataWithController<Fields extends SpanProperty>({
+export function useTableDataWithController<Fields extends EAPSpanProperty>({
   fields,
   referrer,
   cursorParamName,
@@ -50,7 +50,7 @@ export function useTableDataWithController<Fields extends SpanProperty>({
   query: string;
   referrer: string;
 }) {
-  const transactionsRequest = useSpanTableData({
+  const transactionsRequest = useTableData({
     query,
     fields: ['transaction', ...fields],
     cursorParamName,
@@ -63,7 +63,7 @@ export function useTableDataWithController<Fields extends SpanProperty>({
   }, [transactionsRequest.data]);
 
   // The controller name is available in the span.description field on the `span.op:http.route` span in the same transaction
-  const routeControllersRequest = useSpans(
+  const routeControllersRequest = useEAPSpans(
     {
       search: `transaction.op:http.server span.op:http.route transaction:[${
         transactionPaths.map(transactions => `"${transactions}"`).join(',') || '""'

@@ -4,7 +4,7 @@ import type {Location} from 'history';
 
 import {CodeSnippet} from 'sentry/components/codeSnippet';
 import {CopyToClipboardButton} from 'sentry/components/copyToClipboardButton';
-import {Link} from 'sentry/components/core/link';
+import Link from 'sentry/components/links/link';
 import LoadingIndicator from 'sentry/components/loadingIndicator';
 import LinkHint from 'sentry/components/structuredEventData/linkHint';
 import {IconGraph} from 'sentry/icons/iconGraph';
@@ -16,6 +16,7 @@ import {trackAnalytics} from 'sentry/utils/analytics';
 import {SQLishFormatter} from 'sentry/utils/sqlish/SQLishFormatter';
 import {useLocalStorageState} from 'sentry/utils/useLocalStorageState';
 import type {TraceItemResponseAttribute} from 'sentry/views/explore/hooks/useTraceItemDetails';
+import {getHighlightedSpanAttributes} from 'sentry/views/insights/agentMonitoring/utils/highlightedSpanAttributes';
 import ResourceSize from 'sentry/views/insights/browser/resources/components/resourceSize';
 import {
   DisabledImages,
@@ -33,9 +34,8 @@ import {
   isValidJson,
   prettyPrintJsonString,
 } from 'sentry/views/insights/database/utils/jsonUtils';
-import {ModuleName, SpanFields} from 'sentry/views/insights/types';
+import {ModuleName, SpanIndexedField} from 'sentry/views/insights/types';
 import {traceAnalytics} from 'sentry/views/performance/newTraceDetails/traceAnalytics';
-import {getHighlightedSpanAttributes} from 'sentry/views/performance/newTraceDetails/traceDrawer/details/highlightedAttributes';
 import SpanSummaryLink from 'sentry/views/performance/newTraceDetails/traceDrawer/details/span/components/spanSummaryLink';
 import {TraceDrawerComponents} from 'sentry/views/performance/newTraceDetails/traceDrawer/details/styles';
 import {
@@ -116,7 +116,7 @@ export function SpanDescription({
                 organization,
                 location,
                 node.event?.projectID,
-                SpanFields.SPAN_DESCRIPTION,
+                SpanIndexedField.SPAN_DESCRIPTION,
                 span.description,
                 TraceDrawerActionKind.INCLUDE
               )
@@ -132,7 +132,7 @@ export function SpanDescription({
           if (hasExploreEnabled) {
             traceAnalytics.trackExploreSearch(
               organization,
-              SpanFields.SPAN_DESCRIPTION,
+              SpanIndexedField.SPAN_DESCRIPTION,
               span.description!,
               TraceDrawerActionKind.INCLUDE,
               'drawer'
@@ -219,6 +219,7 @@ export function SpanDescription({
         organization,
         attributes,
         op: span.op,
+        description: span.description,
       })}
     />
   );

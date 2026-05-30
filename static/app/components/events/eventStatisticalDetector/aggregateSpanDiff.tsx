@@ -10,7 +10,7 @@ import {useApiQuery} from 'sentry/utils/queryClient';
 import {MutableSearch} from 'sentry/utils/tokenizeSearch';
 import {useLocation} from 'sentry/utils/useLocation';
 import useOrganization from 'sentry/utils/useOrganization';
-import {useSpans} from 'sentry/views/insights/common/queries/useDiscover';
+import {useSpanMetrics} from 'sentry/views/insights/common/queries/useDiscover';
 import {SectionKey} from 'sentry/views/issueDetails/streamline/context';
 import {InterimSection} from 'sentry/views/issueDetails/streamline/interimSection';
 import {spanDetailsRouteWithQuery} from 'sentry/views/performance/transactionSummary/transactionSpans/spanDetails/utils';
@@ -119,7 +119,7 @@ function AggregateSpanDiff({event, project}: AggregateSpanDiffProps) {
     data: spansData,
     isPending: isSpansDataLoading,
     isError: isSpansDataError,
-  } = useSpans(
+  } = useSpanMetrics(
     {
       search,
       fields: [

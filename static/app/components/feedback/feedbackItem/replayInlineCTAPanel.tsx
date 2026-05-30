@@ -15,7 +15,7 @@ export default function ReplayInlineCTAPanel() {
   return (
     <PageBanner
       button={
-        <ButtonBar>
+        <ButtonBar gap={1}>
           <Button
             type="button"
             priority="primary"

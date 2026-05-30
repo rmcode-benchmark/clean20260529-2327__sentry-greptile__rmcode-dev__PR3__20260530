@@ -3,14 +3,13 @@ from sentry.utils.services import LazyServiceWrapper
 
 from .attribute import Attribute
 from .base import Analytics
-from .event import Event, eventclass
+from .event import Event
 from .event_manager import default_manager
 from .map import Map
 
 __all__ = (
     "Analytics",
     "Attribute",
-    "eventclass",
     "Event",
     "Map",
     "record",

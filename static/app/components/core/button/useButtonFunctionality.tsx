@@ -1,4 +1,5 @@
-import {useButtonTracking} from 'sentry/components/core/trackingContext';
+// eslint-disable-next-line boundaries/element-types
+import HookStore from 'sentry/stores/hookStore';
 
 import type {
   DO_NOT_USE_ButtonProps as ButtonProps,
@@ -13,7 +14,39 @@ export function useButtonFunctionality(props: ButtonProps | LinkButtonProps) {
     props['aria-label'] ??
     (typeof props.children === 'string' ? props.children : undefined);
 
-  const buttonTracking = useButtonTracking();
+  const useButtonTrackingLogger = () => {
+    const hasAnalyticsDebug = window.localStorage?.getItem('DEBUG_ANALYTICS') === '1';
+    const hasCustomAnalytics =
+      props.analyticsEventName || props.analyticsEventKey || props.analyticsParams;
+    if (!hasCustomAnalytics || !hasAnalyticsDebug) {
+      return () => {};
+    }
+
+    return () => {
+      // eslint-disable-next-line no-console
+      console.log('buttonAnalyticsEvent', {
+        eventKey: props.analyticsEventKey,
+        eventName: props.analyticsEventName,
+        priority: props.priority,
+        href: 'href' in props ? props.href : undefined,
+        ...props.analyticsParams,
+      });
+    };
+  };
+
+  const useButtonTracking =
+    HookStore.get('react-hook:use-button-tracking')[0] ?? useButtonTrackingLogger;
+
+  const buttonTracking = useButtonTracking({
+    analyticsEventName: props.analyticsEventName,
+    analyticsEventKey: props.analyticsEventKey,
+    analyticsParams: {
+      priority: props.priority,
+      href: 'href' in props ? props.href : undefined,
+      ...props.analyticsParams,
+    },
+    'aria-label': accessibleLabel || '',
+  });
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
     // Don't allow clicks when disabled or busy
@@ -23,16 +56,7 @@ export function useButtonFunctionality(props: ButtonProps | LinkButtonProps) {
       return;
     }
 
-    buttonTracking({
-      analyticsEventName: props.analyticsEventName,
-      analyticsEventKey: props.analyticsEventKey,
-      analyticsParams: {
-        priority: props.priority,
-        href: 'href' in props ? props.href : undefined,
-        ...props.analyticsParams,
-      },
-      'aria-label': accessibleLabel || '',
-    });
+    buttonTracking();
     // @ts-expect-error at this point, we don't know if the button is a button or a link
     props.onClick?.(e);
   };

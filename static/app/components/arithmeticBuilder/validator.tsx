@@ -2,7 +2,6 @@ import type {Token} from 'sentry/components/arithmeticBuilder/token';
 import {
   isTokenFreeText,
   isTokenFunction,
-  isTokenLiteral,
   isTokenOperator,
   isTokenParenthesis,
   Parenthesis,
@@ -105,9 +104,8 @@ class ExpressionValidator {
       tokenKinds.push(TokenKind.OPERATOR);
     }
 
-    if (this.pushFunction(dryRun)) {
+    if (this.pushExpression(dryRun)) {
       tokenKinds.push(TokenKind.FUNCTION);
-      tokenKinds.push(TokenKind.LITERAL);
     }
 
     return tokenKinds;
@@ -117,11 +115,7 @@ class ExpressionValidator {
     const options: PushOptions = {dryRun: false};
 
     if (isTokenFunction(token)) {
-      return this.pushFunction(options);
-    }
-
-    if (isTokenLiteral(token)) {
-      return this.pushLiteral(options);
+      return this.pushExpression(options);
     }
 
     if (isTokenFreeText(token)) {
@@ -136,38 +130,27 @@ class ExpressionValidator {
       return this.pushParenthesis(token.parenthesis, options);
     }
 
-    throw new Error(`Unknown token type: ${token.kind}`);
+    return false;
   }
 
-  private pushFunction(options: PushOptions): boolean {
-    return this.pushTerm(TokenKind.FUNCTION, options);
-  }
-
-  private pushLiteral(options: PushOptions): boolean {
-    return this.pushTerm(TokenKind.LITERAL, options);
-  }
-
-  private pushTerm(
-    kind: TokenKind.FUNCTION | TokenKind.LITERAL,
-    {dryRun}: PushOptions
-  ): boolean {
+  pushExpression({dryRun}: PushOptions): boolean {
     if (this.empty()) {
       if (!dryRun) {
         // first token found, just push it
-        this.stack.push(kind);
+        this.stack.push(TokenKind.FUNCTION);
       }
       return true;
     }
 
     if (this.end() === TokenKind.OPEN_PARENTHESIS) {
       if (!dryRun) {
-        this.stack.push(kind);
+        this.stack.push(TokenKind.FUNCTION);
       }
       return true;
     }
 
     if (this.end() === TokenKind.OPERATOR) {
-      if (this.end(1) === TokenKind.FUNCTION || this.end(1) === TokenKind.LITERAL) {
+      if (this.end(1) === TokenKind.FUNCTION) {
         if (!dryRun) {
           // combine the 2 expressions with the operator
           // we can just pop off the operator as we
@@ -181,14 +164,14 @@ class ExpressionValidator {
     return false;
   }
 
-  private pushFreeText(text: string, _options: PushOptions): boolean {
+  pushFreeText(text: string, _options: PushOptions): boolean {
     // only empty free text tokens are allowed
     // no need to push them onto the stack either
     return text.trim() === '';
   }
 
-  private pushOperator({dryRun}: PushOptions): boolean {
-    if (this.end() === TokenKind.FUNCTION || this.end() === TokenKind.LITERAL) {
+  pushOperator({dryRun}: PushOptions): boolean {
+    if (this.end() === TokenKind.FUNCTION) {
       if (!dryRun) {
         this.stack.push(TokenKind.OPERATOR);
       }
@@ -198,7 +181,7 @@ class ExpressionValidator {
     return false;
   }
 
-  private pushParenthesis(parenthesis: Parenthesis, {dryRun}: PushOptions): boolean {
+  pushParenthesis(parenthesis: Parenthesis, {dryRun}: PushOptions): boolean {
     if (parenthesis === Parenthesis.OPEN) {
       if (this.empty()) {
         if (!dryRun) {
@@ -221,17 +204,14 @@ class ExpressionValidator {
     }
 
     if (parenthesis === Parenthesis.CLOSE) {
-      if (this.end() === TokenKind.FUNCTION || this.end() === TokenKind.LITERAL) {
+      if (this.end() === TokenKind.FUNCTION) {
         if (this.end(1) === TokenKind.OPEN_PARENTHESIS) {
           // found a parenthesized expression
           // we can strip the parenthesis and
           // leave just an expression
           const a = this.stack.pop()!;
           const b = this.stack.pop()!;
-
-          // it doesn't matter if we pushed a function or
-          // a literal because they are valid in the same positions.
-          const isAllowed = this.pushFunction({dryRun});
+          const isAllowed = this.pushExpression({dryRun});
 
           // Because this requires a recursive check, we have
           // to pop the items off the stack before the recursive
@@ -250,10 +230,7 @@ class ExpressionValidator {
   }
 
   isValid(): boolean {
-    return (
-      this.stack.length === 1 &&
-      (this.stack[0] === TokenKind.FUNCTION || this.stack[0] === TokenKind.LITERAL)
-    );
+    return this.stack.length === 1 && this.stack[0] === TokenKind.FUNCTION;
   }
 
   private empty(): boolean {

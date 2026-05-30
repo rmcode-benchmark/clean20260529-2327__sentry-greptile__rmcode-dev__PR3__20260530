@@ -1,12 +1,8 @@
 import {AutomationFixture} from 'sentry-fixture/automations';
-import {
-  MetricDetectorFixture,
-  SnubaQueryDataSourceFixture,
-} from 'sentry-fixture/detectors';
+import {DetectorFixture, SnubaQueryDataSourceFixture} from 'sentry-fixture/detectors';
 import {OrganizationFixture} from 'sentry-fixture/organization';
 import {ProjectFixture} from 'sentry-fixture/project';
 import {TeamFixture} from 'sentry-fixture/team';
-import {UserFixture} from 'sentry-fixture/user';
 
 import {render, screen} from 'sentry-test/reactTestingLibrary';
 
@@ -29,7 +25,7 @@ describe('DetectorDetails', function () {
       },
     },
   });
-  const snubaQueryDetector = MetricDetectorFixture({
+  const snubaQueryDetector = DetectorFixture({
     projectId: project.id,
     dataSources: [dataSource],
     owner: `team:${ownerTeam.id}`,
@@ -56,19 +52,6 @@ describe('DetectorDetails', function () {
         AutomationFixture({id: '2', name: 'Automation 2'}),
       ],
       match: [MockApiClient.matchQuery({id: ['1', '2']})],
-    });
-    MockApiClient.addMockResponse({
-      url: `/organizations/${organization.slug}/users/1/`,
-      body: UserFixture(),
-    });
-    MockApiClient.addMockResponse({
-      url: `/organizations/${organization.slug}/events-stats/`,
-      body: {
-        data: [
-          [1543449600, [20, 12]],
-          [1543449601, [10, 5]],
-        ],
-      },
     });
   });
 

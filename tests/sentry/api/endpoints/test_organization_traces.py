@@ -268,7 +268,7 @@ class OrganizationTracesEndpointTest(OrganizationTracesEndpointTestBase):
     def do_request(self, query, features=None, **kwargs):
         if features is None:
             features = [
-                "organizations:visibility-explore-view",
+                "organizations:performance-trace-explorer",
                 "organizations:global-views",
             ]
 
@@ -692,7 +692,7 @@ class OrganizationTracesEndpointTest(OrganizationTracesEndpointTestBase):
 
             for features in [
                 None,  # use the default features
-                ["organizations:visibility-explore-view"],
+                ["organizations:performance-trace-explorer"],
             ]:
                 query = {
                     # only query for project_2 but expect traces to start from project_1

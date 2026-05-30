@@ -1,7 +1,6 @@
 import moment from 'moment-timezone';
 import {OrganizationFixture} from 'sentry-fixture/organization';
 
-import {MetricHistoryFixture} from 'getsentry-test/fixtures/metricHistory';
 import {PlanDetailsLookupFixture} from 'getsentry-test/fixtures/planDetailsLookup';
 import {SubscriptionFixture} from 'getsentry-test/fixtures/subscription';
 
@@ -13,7 +12,6 @@ import {
   formatReservedWithUnits,
   formatUsageWithUnits,
   getActiveProductTrial,
-  getBestActionToIncreaseEventLimits,
   getOnDemandCategories,
   getProductTrial,
   getSlot,
@@ -25,7 +23,6 @@ import {
   isTeamPlanFamily,
   MILLISECONDS_IN_HOUR,
   trialPromptIsDismissed,
-  UsageAction,
 } from 'getsentry/utils/billing';
 
 describe('formatReservedWithUnits', function () {
@@ -202,54 +199,6 @@ describe('formatReservedWithUnits', function () {
       '$1,500.00'
     );
     expect(formatReservedWithUnits(0, DataCategory.SPANS, {}, true)).toBe('$0.00');
-  });
-
-  it('returns correct string for logs', function () {
-    expect(formatReservedWithUnits(0, DataCategory.LOG_BYTE)).toBe('0 GB');
-    expect(formatReservedWithUnits(0.1, DataCategory.LOG_BYTE)).toBe('0.1 GB');
-    expect(formatReservedWithUnits(1, DataCategory.LOG_BYTE)).toBe('1 GB');
-    expect(formatReservedWithUnits(1000, DataCategory.LOG_BYTE)).toBe('1,000 GB');
-
-    expect(
-      formatReservedWithUnits(0.1234, DataCategory.LOG_BYTE, {
-        isAbbreviated: true,
-      })
-    ).toBe('0 GB');
-    expect(
-      formatReservedWithUnits(1.234, DataCategory.LOG_BYTE, {
-        isAbbreviated: true,
-      })
-    ).toBe('1 GB');
-    expect(
-      formatReservedWithUnits(0.1, DataCategory.LOG_BYTE, {
-        useUnitScaling: true,
-      })
-    ).toBe('0.1 GB');
-    expect(
-      formatReservedWithUnits(1, DataCategory.LOG_BYTE, {
-        useUnitScaling: true,
-      })
-    ).toBe('1 GB');
-    expect(
-      formatReservedWithUnits(1000, DataCategory.LOG_BYTE, {
-        useUnitScaling: true,
-      })
-    ).toBe('1 TB');
-    expect(
-      formatReservedWithUnits(1234, DataCategory.LOG_BYTE, {
-        useUnitScaling: true,
-      })
-    ).toBe('1.23 TB');
-    expect(
-      formatReservedWithUnits(1234 * BILLION, DataCategory.LOG_BYTE, {
-        useUnitScaling: true,
-      })
-    ).toBe('1.23 ZB');
-    expect(
-      formatReservedWithUnits(-1 / GIGABYTE, DataCategory.LOG_BYTE, {
-        useUnitScaling: true,
-      })
-    ).toBe(UNLIMITED);
   });
 });
 
@@ -950,45 +899,5 @@ describe('isEnterprise', function () {
     expect(isEnterprise('_enterprise')).toBe(false);
     expect(isEnterprise('am1_business')).toBe(false);
     expect(isEnterprise('am2_team')).toBe(false);
-  });
-});
-
-describe('getBestActionToIncreaseEventLimits', function () {
-  it('returns start trial for free plan', function () {
-    const organization = OrganizationFixture();
-    const subscription = SubscriptionFixture({
-      organization,
-      plan: 'am3_f',
-    });
-    expect(getBestActionToIncreaseEventLimits(organization, subscription)).toBe(
-      UsageAction.START_TRIAL
-    );
-  });
-
-  it('returns add events for paid plan with usage exceeded', function () {
-    const organization = OrganizationFixture();
-    const subscription = SubscriptionFixture({
-      organization,
-      plan: 'am3_team',
-      categories: {
-        errors: MetricHistoryFixture({usageExceeded: false}),
-        spans: MetricHistoryFixture({usageExceeded: true}),
-        replays: MetricHistoryFixture({usageExceeded: false}),
-        attachments: MetricHistoryFixture({usageExceeded: true}),
-        monitorSeats: MetricHistoryFixture({usageExceeded: false}),
-      },
-    });
-    expect(getBestActionToIncreaseEventLimits(organization, subscription)).toBe(
-      UsageAction.REQUEST_ADD_EVENTS
-    );
-  });
-
-  it('returns nothing for business plan without usage exceeded', function () {
-    const organization = OrganizationFixture();
-    const subscription = SubscriptionFixture({
-      organization,
-      plan: 'am3_business',
-    });
-    expect(getBestActionToIncreaseEventLimits(organization, subscription)).toBe('');
   });
 });

@@ -2,9 +2,9 @@ import type {Location} from 'history';
 
 import Feature from 'sentry/components/acl/feature';
 import FeatureDisabled from 'sentry/components/acl/featureDisabled';
-import {ExternalLink} from 'sentry/components/core/link';
 import ErrorBoundary from 'sentry/components/errorBoundary';
 import {Hovercard} from 'sentry/components/hovercard';
+import ExternalLink from 'sentry/components/links/externalLink';
 import Placeholder from 'sentry/components/placeholder';
 import QuickTrace from 'sentry/components/quickTrace';
 import {t} from 'sentry/locale';
@@ -20,7 +20,8 @@ import useOrganization from 'sentry/utils/useOrganization';
 import {MetaData} from './styles';
 import {TraceLink} from './traceLink';
 
-interface Props extends Pick<React.ComponentProps<typeof QuickTrace>, 'errorDest'> {
+interface Props
+  extends Pick<React.ComponentProps<typeof QuickTrace>, 'errorDest' | 'transactionDest'> {
   anchor: 'left' | 'right';
   event: Event;
   location: Location;
@@ -36,6 +37,7 @@ export default function QuickTraceMeta({
   traceMeta,
   anchor,
   errorDest,
+  transactionDest,
   project,
 }: Props) {
   const organization = useOrganization();
@@ -78,6 +80,7 @@ export default function QuickTraceMeta({
             organization={organization}
             anchor={anchor}
             errorDest={errorDest}
+            transactionDest={transactionDest}
           />
         </ErrorBoundary>
       );

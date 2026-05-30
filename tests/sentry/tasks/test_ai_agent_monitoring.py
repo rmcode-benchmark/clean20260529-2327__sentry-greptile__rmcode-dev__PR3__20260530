@@ -2,13 +2,8 @@ import pytest
 import responses
 
 from sentry.relay.config.ai_model_costs import AI_MODEL_COSTS_CACHE_KEY, AIModelCosts
-from sentry.tasks.ai_agent_monitoring import (
-    MODELS_DEV_API_URL,
-    OPENROUTER_MODELS_API_URL,
-    fetch_ai_model_costs,
-)
+from sentry.tasks.ai_agent_monitoring import OPENROUTER_MODELS_API_URL, fetch_ai_model_costs
 from sentry.testutils.cases import TestCase
-from sentry.testutils.helpers.options import override_options
 from sentry.utils.cache import cache
 
 
@@ -110,46 +105,6 @@ MOCK_OPENROUTER_API_RESPONSE = {
     ]
 }
 
-MOCK_MODELS_DEV_API_RESPONSE = {
-    "openai": {
-        "models": {
-            "gpt-4.1-mini": {
-                "cost": {
-                    "input": 0.4 * 1000000,  # models.dev have prices per 1M tokens
-                    "output": 1.6 * 1000000,  # models.dev have prices per 1M tokens
-                    "cache_read": 0.1 * 1000000,  # models.dev have prices per 1M tokens
-                }
-            },
-            "gpt-4": {  # This should be skipped since it exists in OpenRouter
-                "cost": {
-                    "input": 0.1 * 1000000,  # models.dev have prices per 1M tokens
-                    "output": 0.2 * 1000000,  # models.dev have prices per 1M tokens
-                    "cache_read": 0.05 * 1000000,  # models.dev have prices per 1M tokens
-                }
-            },
-        }
-    },
-    "google": {
-        "models": {
-            "gemini-2.5-pro": {
-                "cost": {
-                    "input": 1.25 * 1000000,  # models.dev have prices per 1M tokens
-                    "output": 10 * 1000000,  # models.dev have prices per 1M tokens
-                    "cache_read": 0.31 * 1000000,  # models.dev have prices per 1M tokens
-                }
-            },
-            "google/gemini-2.0-flash-001": {  # Test provider prefix stripping
-                "cost": {
-                    "input": 0.075 * 1000000,  # models.dev have prices per 1M tokens
-                    "output": 0.3 * 1000000,  # models.dev have prices per 1M tokens
-                    "cache_read": 0.01875 * 1000000,  # models.dev have prices per 1M tokens
-                }
-            },
-        }
-    },
-    "invalid_provider": "this should be ignored",
-}
-
 
 class FetchAIModelCostsTest(TestCase):
     def setUp(self):
@@ -165,77 +120,10 @@ class FetchAIModelCostsTest(TestCase):
             status=200,
         )
 
-    def _mock_models_dev_api_response(self, mock_response: dict):
-        responses.add(
-            responses.GET,
-            MODELS_DEV_API_URL,
-            json=mock_response,
-            status=200,
-        )
-
     @responses.activate
-    def test_fetch_ai_model_costs_success_both_apis(self):
-        """Test successful fetching and caching from both APIs"""
+    def test_fetch_ai_model_costs_success(self):
+        """Test successful fetching and caching of AI model costs"""
         self._mock_openrouter_api_response(MOCK_OPENROUTER_API_RESPONSE)
-        self._mock_models_dev_api_response(MOCK_MODELS_DEV_API_RESPONSE)
-
-        fetch_ai_model_costs()
-
-        # Verify the data was cached correctly
-        cached_data = _get_ai_model_costs_from_cache()
-        assert cached_data is not None
-        assert cached_data.get("version") == 2
-        assert cached_data.get("costs") is None
-        assert cached_data.get("models") is not None
-
-        models = cached_data.get("models")
-        assert models is not None
-        # Should have OpenRouter models + unique models.dev models
-        assert (
-            len(models) == 5
-        )  # gpt-4, gpt-5 from OpenRouter + gpt-4.1-mini, gemini-2.5-pro, gemini-2.0-flash-001 from models.dev
-
-        # Check OpenRouter models
-        gpt4_model = models["gpt-4"]
-        assert gpt4_model.get("inputPerToken") == 0.0000003  # OpenRouter price, not models.dev
-        assert gpt4_model.get("outputPerToken") == 0.00000165
-        assert gpt4_model.get("outputReasoningPerToken") == 0.0
-        assert gpt4_model.get("inputCachedPerToken") == 0.0
-
-        gpt5_model = models["gpt-5"]
-        assert gpt5_model.get("inputPerToken") == 0.00000055
-        assert gpt5_model.get("outputPerToken") == 0.0000022
-        assert gpt5_model.get("outputReasoningPerToken") == 0.00000055
-        assert gpt5_model.get("inputCachedPerToken") == 0.00000055
-
-        # Check models.dev models
-        gpt41_mini_model = models["gpt-4.1-mini"]
-        assert gpt41_mini_model.get("inputPerToken") == 0.4
-        assert gpt41_mini_model.get("outputPerToken") == 1.6
-        assert (
-            gpt41_mini_model.get("outputReasoningPerToken") == 0.0
-        )  # models.dev doesn't provide this
-        assert gpt41_mini_model.get("inputCachedPerToken") == 0.1
-
-        gemini_model = models["gemini-2.5-pro"]
-        assert gemini_model.get("inputPerToken") == 1.25
-        assert gemini_model.get("outputPerToken") == 10
-        assert gemini_model.get("outputReasoningPerToken") == 0.0
-        assert gemini_model.get("inputCachedPerToken") == 0.31
-
-        # Check models.dev model with provider prefix (should be stripped)
-        gemini_flash_model = models["gemini-2.0-flash-001"]
-        assert gemini_flash_model.get("inputPerToken") == 0.075
-        assert gemini_flash_model.get("outputPerToken") == 0.3
-        assert gemini_flash_model.get("outputReasoningPerToken") == 0.0
-        assert gemini_flash_model.get("inputCachedPerToken") == 0.01875
-
-    @responses.activate
-    def test_fetch_ai_model_costs_success_openrouter_only(self):
-        """Test successful fetching when only OpenRouter succeeds"""
-        self._mock_openrouter_api_response(MOCK_OPENROUTER_API_RESPONSE)
-        # Also mock models.dev to return empty response to avoid real network call
-        self._mock_models_dev_api_response({})
 
         fetch_ai_model_costs()
 
@@ -267,7 +155,7 @@ class FetchAIModelCostsTest(TestCase):
     @responses.activate
     def test_fetch_ai_model_costs_missing_pricing(self):
         """Test handling of models with missing pricing data"""
-        mock_openrouter_response = {
+        mock_response = {
             "data": [
                 {
                     "id": "openai/gpt-4",
@@ -290,24 +178,12 @@ class FetchAIModelCostsTest(TestCase):
             ]
         }
 
-        mock_models_dev_response = {
-            "provider": {
-                "models": {
-                    "model-with-pricing": {
-                        "cost": {
-                            "input": 0.1 * 1000000,  # models.dev have prices per 1M tokens
-                            "output": 0.2 * 1000000,  # models.dev have prices per 1M tokens
-                        }
-                    },
-                    "model-no-cost": {
-                        # Missing cost field
-                    },
-                }
-            }
-        }
-
-        self._mock_openrouter_api_response(mock_openrouter_response)
-        self._mock_models_dev_api_response(mock_models_dev_response)
+        responses.add(
+            responses.GET,
+            OPENROUTER_MODELS_API_URL,
+            json=mock_response,
+            status=200,
+        )
 
         fetch_ai_model_costs()
 
@@ -316,7 +192,7 @@ class FetchAIModelCostsTest(TestCase):
         assert cached_data is not None
         models = cached_data.get("models")
         assert models is not None
-        assert len(models) == 4  # 3 from OpenRouter + 1 valid from models.dev
+        assert len(models) == 3
 
         # Check valid model
         gpt4_model = models["gpt-4"]
@@ -337,52 +213,28 @@ class FetchAIModelCostsTest(TestCase):
         assert no_pricing_model.get("outputReasoningPerToken") == 0.0
         assert no_pricing_model.get("inputCachedPerToken") == 0.0
 
-        # Check models.dev model
-        models_dev_model = models["model-with-pricing"]
-        assert models_dev_model.get("inputPerToken") == 0.1
-        assert models_dev_model.get("outputPerToken") == 0.2
-        assert models_dev_model.get("outputReasoningPerToken") == 0.0
-        assert models_dev_model.get("inputCachedPerToken") == 0.0
-
     @responses.activate
-    def test_fetch_ai_model_costs_openrouter_invalid_response(self):
-        """Test handling of invalid OpenRouter API response format"""
+    def test_fetch_ai_model_costs_invalid_response_format(self):
+        """Test handling of invalid API response format"""
         # Invalid response - missing 'data' field
         mock_response = {"invalid": "response"}
 
-        self._mock_openrouter_api_response(mock_response)
+        responses.add(
+            responses.GET,
+            OPENROUTER_MODELS_API_URL,
+            json=mock_response,
+            status=200,
+        )
 
-        with pytest.raises(ValueError, match="Invalid OpenRouter response format"):
-            fetch_ai_model_costs()
+        fetch_ai_model_costs()
 
         # Verify nothing was cached
         cached_data = _get_ai_model_costs_from_cache()
         assert cached_data is None
 
     @responses.activate
-    def test_fetch_ai_model_costs_models_dev_invalid_response(self):
-        """Test handling of invalid models.dev API response format"""
-        # Valid OpenRouter response
-        self._mock_openrouter_api_response(MOCK_OPENROUTER_API_RESPONSE)
-
-        # Invalid models.dev response - not a dict
-        responses.add(
-            responses.GET,
-            MODELS_DEV_API_URL,
-            json=["not", "a", "dict"],
-            status=200,
-        )
-
-        with pytest.raises(ValueError, match="Invalid models.dev response format"):
-            fetch_ai_model_costs()
-
-        # Verify nothing was cached due to models.dev failure
-        cached_data = _get_ai_model_costs_from_cache()
-        assert cached_data is None
-
-    @responses.activate
-    def test_fetch_ai_model_costs_openrouter_http_error(self):
-        """Test handling of OpenRouter HTTP errors"""
+    def test_fetch_ai_model_costs_http_error(self):
+        """Test handling of HTTP errors"""
         responses.add(
             responses.GET,
             OPENROUTER_MODELS_API_URL,
@@ -393,26 +245,6 @@ class FetchAIModelCostsTest(TestCase):
             fetch_ai_model_costs()
 
         # Verify nothing was cached
-        cached_data = _get_ai_model_costs_from_cache()
-        assert cached_data is None
-
-    @responses.activate
-    def test_fetch_ai_model_costs_models_dev_http_error(self):
-        """Test handling of models.dev HTTP errors"""
-        # Valid OpenRouter response
-        self._mock_openrouter_api_response(MOCK_OPENROUTER_API_RESPONSE)
-
-        # models.dev API error
-        responses.add(
-            responses.GET,
-            MODELS_DEV_API_URL,
-            status=500,
-        )
-
-        with pytest.raises(Exception):
-            fetch_ai_model_costs()
-
-        # Verify nothing was cached due to models.dev failure
         cached_data = _get_ai_model_costs_from_cache()
         assert cached_data is None
 
@@ -438,51 +270,3 @@ class FetchAIModelCostsTest(TestCase):
         """Test retrieving from empty cache"""
         cached_data = _get_ai_model_costs_from_cache()
         assert cached_data is None
-
-    @override_options(
-        {
-            "ai-agent-monitoring.custom-model-mapping": [
-                {
-                    "alternative_model_id": "gemini-pro-alternative",
-                    "existing_model_id": "gemini-2.5-pro",
-                },
-                {
-                    "alternative_model_id": "nonexistent-mapping",
-                    "existing_model_id": "model-that-does-not-exist",
-                },
-            ]
-        }
-    )
-    @responses.activate
-    def test_fetch_ai_model_costs_custom_model_mapping(self):
-        self._mock_openrouter_api_response(MOCK_OPENROUTER_API_RESPONSE)
-        self._mock_models_dev_api_response(MOCK_MODELS_DEV_API_RESPONSE)
-
-        fetch_ai_model_costs()
-
-        # Verify the data was cached correctly
-        cached_data = _get_ai_model_costs_from_cache()
-        assert cached_data is not None
-        models = cached_data.get("models")
-        assert models is not None
-
-        # Original models should exist
-        assert "gemini-2.5-pro" in models
-
-        # Alternative model IDs should be mapped to existing models
-        assert "gemini-pro-alternative" in models
-
-        # Verify that the alternative models have the same pricing as the existing models
-        gemini_model = models["gemini-2.5-pro"]
-        gemini_alt_model = models["gemini-pro-alternative"]
-        assert gemini_model.get("inputPerToken") == gemini_alt_model.get("inputPerToken")
-        assert gemini_model.get("outputPerToken") == gemini_alt_model.get("outputPerToken")
-        assert gemini_model.get("outputReasoningPerToken") == gemini_alt_model.get(
-            "outputReasoningPerToken"
-        )
-        assert gemini_model.get("inputCachedPerToken") == gemini_alt_model.get(
-            "inputCachedPerToken"
-        )
-
-        # Non-existent mapping should not create a new model
-        assert "nonexistent-mapping" not in models

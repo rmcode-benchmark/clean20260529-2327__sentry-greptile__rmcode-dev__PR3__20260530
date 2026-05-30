@@ -4,15 +4,22 @@ import styled from '@emotion/styled';
 
 import type {Polarity} from 'sentry/components/percentChange';
 import {space} from 'sentry/styles/space';
+import type {NewQuery} from 'sentry/types/organization';
 import type {MetaType} from 'sentry/utils/discover/eventView';
+import EventView from 'sentry/utils/discover/eventView';
+import type {DiscoverDatasets} from 'sentry/utils/discover/types';
 import {MutableSearch} from 'sentry/utils/tokenizeSearch';
+import {useLocation} from 'sentry/utils/useLocation';
+import usePageFilters from 'sentry/utils/usePageFilters';
 import {MetricReadout} from 'sentry/views/insights/common/components/metricReadout';
 import {ReadoutRibbon} from 'sentry/views/insights/common/components/ribbon';
-import {useSpans} from 'sentry/views/insights/common/queries/useDiscover';
+import {useEAPSpans} from 'sentry/views/insights/common/queries/useDiscover';
 import {useReleaseSelection} from 'sentry/views/insights/common/queries/useReleases';
 import {appendReleaseFilters} from 'sentry/views/insights/common/utils/releaseComparison';
+import {useInsightsEap} from 'sentry/views/insights/common/utils/useEap';
 import useCrossPlatformProject from 'sentry/views/insights/mobile/common/queries/useCrossPlatformProject';
-import type {SpanProperty} from 'sentry/views/insights/types';
+import {useTableQuery} from 'sentry/views/insights/mobile/screenload/components/tables/screensTable';
+import type {EAPSpanProperty} from 'sentry/views/insights/types';
 
 type TableData = {
   data: Array<Record<string, any>>;
@@ -32,12 +39,18 @@ export function MobileMetricsRibbon({
   blocks,
   fields,
   referrer,
+  dataset,
 }: {
   blocks: BlockProps[];
-  fields: SpanProperty[];
+  dataset: DiscoverDatasets;
+  fields: EAPSpanProperty[];
   referrer: string;
   filters?: string[];
 }) {
+  const {selection} = usePageFilters();
+  const location = useLocation();
+  const useEap = useInsightsEap();
+
   const {
     primaryRelease,
     secondaryRelease,
@@ -62,14 +75,37 @@ export function MobileMetricsRibbon({
     selectedPlatform,
   ]);
 
-  const {isPending, data, meta} = useSpans(
+  const newQuery: NewQuery = {
+    name: 'ScreenMetricsRibbon',
+    fields,
+    query: queryString,
+    dataset,
+    version: 2,
+    projects: selection.projects,
+  };
+  const eventView = EventView.fromNewQueryWithLocation(newQuery, location);
+
+  const eapResult = useEAPSpans(
     {
       fields,
       search: queryString,
-      enabled: !isReleasesLoading,
+      enabled: useEap && !isReleasesLoading,
     },
     referrer
   );
+
+  const tableResult = useTableQuery({
+    eventView,
+    enabled: !useEap && !isReleasesLoading,
+    referrer,
+  });
+
+  const isPending = useEap ? eapResult.isPending : tableResult.isPending;
+
+  const data = {
+    data: useEap ? eapResult.data : tableResult.data?.data || [],
+    meta: useEap ? eapResult.meta : tableResult.data?.meta,
+  };
 
   return (
     <StyledReadoutRibbon>
@@ -79,7 +115,7 @@ export function MobileMetricsRibbon({
           title={title}
           unit={unit}
           dataKey={dataKey}
-          data={{data, meta}}
+          data={data}
           isLoading={isPending}
           preferredPolarity={preferredPolarity}
         />

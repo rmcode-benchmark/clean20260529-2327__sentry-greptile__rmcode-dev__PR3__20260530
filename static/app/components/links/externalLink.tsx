@@ -1,6 +1,18 @@
-import {ExternalLink} from 'sentry/components/core/link';
+import {Anchor} from './link';
 
-/**
- * @deprecated Use `ExternalLink` from `sentry/components/core/link` instead.
- */
+interface ExternalLinkProps
+  extends Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'target'> {
+  disabled?: boolean;
+  openInNewTab?: boolean;
+  ref?: React.Ref<HTMLAnchorElement>;
+}
+
+function ExternalLink({ref, openInNewTab = true, ...props}: ExternalLinkProps) {
+  const anchorProps = openInNewTab
+    ? {target: '_blank', rel: 'noreferrer noopener'}
+    : {href: props.href};
+
+  return <Anchor ref={ref} {...anchorProps} {...props} />;
+}
+
 export default ExternalLink;

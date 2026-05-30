@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import {PlatformIcon} from 'platformicons';
 
-import {ExternalLink} from 'sentry/components/core/link';
+import ExternalLink from 'sentry/components/links/externalLink';
 import {space} from 'sentry/styles/space';
 
 import ResultGrid from 'admin/components/resultGrid';

@@ -122,9 +122,6 @@ export function makeEAPOccurrence(
     event_type: 'occurrence',
     issue_id: 1,
     level: 'info',
-    culprit: 'code',
-    short_id: 'short_id',
-    type: 0,
     ...overrides,
   };
 }

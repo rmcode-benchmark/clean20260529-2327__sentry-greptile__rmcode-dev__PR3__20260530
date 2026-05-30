@@ -27,7 +27,7 @@ class OrganizationMemberInviteRequestValidator(serializers.Serializer):
         required=False,
         help_text="The organization-level role of the new member. Roles include:",  # choices will follow in the docs
     )
-    teams = serializers.ListField(required=False, allow_null=False, default=list)
+    teams = serializers.ListField(required=False, allow_null=False, default=[])
 
     reinvite = serializers.BooleanField(
         required=False,

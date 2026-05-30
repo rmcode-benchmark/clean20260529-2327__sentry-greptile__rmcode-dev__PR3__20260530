@@ -8,7 +8,6 @@ from django.http.response import HttpResponseBase
 
 from sentry.integrations.base import IntegrationData
 from sentry.integrations.pipeline import IntegrationPipeline
-from sentry.integrations.types import IntegrationProviderSlug
 from sentry.integrations.vsts.integration import AccountConfigView, VstsIntegrationProvider
 from sentry.pipeline.views.base import PipelineView
 from sentry.utils.http import absolute_uri
@@ -16,7 +15,7 @@ from sentry.utils.http import absolute_uri
 
 class VstsExtensionIntegrationProvider(VstsIntegrationProvider):
     key = "vsts-extension"
-    integration_key = IntegrationProviderSlug.AZURE_DEVOPS.value
+    integration_key = "vsts"
 
     # This is only to enable the VSTS -> Sentry installation flow, so we don't
     # want it to actually appear of the Integrations page.
@@ -33,8 +32,8 @@ class VstsExtensionIntegrationProvider(VstsIntegrationProvider):
             {
                 **state,
                 "account": {
-                    "accountId": state[IntegrationProviderSlug.AZURE_DEVOPS.value]["accountId"],
-                    "accountName": state[IntegrationProviderSlug.AZURE_DEVOPS.value]["accountName"],
+                    "accountId": state["vsts"]["accountId"],
+                    "accountName": state["vsts"]["accountName"],
                 },
             }
         )

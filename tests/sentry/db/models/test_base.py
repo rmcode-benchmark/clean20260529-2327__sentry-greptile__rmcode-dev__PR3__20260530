@@ -1,5 +1,6 @@
 from unittest import TestCase
 
+from sentry.data_secrecy.models import DataSecrecyWaiver
 from sentry.db.models import DefaultFieldsModelExisting
 from sentry.integrations.models import Integration, RepositoryProjectPathConfig
 from sentry.models.groupsearchview import GroupSearchView
@@ -38,6 +39,7 @@ class PreventDefaultFieldsModelExistingUseTest(TestCase):
             BaseImportChunk,
             ControlImportChunk,
             ControlImportChunkReplica,
+            DataSecrecyWaiver,
             GroupSearchView,
             Integration,
             NotificationSettingBase,

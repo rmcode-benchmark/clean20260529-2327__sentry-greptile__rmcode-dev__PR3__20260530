@@ -15,9 +15,7 @@ from sentry.search.events.types import SnubaParams
 from sentry.search.utils import parse_release, validate_snuba_array_parameter
 
 
-def release_filter_converter(
-    params: SnubaParams, search_filter: SearchFilter
-) -> list[SearchFilter]:
+def release_filter_converter(params: SnubaParams, search_filter: SearchFilter) -> SearchFilter:
     if search_filter.value.is_wildcard():
         operator = search_filter.operator
         value = search_filter.value
@@ -42,12 +40,12 @@ def release_filter_converter(
                 )
             ]
         )
-    return [SearchFilter(search_filter.key, operator, value)]
+    return SearchFilter(search_filter.key, operator, value)
 
 
 def release_stage_filter_converter(
     params: SnubaParams, search_filter: SearchFilter
-) -> list[SearchFilter]:
+) -> SearchFilter:
     organization_id = params.organization_id
     if organization_id is None:
         raise ValueError("organization is a required param")
@@ -76,10 +74,10 @@ def release_stage_filter_converter(
             "There are too many releases that match your release.stage filter, please try again with a narrower range"
         )
 
-    return [SearchFilter(SearchKey(constants.RELEASE_ALIAS), "IN", SearchValue(versions))]
+    return SearchFilter(SearchKey(constants.RELEASE_ALIAS), "IN", SearchValue(versions))
 
 
-def semver_filter_converter(params: SnubaParams, search_filter: SearchFilter) -> list[SearchFilter]:
+def semver_filter_converter(params: SnubaParams, search_filter: SearchFilter) -> SearchFilter:
     organization_id = params.organization_id
     if organization_id is None:
         raise ValueError("organization is a required param")
@@ -138,12 +136,12 @@ def semver_filter_converter(params: SnubaParams, search_filter: SearchFilter) ->
         # XXX: Just return a filter that will return no results if we have no versions
         versions = [constants.SEMVER_EMPTY_RELEASE]
 
-    return [SearchFilter(SearchKey(constants.RELEASE_ALIAS), final_operator, SearchValue(versions))]
+    return SearchFilter(SearchKey(constants.RELEASE_ALIAS), final_operator, SearchValue(versions))
 
 
 def semver_package_filter_converter(
     params: SnubaParams, search_filter: SearchFilter
-) -> list[SearchFilter]:
+) -> SearchFilter:
     organization_id = params.organization_id
     if organization_id is None:
         raise ValueError("organization is a required param")
@@ -171,12 +169,10 @@ def semver_package_filter_converter(
             "There are too many releases that match your release.package filter, please try again with a narrower range"
         )
 
-    return [SearchFilter(SearchKey(constants.RELEASE_ALIAS), "IN", SearchValue(versions))]
+    return SearchFilter(SearchKey(constants.RELEASE_ALIAS), "IN", SearchValue(versions))
 
 
-def semver_build_filter_converter(
-    params: SnubaParams, search_filter: SearchFilter
-) -> list[SearchFilter]:
+def semver_build_filter_converter(params: SnubaParams, search_filter: SearchFilter) -> SearchFilter:
     organization_id = params.organization_id
     if organization_id is None:
         raise ValueError("organization is a required param")
@@ -211,22 +207,7 @@ def semver_build_filter_converter(
         # XXX: Just return a filter that will return no results if we have no versions
         versions = [constants.SEMVER_EMPTY_RELEASE]
 
-    return [SearchFilter(SearchKey(constants.RELEASE_ALIAS), "IN", SearchValue(versions))]
-
-
-def trace_filter_converter(params: SnubaParams, search_filter: SearchFilter) -> list[SearchFilter]:
-    operator = search_filter.operator
-    value = search_filter.value.value
-
-    # special handling for 16 char trace id
-    if operator == "=" and isinstance(value, str) and len(value) >= 8 and len(value) < 32:
-        pad = 32 - len(value)
-        return [
-            SearchFilter(SearchKey(constants.TRACE), ">=", SearchValue(value + "0" * pad)),
-            SearchFilter(SearchKey(constants.TRACE), "<=", SearchValue(value + "f" * pad)),
-        ]
-
-    return [search_filter]
+    return SearchFilter(SearchKey(constants.RELEASE_ALIAS), "IN", SearchValue(versions))
 
 
 SPAN_FILTER_ALIAS_DEFINITIONS = {
@@ -235,5 +216,4 @@ SPAN_FILTER_ALIAS_DEFINITIONS = {
     constants.SEMVER_ALIAS: semver_filter_converter,
     constants.SEMVER_PACKAGE_ALIAS: semver_package_filter_converter,
     constants.SEMVER_BUILD_ALIAS: semver_build_filter_converter,
-    constants.TRACE: trace_filter_converter,
 }

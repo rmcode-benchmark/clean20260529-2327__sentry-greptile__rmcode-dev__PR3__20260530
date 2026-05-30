@@ -1,14 +1,11 @@
-import {AutomationBuilderInput} from 'sentry/components/workflowEngine/form/automationBuilderInput';
-import {AutomationBuilderSelect} from 'sentry/components/workflowEngine/form/automationBuilderSelect';
+import AutomationBuilderInputField from 'sentry/components/workflowEngine/form/automationBuilderInputField';
+import AutomationBuilderSelectField from 'sentry/components/workflowEngine/form/automationBuilderSelectField';
 import {t, tct} from 'sentry/locale';
-import type {SelectValue} from 'sentry/types/core';
 import type {DataCondition} from 'sentry/types/workflowEngine/dataConditions';
 import {
   MATCH_CHOICES,
   type MatchType,
 } from 'sentry/views/automations/components/actionFilters/constants';
-import {useAutomationBuilderErrorContext} from 'sentry/views/automations/components/automationBuilderErrorContext';
-import type {ValidateDataConditionProps} from 'sentry/views/automations/components/automationFormData';
 import {useDataConditionNodeContext} from 'sentry/views/automations/components/dataConditionNodes';
 
 export function TaggedEventDetails({condition}: {condition: DataCondition}) {
@@ -31,18 +28,16 @@ export function TaggedEventNode() {
 
 function KeyField() {
   const {condition, condition_id, onUpdate} = useDataConditionNodeContext();
-  const {removeError} = useAutomationBuilderErrorContext();
-
   return (
-    <AutomationBuilderInput
+    <AutomationBuilderInputField
       name={`${condition_id}.comparison.key`}
       placeholder={t('tag')}
       value={condition.comparison.key}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-        onUpdate({comparison: {...condition.comparison, key: e.target.value}});
-        removeError(condition.id);
+      onChange={(value: string) => {
+        onUpdate({
+          key: value,
+        });
       }}
-      aria-label={t('Tag')}
     />
   );
 }
@@ -50,13 +45,14 @@ function KeyField() {
 function MatchField() {
   const {condition, condition_id, onUpdate} = useDataConditionNodeContext();
   return (
-    <AutomationBuilderSelect
+    <AutomationBuilderSelectField
       name={`${condition_id}.comparison.match`}
-      aria-label={t('Match type')}
       value={condition.comparison.match}
       options={MATCH_CHOICES}
-      onChange={(value: SelectValue<MatchType>) => {
-        onUpdate({comparison: {...condition.comparison, match: value}});
+      onChange={(value: MatchType) => {
+        onUpdate({
+          match: value,
+        });
       }}
     />
   );
@@ -64,31 +60,16 @@ function MatchField() {
 
 function ValueField() {
   const {condition, condition_id, onUpdate} = useDataConditionNodeContext();
-  const {removeError} = useAutomationBuilderErrorContext();
-
   return (
-    <AutomationBuilderInput
+    <AutomationBuilderInputField
       name={`${condition_id}.comparison.value`}
-      aria-label={t('Value')}
       placeholder={t('value')}
       value={condition.comparison.value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-        onUpdate({comparison: {...condition.comparison, value: e.target.value}});
-        removeError(condition.id);
+      onChange={(value: string) => {
+        onUpdate({
+          value,
+        });
       }}
     />
   );
-}
-
-export function validateTaggedEventCondition({
-  condition,
-}: ValidateDataConditionProps): string | undefined {
-  if (
-    !condition.comparison.key ||
-    !condition.comparison.match ||
-    !condition.comparison.value
-  ) {
-    return t('Ensure all fields are filled in.');
-  }
-  return undefined;
 }

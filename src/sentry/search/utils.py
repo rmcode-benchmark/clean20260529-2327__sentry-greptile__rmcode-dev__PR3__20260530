@@ -435,57 +435,45 @@ def _run_latest_release_query(
     if not project_ids:
         return []
 
-    extra_join_conditions = ""
+    env_join = ""
+    env_where = ""
     extra_conditions = ""
     if environments:
-        extra_join_conditions = "AND jt.environment_id IN %s"
-        join_table = "sentry_releaseprojectenvironment"
+        env_join = "INNER JOIN sentry_releaseprojectenvironment srpe on srpe.release_id = sr.id"
+        env_where = "AND srpe.environment_id in %s AND srpe.project_id in %s"
+        adopted_table_alias = "srpe"
     else:
-        join_table = "sentry_release_project"
+        adopted_table_alias = "srp"
 
     if adopted:
-        extra_conditions += " AND jt.adopted IS NOT NULL AND jt.unadopted IS NULL "
+        extra_conditions += f" AND {adopted_table_alias}.adopted IS NOT NULL AND {adopted_table_alias}.unadopted IS NULL "
 
     rank_order_by, query_type_conditions = _get_release_query_type_sql(query_type, True)
     extra_conditions += query_type_conditions
 
-    # XXX: This query can be very inefficient for projects with a large (100k+)
-    # number of releases. To work around this, we only check 1000 releases
-    # ordered by highest release id, which is generally correlated with
-    # most recent releases for a project. This isn't guaranteed to be correct,
-    # since `date_released` could end up out of order, or we might be using semver.
-    # However, this should be close enough the majority of the time. If a project has
-    # > 400 newer releases that were more recently associated with the "true" most recent
-    # release then likely something is off.
-    # We might be able to remove this kind of hackery once we add retention to the release
-    # and related tables.
     query = f"""
         SELECT DISTINCT version
         FROM (
             SELECT sr.version, rank() OVER (
-                PARTITION BY jt.project_id
+                PARTITION BY srp.project_id
                 ORDER BY {rank_order_by}
             ) AS rank
             FROM "sentry_release" sr
-            INNER JOIN (
-                SELECT release_id, project_id, adopted, unadopted
-                FROM {join_table} jt
-                WHERE jt.project_id IN %s
-                {extra_join_conditions}
-                ORDER BY release_id desc
-                LIMIT 1000
-            ) jt on sr.id = jt.release_id
+            INNER JOIN "sentry_release_project" srp ON sr.id = srp.release_id
+            {env_join}
             WHERE sr.organization_id = %s
             AND sr.status = {ReleaseStatus.OPEN}
+            AND srp.project_id IN %s
             {extra_conditions}
+            {env_where}
         ) sr
         WHERE rank = 1
     """
     cursor = connections[router.db_for_read(Release, replica=True)].cursor()
-    query_args: list[int | tuple[int, ...]] = [tuple(project_ids)]
+    query_args: list[int | tuple[int, ...]] = [organization_id, tuple(project_ids)]
     if environments:
         query_args.append(tuple(e.id for e in environments))
-    query_args.append(organization_id)
+        query_args.append(tuple(project_ids))
     cursor.execute(query, query_args)
     return [row[0] for row in cursor.fetchall()]
 

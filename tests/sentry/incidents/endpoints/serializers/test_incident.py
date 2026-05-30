@@ -3,7 +3,6 @@ from datetime import timedelta
 from django.utils import timezone
 
 from sentry.api.serializers import serialize
-from sentry.incidents.endpoints.serializers.alert_rule import DetailedAlertRuleSerializer
 from sentry.incidents.endpoints.serializers.incident import DetailedIncidentSerializer
 from sentry.snuba.dataset import Dataset
 from sentry.testutils.cases import TestCase
@@ -37,10 +36,7 @@ class DetailedIncidentSerializerTest(TestCase):
 
         serializer = DetailedIncidentSerializer()
         result = serialize(incident, serializer=serializer)
-        alert_rule_serializer = DetailedAlertRuleSerializer()
-        assert result["alertRule"] == serialize(
-            incident.alert_rule, serializer=alert_rule_serializer
-        )
+        assert result["alertRule"] == serialize(incident.alert_rule)
         assert result["discoverQuery"] == f"(event.type:error) AND ({query})"
 
     def test_error_alert_rule_unicode(self):
@@ -49,11 +45,7 @@ class DetailedIncidentSerializerTest(TestCase):
 
         serializer = DetailedIncidentSerializer()
         result = serialize(incident, serializer=serializer)
-
-        alert_rule_serializer = DetailedAlertRuleSerializer()
-        assert result["alertRule"] == serialize(
-            incident.alert_rule, serializer=alert_rule_serializer
-        )
+        assert result["alertRule"] == serialize(incident.alert_rule)
         assert result["discoverQuery"] == f"(event.type:error) AND ({query})"
 
     def test_transaction_alert_rule(self):
@@ -63,8 +55,5 @@ class DetailedIncidentSerializerTest(TestCase):
 
         serializer = DetailedIncidentSerializer()
         result = serialize(incident, serializer=serializer)
-        alert_rule_serializer = DetailedAlertRuleSerializer()
-        assert result["alertRule"] == serialize(
-            incident.alert_rule, serializer=alert_rule_serializer
-        )
+        assert result["alertRule"] == serialize(incident.alert_rule)
         assert result["discoverQuery"] == f"(event.type:transaction) AND ({query})"

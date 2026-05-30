@@ -6,7 +6,7 @@ import testsAnalyticsSummaryDark from 'sentry-images/features/test-analytics-sum
 
 import {Alert} from 'sentry/components/core/alert';
 import {LinkButton} from 'sentry/components/core/button/linkButton';
-import {Link} from 'sentry/components/core/link';
+import Link from 'sentry/components/links/link';
 import {IconGithub} from 'sentry/icons';
 import {t} from 'sentry/locale';
 import ConfigStore from 'sentry/stores/configStore';
@@ -54,7 +54,7 @@ export default function TestPreOnboardingPage() {
     <LayoutGap>
       {!isUSStorage && (
         <Alert.Container>
-          <Alert type="info">
+          <Alert type="info" showIcon>
             {t(
               'Test Analytics data is stored in the U.S. only. To use this feature, create a new Sentry organization with U.S. data storage.'
             )}

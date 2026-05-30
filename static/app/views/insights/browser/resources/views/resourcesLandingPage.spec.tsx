@@ -10,7 +10,7 @@ import {useLocation} from 'sentry/utils/useLocation';
 import usePageFilters from 'sentry/utils/usePageFilters';
 import {useReleaseStats} from 'sentry/utils/useReleaseStats';
 import ResourcesLandingPage from 'sentry/views/insights/browser/resources/views/resourcesLandingPage';
-import {SpanFields, SpanFunction} from 'sentry/views/insights/types';
+import {SpanFunction, SpanMetricsField} from 'sentry/views/insights/types';
 
 const {
   SPAN_SELF_TIME,
@@ -21,7 +21,7 @@ const {
   PROJECT_ID,
   RESOURCE_RENDER_BLOCKING_STATUS,
   SPAN_OP,
-} = SpanFields;
+} = SpanMetricsField;
 const {EPM} = SpanFunction;
 
 jest.mock('sentry/utils/useLocation');
@@ -69,7 +69,7 @@ describe('ResourcesLandingPage', function () {
       "error": [Function],
       "method": "GET",
       "query": {
-        "dataset": "spans",
+        "dataset": "spansMetrics",
         "environment": [],
         "field": [
           "span.domain",
@@ -79,7 +79,6 @@ describe('ResourcesLandingPage', function () {
         "project": [],
         "query": "has:sentry.normalized_description span.category:resource !sentry.normalized_description:"browser-extension://*" span.op:[resource.script,resource.css,resource.font,resource.img]",
         "referrer": "api.starfish.get-span-domains",
-        "sampling": "NORMAL",
         "sort": "-count()",
         "statsPeriod": "10d",
       },
@@ -103,7 +102,7 @@ describe('ResourcesLandingPage', function () {
       "error": [Function],
       "method": "GET",
       "query": {
-        "dataset": "spans",
+        "dataset": "spansMetrics",
         "environment": [],
         "field": [
           "sentry.normalized_description",
@@ -120,7 +119,6 @@ describe('ResourcesLandingPage', function () {
         "project": [],
         "query": "!sentry.normalized_description:"browser-extension://*" ( span.op:resource.script OR file_extension:css OR file_extension:[woff,woff2,ttf,otf,eot] OR file_extension:[jpg,jpeg,png,gif,svg,webp,apng,avif] OR span.op:resource.img ) ",
         "referrer": "api.performance.browser.resources.main-table",
-        "sampling": "NORMAL",
         "sort": "-sum(span.self_time)",
         "statsPeriod": "10d",
       },

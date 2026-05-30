@@ -3,7 +3,6 @@ import {GitHubIntegrationProviderFixture} from 'sentry-fixture/githubIntegration
 import {OrganizationFixture} from 'sentry-fixture/organization';
 
 import {render, waitFor} from 'sentry-test/reactTestingLibrary';
-import {setWindowLocation} from 'sentry-test/utils';
 
 import ConfigStore from 'sentry/stores/configStore';
 import type {Config} from 'sentry/types/system';
@@ -41,7 +40,7 @@ describe('AddIntegration', function () {
       },
     });
 
-    setWindowLocation('https://foobar.sentry.io');
+    window.location.assign('https://foobar.sentry.io');
     window.addEventListener('message', interceptMessageEvent);
   });
 

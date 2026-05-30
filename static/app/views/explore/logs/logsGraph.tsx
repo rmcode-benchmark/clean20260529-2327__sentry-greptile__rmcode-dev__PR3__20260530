@@ -12,6 +12,7 @@ import {Bars} from 'sentry/views/dashboards/widgets/timeSeriesWidget/plottables/
 import {Line} from 'sentry/views/dashboards/widgets/timeSeriesWidget/plottables/line';
 import {TimeSeriesWidgetVisualization} from 'sentry/views/dashboards/widgets/timeSeriesWidget/timeSeriesWidgetVisualization';
 import {Widget} from 'sentry/views/dashboards/widgets/widget/widget';
+import {EXPLORE_CHART_TYPE_OPTIONS} from 'sentry/views/explore/charts';
 import {
   useLogsAggregateFunction,
   useLogsAggregateParam,
@@ -20,7 +21,7 @@ import {
   ChartIntervalUnspecifiedStrategy,
   useChartInterval,
 } from 'sentry/views/explore/hooks/useChartInterval';
-import {EXPLORE_CHART_TYPE_OPTIONS} from 'sentry/views/explore/spans/charts';
+import {INGESTION_DELAY} from 'sentry/views/explore/settings';
 import {ChartType} from 'sentry/views/insights/common/components/chart';
 import type {useSortedTimeSeries} from 'sentry/views/insights/common/queries/useSortedTimeSeries';
 
@@ -137,7 +138,7 @@ export function LogsGraph({timeseriesResult}: LogsGraphProps) {
         <TimeSeriesWidgetVisualization
           plottables={data.map(
             timeSeries =>
-              new DataPlottableConstructor(markDelayedData(timeSeries, 60), {
+              new DataPlottableConstructor(markDelayedData(timeSeries, INGESTION_DELAY), {
                 stack: 'all',
               })
           )}

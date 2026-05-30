@@ -19,7 +19,6 @@ import {t} from 'sentry/locale';
 import {space} from 'sentry/styles/space';
 import {defined} from 'sentry/utils';
 import {MarkedText} from 'sentry/utils/marked/markedText';
-import {ellipsize} from 'sentry/utils/string/ellipsize';
 import {SectionKey} from 'sentry/views/issueDetails/streamline/context';
 
 interface AutofixInsightSourcesProps {
@@ -64,7 +63,7 @@ function getCodeSourceName(url: string): string {
     // Fallback if URL parsing fails or path is simple
   }
   // Fallback to a truncated version of the URL
-  return ellipsize(url, 30);
+  return url.length > 30 ? url.substring(0, 27) + '...' : url;
 }
 
 function AutofixInsightSources({sources, title, codeUrls}: AutofixInsightSourcesProps) {

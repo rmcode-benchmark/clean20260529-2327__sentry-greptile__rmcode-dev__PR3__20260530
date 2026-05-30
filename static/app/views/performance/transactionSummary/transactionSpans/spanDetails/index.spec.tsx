@@ -31,6 +31,11 @@ function initializeData(settings: Parameters<typeof _initializeData>[0]) {
 describe('Performance > Transaction Spans > Span Summary', function () {
   beforeEach(function () {
     MockApiClient.addMockResponse({
+      url: '/organizations/org-slug/projects/',
+      body: [],
+    });
+
+    MockApiClient.addMockResponse({
       url: '/organizations/org-slug/events/',
       body: {data: [{'count()': 1}]},
     });
@@ -108,6 +113,7 @@ describe('Performance > Transaction Spans > Span Summary', function () {
         <SpanDetails params={{spanSlug: 'op:aaaaaaaa'}} {...data} />,
         {
           organization: data.organization,
+          deprecatedRouterMocks: true,
         }
       );
 
@@ -121,6 +127,7 @@ describe('Performance > Transaction Spans > Span Summary', function () {
         <SpanDetails params={{spanSlug: 'op:aaaaaaaa'}} {...data} />,
         {
           organization: data.organization,
+          deprecatedRouterMocks: true,
         }
       );
 
@@ -134,8 +141,9 @@ describe('Performance > Transaction Spans > Span Summary', function () {
       });
 
       render(<SpanDetails params={{spanSlug: 'op:aaaaaaaa'}} {...data} />, {
+        router: data.router,
         organization: data.organization,
-        initialRouterConfig: data.initialRouterConfig,
+        deprecatedRouterMocks: true,
       });
 
       expect(
@@ -213,8 +221,9 @@ describe('Performance > Transaction Spans > Span Summary', function () {
       });
 
       render(<SpanDetails params={{spanSlug: 'op:aaaaaaaa'}} {...data} />, {
+        router: data.router,
         organization: data.organization,
-        initialRouterConfig: data.initialRouterConfig,
+        deprecatedRouterMocks: true,
       });
 
       expect(await screen.findByText('Event ID')).toBeInTheDocument();
@@ -287,8 +296,9 @@ describe('Performance > Transaction Spans > Span Summary', function () {
       });
 
       render(<SpanDetails params={{spanSlug: 'op:aaaaaaaa'}} {...data} />, {
+        router: data.router,
         organization: data.organization,
-        initialRouterConfig: data.initialRouterConfig,
+        deprecatedRouterMocks: true,
       });
 
       expect(await screen.findByText('Span Summary')).toBeInTheDocument();
@@ -353,8 +363,9 @@ describe('Performance > Transaction Spans > Span Summary', function () {
       });
 
       render(<SpanDetails params={{spanSlug: 'op:aaaaaaaa'}} {...data} />, {
+        router: data.router,
         organization: data.organization,
-        initialRouterConfig: data.initialRouterConfig,
+        deprecatedRouterMocks: true,
       });
 
       expect(await screen.findByText('Self Time Breakdown')).toBeInTheDocument();
@@ -367,8 +378,9 @@ describe('Performance > Transaction Spans > Span Summary', function () {
       });
 
       render(<SpanDetails params={{spanSlug: 'op:aaaaaaaa'}} {...data} />, {
+        router: data.router,
         organization: data.organization,
-        initialRouterConfig: data.initialRouterConfig,
+        deprecatedRouterMocks: true,
       });
 
       expect(await screen.findByText('Event ID')).toBeInTheDocument();
@@ -396,8 +408,9 @@ describe('Performance > Transaction Spans > Span Summary', function () {
         });
 
         render(<SpanDetails params={{spanSlug: 'op:aaaaaaaa'}} {...data} />, {
+          router: data.router,
           organization: data.organization,
-          initialRouterConfig: data.initialRouterConfig,
+          deprecatedRouterMocks: true,
         });
 
         const searchBarNode = await screen.findByPlaceholderText('Filter Transactions');
@@ -411,8 +424,9 @@ describe('Performance > Transaction Spans > Span Summary', function () {
         });
 
         render(<SpanDetails params={{spanSlug: 'op:aaaaaaaa'}} {...data} />, {
+          router: data.router,
           organization: data.organization,
-          initialRouterConfig: data.initialRouterConfig,
+          deprecatedRouterMocks: true,
         });
 
         const resetButton = await screen.findByRole('button', {
@@ -429,8 +443,9 @@ describe('Performance > Transaction Spans > Span Summary', function () {
         });
 
         render(<SpanDetails params={{spanSlug: 'op:aaaaaaaa'}} {...data} />, {
+          router: data.router,
           organization: data.organization,
-          initialRouterConfig: data.initialRouterConfig,
+          deprecatedRouterMocks: true,
         });
 
         const resetButton = await screen.findByRole('button', {
@@ -445,19 +460,17 @@ describe('Performance > Transaction Spans > Span Summary', function () {
           query: {project: '1', transaction: 'transaction', min: '10', max: '100'},
         });
 
-        const {router} = render(
-          <SpanDetails params={{spanSlug: 'op:aaaaaaaa'}} {...data} />,
-          {
-            organization: data.organization,
-            initialRouterConfig: data.initialRouterConfig,
-          }
-        );
+        render(<SpanDetails params={{spanSlug: 'op:aaaaaaaa'}} {...data} />, {
+          router: data.router,
+          organization: data.organization,
+          deprecatedRouterMocks: true,
+        });
 
         const resetButton = await screen.findByRole('button', {
           name: /reset view/i,
         });
         await userEvent.click(resetButton);
-        expect(router.location.query).toEqual(
+        expect(data.router.push).toHaveBeenCalledWith(
           expect.not.objectContaining({min: expect.any(String), max: expect.any(String)})
         );
       });
@@ -468,20 +481,17 @@ describe('Performance > Transaction Spans > Span Summary', function () {
           query: {project: '1', transaction: 'transaction'},
         });
 
-        const {router} = render(
-          <SpanDetails params={{spanSlug: 'op:aaaaaaaa'}} {...data} />,
-          {
-            organization: data.organization,
-            initialRouterConfig: data.initialRouterConfig,
-          }
-        );
-        const initialLocation = router.location;
+        render(<SpanDetails params={{spanSlug: 'op:aaaaaaaa'}} {...data} />, {
+          router: data.router,
+          organization: data.organization,
+          deprecatedRouterMocks: true,
+        });
 
         const searchBarNode = await screen.findByPlaceholderText('Filter Transactions');
         await userEvent.click(searchBarNode);
         await userEvent.paste('count():>3');
         expect(searchBarNode).toHaveTextContent('count():>3');
-        expect(router.location).toEqual(initialLocation);
+        expect(data.router.push).not.toHaveBeenCalled();
       });
 
       it('renders a display toggle that changes a chart view between timeseries and histogram by pushing it to the browser history', async function () {
@@ -499,13 +509,11 @@ describe('Performance > Transaction Spans > Span Summary', function () {
           query: {project: '1', transaction: 'transaction'},
         });
 
-        const {router} = render(
-          <SpanDetails params={{spanSlug: 'op:aaaaaaaa'}} {...data} />,
-          {
-            organization: data.organization,
-            initialRouterConfig: data.initialRouterConfig,
-          }
-        );
+        render(<SpanDetails params={{spanSlug: 'op:aaaaaaaa'}} {...data} />, {
+          router: data.router,
+          organization: data.organization,
+          deprecatedRouterMocks: true,
+        });
 
         expect(await screen.findByTestId('total-value')).toBeInTheDocument();
 
@@ -525,7 +533,7 @@ describe('Performance > Transaction Spans > Span Summary', function () {
           })
         );
 
-        expect(router.location).toEqual(
+        expect(data.router.push).toHaveBeenCalledWith(
           expect.objectContaining({
             query: {
               display: 'histogram',
@@ -552,8 +560,9 @@ describe('Performance > Transaction Spans > Span Summary', function () {
         });
 
         render(<SpanDetails params={{spanSlug: 'op:aaaaaaaa'}} {...data} />, {
+          router: data.router,
           organization: data.organization,
-          initialRouterConfig: data.initialRouterConfig,
+          deprecatedRouterMocks: true,
         });
 
         const displayToggle = await screen.findByTestId('display-toggle');
@@ -577,8 +586,9 @@ describe('Performance > Transaction Spans > Span Summary', function () {
         });
 
         render(<SpanDetails params={{spanSlug: 'op:aaaaaaaa'}} {...data} />, {
+          router: data.router,
           organization: data.organization,
-          initialRouterConfig: data.initialRouterConfig,
+          deprecatedRouterMocks: true,
         });
 
         expect(await screen.findByTestId('histogram-error-panel')).toBeInTheDocument();
@@ -600,8 +610,9 @@ describe('Performance > Transaction Spans > Span Summary', function () {
         });
 
         render(<SpanDetails params={{spanSlug: 'op:aaaaaaaa'}} {...data} />, {
+          router: data.router,
           organization: data.organization,
-          initialRouterConfig: data.initialRouterConfig,
+          deprecatedRouterMocks: true,
         });
 
         const nodes = await screen.findAllByText('Self Time Distribution');
@@ -619,8 +630,9 @@ describe('Performance > Transaction Spans > Span Summary', function () {
         });
 
         render(<SpanDetails params={{spanSlug: 'op:aaaaaaaa'}} {...data} />, {
+          router: data.router,
           organization: data.organization,
-          initialRouterConfig: data.initialRouterConfig,
+          deprecatedRouterMocks: true,
         });
 
         await waitFor(() => {
@@ -647,8 +659,9 @@ describe('Performance > Transaction Spans > Span Summary', function () {
         });
 
         render(<SpanDetails params={{spanSlug: 'op:aaaaaaaa'}} {...data} />, {
+          router: data.router,
           organization: data.organization,
-          initialRouterConfig: data.initialRouterConfig,
+          deprecatedRouterMocks: true,
         });
 
         await waitFor(() => {

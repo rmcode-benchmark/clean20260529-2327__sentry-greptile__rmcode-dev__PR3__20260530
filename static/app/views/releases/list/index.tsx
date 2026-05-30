@@ -334,12 +334,14 @@ export default function ReleasesList() {
             {shouldShowQuickstart ? null : (
               <SortAndFilterWrapper>
                 <StyledSearchQueryBuilder
+                  searchOnChange={organization.features.includes('ui-search-on-change')}
                   onSearch={handleSearch}
                   initialQuery={activeQuery}
                   filterKeys={RELEASE_FILTER_KEYS}
                   getTagValues={getTagValues}
                   placeholder={t('Search by version, build, package, or stage')}
                   searchSource="releases"
+                  showUnsubmittedIndicator
                 />
                 <ReleasesStatusOptions selected={activeStatus} onSelect={handleStatus} />
                 <ReleasesSortOptions

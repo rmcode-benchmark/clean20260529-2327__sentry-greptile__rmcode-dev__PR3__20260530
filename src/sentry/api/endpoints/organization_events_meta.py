@@ -26,7 +26,6 @@ from sentry.search.events.types import SnubaParams
 from sentry.snuba import spans_indexed, spans_metrics, spans_rpc
 from sentry.snuba.query_sources import QuerySource
 from sentry.snuba.referrer import Referrer
-from sentry.snuba.utils import RPC_DATASETS
 
 
 @region_silo_endpoint
@@ -85,8 +84,8 @@ class OrganizationEventsMetaEndpoint(OrganizationEventsEndpointBase):
         )
 
         with handle_query_errors():
-            if dataset in RPC_DATASETS:
-                result = dataset.run_table_query(
+            if dataset == spans_rpc:
+                result = spans_rpc.run_table_query(
                     params=snuba_params,
                     query_string=request.query_params.get("query"),
                     selected_columns=["count()"],
@@ -95,6 +94,7 @@ class OrganizationEventsMetaEndpoint(OrganizationEventsEndpointBase):
                     limit=1,
                     referrer=Referrer.API_ORGANIZATION_EVENTS_META,
                     config=SearchResolverConfig(),
+                    sampling_mode=None,
                 )
 
                 return Response({"count": result["data"][0]["count()"]})

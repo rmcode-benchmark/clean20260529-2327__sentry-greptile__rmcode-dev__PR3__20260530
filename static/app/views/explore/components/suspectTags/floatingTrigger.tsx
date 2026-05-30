@@ -1,30 +1,22 @@
-import {useCallback, useState} from 'react';
+import {useCallback} from 'react';
 import {createPortal} from 'react-dom';
-import {css} from '@emotion/react';
 import styled from '@emotion/styled';
 
 import {updateDateTime} from 'sentry/actionCreators/pageFilters';
-import useDrawer from 'sentry/components/globalDrawer';
 import {t} from 'sentry/locale';
 import {space} from 'sentry/styles/space';
 import {getUtcDateString} from 'sentry/utils/dates';
 import useRouter from 'sentry/utils/useRouter';
-import {Drawer} from 'sentry/views/explore/components/suspectTags/drawer';
 import type {BoxSelectOptions} from 'sentry/views/explore/hooks/useChartBoxSelect';
-import type {ChartInfo} from 'sentry/views/explore/spans/charts';
 
 type Props = {
   boxSelectOptions: BoxSelectOptions;
-  chartInfo: ChartInfo;
   triggerWrapperRef: React.RefObject<HTMLDivElement | null>;
 };
 
-export function FloatingTrigger({boxSelectOptions, triggerWrapperRef, chartInfo}: Props) {
+export function FloatingTrigger({boxSelectOptions, triggerWrapperRef}: Props) {
   const router = useRouter();
-  const triggerPosition = boxSelectOptions.floatingTriggerPosition;
-
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const {openDrawer} = useDrawer();
+  const pageCoords = boxSelectOptions.pageCoords;
 
   const handleZoomIn = useCallback(() => {
     const coordRange = boxSelectOptions.boxCoordRange;
@@ -54,35 +46,18 @@ export function FloatingTrigger({boxSelectOptions, triggerWrapperRef, chartInfo}
   }, [boxSelectOptions, router]);
 
   const handleFindSuspectAttributes = useCallback(() => {
-    if (!isDrawerOpen) {
-      setIsDrawerOpen(true);
-      openDrawer(
-        () => <Drawer chartInfo={chartInfo} boxSelectOptions={boxSelectOptions} />,
-        {
-          ariaLabel: t('Suspect Attributes Drawer'),
-          drawerKey: 'suspect-attributes-drawer',
-          resizable: true,
-          drawerCss: css`
-            height: calc(100% - ${space(4)});
-          `,
-          onClose: () => {
-            setIsDrawerOpen(false);
-          },
-        }
-      );
-    }
-  }, [boxSelectOptions, chartInfo, isDrawerOpen, openDrawer]);
+    // TODO Abdullah Khan: Implement find suspect attributes
+  }, []);
 
-  if (!triggerPosition) return null;
+  if (!pageCoords) return null;
 
   return createPortal(
     <div
       ref={triggerWrapperRef}
       style={{
         position: 'absolute',
-        top: triggerPosition.top,
-        left: triggerPosition.left,
-        zIndex: 1000,
+        top: pageCoords.y,
+        left: pageCoords.x,
       }}
     >
       <List>

@@ -15,10 +15,7 @@ from sentry.workflow_engine.endpoints.validators.base import (
     BaseDataConditionValidator,
     BaseDataSourceValidator,
 )
-from sentry.workflow_engine.endpoints.validators.utils import (
-    get_unknown_detector_type_error,
-    toggle_detector,
-)
+from sentry.workflow_engine.endpoints.validators.utils import get_unknown_detector_type_error
 from sentry.workflow_engine.models import (
     DataConditionGroup,
     DataSource,
@@ -36,9 +33,8 @@ class BaseDetectorTypeValidator(CamelSnakeSerializer):
         help_text="Name of the monitor",
     )
     type = serializers.CharField()
-    config = serializers.JSONField(default=dict)
+    config = serializers.JSONField(default={})
     owner = ActorField(required=False, allow_null=True)
-    enabled = serializers.BooleanField(required=False)
 
     def validate_type(self, value: str) -> builtins.type[GroupType]:
         type = grouptype.registry.get_by_slug(value)
@@ -64,37 +60,30 @@ class BaseDetectorTypeValidator(CamelSnakeSerializer):
         raise NotImplementedError
 
     def update(self, instance: Detector, validated_data: dict[str, Any]):
-        with transaction.atomic(router.db_for_write(Detector)):
-            instance.name = validated_data.get("name", instance.name)
-            instance.type = validated_data.get("detector_type", instance.group_type).slug
+        instance.name = validated_data.get("name", instance.name)
+        instance.type = validated_data.get("detector_type", instance.group_type).slug
 
-            # Handle enable/disable detector
-            if "enabled" in validated_data:
-                enabled = validated_data.get("enabled")
-                assert isinstance(enabled, bool)
-                toggle_detector(instance, enabled)
-
-            # Handle owner field update
-            if "owner" in validated_data:
-                owner = validated_data.get("owner")
-                if owner:
-                    if owner.is_user:
-                        instance.owner_user_id = owner.id
-                        instance.owner_team_id = None
-                    elif owner.is_team:
-                        instance.owner_user_id = None
-                        instance.owner_team_id = owner.id
-                else:
-                    # Clear owner if None is passed
-                    instance.owner_user_id = None
+        # Handle owner field update
+        if "owner" in validated_data:
+            owner = validated_data.get("owner")
+            if owner:
+                if owner.is_user:
+                    instance.owner_user_id = owner.id
                     instance.owner_team_id = None
+                elif owner.is_team:
+                    instance.owner_user_id = None
+                    instance.owner_team_id = owner.id
+            else:
+                # Clear owner if None is passed
+                instance.owner_user_id = None
+                instance.owner_team_id = None
 
-            condition_group = validated_data.pop("condition_group")
-            data_conditions: list[DataConditionType] = condition_group.get("conditions")
+        condition_group = validated_data.pop("condition_group")
+        data_conditions: list[DataConditionType] = condition_group.get("conditions")
 
-            if data_conditions and instance.workflow_condition_group:
-                group_validator = BaseDataConditionGroupValidator()
-                group_validator.update(instance.workflow_condition_group, condition_group)
+        if data_conditions and instance.workflow_condition_group:
+            group_validator = BaseDataConditionGroupValidator()
+            group_validator.update(instance.workflow_condition_group, condition_group)
 
         instance.save()
 

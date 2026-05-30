@@ -1,8 +1,7 @@
+import {css} from '@emotion/react';
 import styled from '@emotion/styled';
 import kebabCase from 'lodash/kebabCase';
 
-import {Button} from 'sentry/components/core/button';
-import {Flex} from 'sentry/components/core/layout';
 import {IconCheckmark, IconChevron} from 'sentry/icons';
 import {t} from 'sentry/locale';
 import {space} from 'sentry/styles/space';
@@ -41,17 +40,17 @@ function StepHeader({
   organization,
 }: Props) {
   const canEdit = !isActive && (isCompleted || canSkip);
+
   const toggleTier = getToggleTier(checkoutTier);
-  const onEditClick = canEdit ? () => onEdit(stepNumber) : undefined;
 
   return (
     <Header
       isActive={isActive}
       canEdit={canEdit}
-      onClick={onEditClick}
+      onClick={() => canEdit && onEdit(stepNumber)}
       data-test-id={`header-${kebabCase(title)}`}
     >
-      <Flex justify="space-between">
+      <StepTitleWrapper>
         <StepTitle>
           {isCompleted ? (
             <IconCheckmark isCircled color="green300" />
@@ -61,7 +60,7 @@ function StepHeader({
           {title}
         </StepTitle>
         {trailingItems && <div>{trailingItems}</div>}
-      </Flex>
+      </StepTitleWrapper>
       <div>
         {isActive && toggleTier ? (
           typeof onToggleLegacy === 'function' && (
@@ -74,15 +73,13 @@ function StepHeader({
           )
         ) : (
           <EditStep>
+            {isCompleted && <a onClick={() => onEdit(stepNumber)}>{t('Edit')}</a>}
             {canEdit && (
-              <Button
-                size="sm"
+              <StyledIconChevron
+                direction="down"
                 aria-label={t('Expand section')}
-                icon={<IconChevron direction="down" />}
-                onClick={onEditClick}
-              >
-                {t('Edit')}
-              </Button>
+                size="sm"
+              />
             )}
           </EditStep>
         )}
@@ -99,8 +96,18 @@ const Header = styled('div')<{canEdit?: boolean; isActive?: boolean}>`
   gap: ${space(1)};
   align-items: center;
   padding: ${space(3)} ${space(2)};
-  cursor: ${p => (p.canEdit ? 'pointer' : undefined)};
-  border-bottom: 1px solid ${p => (p.isActive ? p.theme.border : 'transparent')};
+
+  ${p =>
+    p.isActive &&
+    css`
+      border-bottom: 1px solid ${p.theme.border};
+    `};
+
+  ${p =>
+    p.canEdit &&
+    css`
+      cursor: pointer;
+    `};
 `;
 
 const StepTitle = styled('div')`
@@ -118,4 +125,14 @@ const EditStep = styled('div')`
   grid-auto-flow: column;
   gap: ${space(1)};
   align-items: center;
+`;
+
+const StyledIconChevron = styled(IconChevron)`
+  color: ${p => p.theme.border};
+  justify-self: end;
+`;
+
+const StepTitleWrapper = styled('div')`
+  display: flex;
+  justify-content: space-between;
 `;

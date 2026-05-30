@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 
 const TabItemContainer = styled('div')`
   position: relative;
-  flex-grow: 1;
+  height: 100%;
   overflow: hidden;
   border: 1px solid ${p => p.theme.border};
   border-radius: ${p => p.theme.borderRadius};

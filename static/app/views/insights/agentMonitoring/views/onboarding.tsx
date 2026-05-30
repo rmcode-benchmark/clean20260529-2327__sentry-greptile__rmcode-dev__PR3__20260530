@@ -8,27 +8,23 @@ import {LinkButton} from 'sentry/components/core/button/linkButton';
 import {GuidedSteps} from 'sentry/components/guidedSteps/guidedSteps';
 import LoadingIndicator from 'sentry/components/loadingIndicator';
 import {AuthTokenGeneratorProvider} from 'sentry/components/onboarding/gettingStartedDoc/authTokenGenerator';
-import {ContentBlocksRenderer} from 'sentry/components/onboarding/gettingStartedDoc/contentBlocks/renderer';
+import {OnboardingCodeSnippet} from 'sentry/components/onboarding/gettingStartedDoc/onboardingCodeSnippet';
 import {
-  OnboardingCodeSnippet,
+  type Configuration,
+  type StepProps,
+  StepTitles,
+  StepType,
   TabbedCodeSnippet,
-} from 'sentry/components/onboarding/gettingStartedDoc/onboardingCodeSnippet';
-import {StepTitles} from 'sentry/components/onboarding/gettingStartedDoc/step';
-import type {
-  Configuration,
-  DocsParams,
-  OnboardingStep,
-} from 'sentry/components/onboarding/gettingStartedDoc/types';
+} from 'sentry/components/onboarding/gettingStartedDoc/step';
 import {
   DocsPageLocation,
+  type DocsParams,
   ProductSolution,
-  StepType,
 } from 'sentry/components/onboarding/gettingStartedDoc/types';
 import {useSourcePackageRegistries} from 'sentry/components/onboarding/gettingStartedDoc/useSourcePackageRegistries';
 import {useLoadGettingStarted} from 'sentry/components/onboarding/gettingStartedDoc/utils/useLoadGettingStarted';
 import Panel from 'sentry/components/panels/panel';
 import PanelBody from 'sentry/components/panels/panelBody';
-import {SetupTitle} from 'sentry/components/updatedEmptyState';
 import {agentMonitoringPlatforms} from 'sentry/data/platformCategories';
 import platforms, {otherPlatform} from 'sentry/data/platforms';
 import {t, tct} from 'sentry/locale';
@@ -43,7 +39,7 @@ import useOrganization from 'sentry/utils/useOrganization';
 import usePageFilters from 'sentry/utils/usePageFilters';
 import useProjects from 'sentry/utils/useProjects';
 import {Referrer} from 'sentry/views/insights/agentMonitoring/utils/referrers';
-import {useSpans} from 'sentry/views/insights/common/queries/useDiscover';
+import {useEAPSpans} from 'sentry/views/insights/common/queries/useDiscover';
 
 function useOnboardingProject() {
   const {projects} = useProjects();
@@ -66,7 +62,7 @@ function useAiSpanWaiter(project: Project) {
   const {selection} = usePageFilters();
   const [refetchKey, setRefetchKey] = useState(0);
 
-  const request = useSpans(
+  const request = useEAPSpans(
     {
       search: 'span.op:"gen_ai.*"',
       fields: ['id'],
@@ -152,18 +148,14 @@ function StepRenderer({
 }: {
   isLastStep: boolean;
   project: Project;
-  step: OnboardingStep;
+  step: StepProps;
 }) {
   return (
     <GuidedSteps.Step
       stepKey={step.type || step.title}
       title={step.title || (step.type && StepTitles[step.type])}
     >
-      {step.content ? (
-        <ContentBlocksRenderer spacing={space(1)} contentBlocks={step.content} />
-      ) : (
-        <ConfigurationRenderer configuration={step} />
-      )}
+      <ConfigurationRenderer configuration={step} />
       <GuidedSteps.ButtonWrapper>
         <GuidedSteps.BackButton size="md" />
         <GuidedSteps.NextButton size="md" />
@@ -336,7 +328,7 @@ export function Onboarding() {
 
   return (
     <OnboardingPanel project={project}>
-      <SetupTitle project={project} />
+      <BodyTitle>{t('Set up the Sentry SDK')}</BodyTitle>
       {introduction && <DescriptionWrapper>{introduction}</DescriptionWrapper>}
       <GuidedSteps>
         {steps

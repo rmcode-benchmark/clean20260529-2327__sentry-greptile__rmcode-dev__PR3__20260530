@@ -96,7 +96,7 @@ export default function PluginConfig({
         </PluginName>
 
         {plugin.canDisable && isEnabled && (
-          <ButtonBar>
+          <ButtonBar gap={1}>
             {plugin.isTestable && (
               <Button onClick={handleTestPlugin} size="xs">
                 {t('Test Plugin')}

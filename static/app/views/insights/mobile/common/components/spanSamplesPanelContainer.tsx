@@ -1,9 +1,9 @@
 import {Fragment, useCallback, useState} from 'react';
 import styled from '@emotion/styled';
 
-import {Link} from 'sentry/components/core/link';
 import {Tooltip} from 'sentry/components/core/tooltip';
-import {EapSpanSearchQueryBuilderWrapper} from 'sentry/components/performance/spanSearchQueryBuilder';
+import Link from 'sentry/components/links/link';
+import {SpanSearchQueryBuilder} from 'sentry/components/performance/spanSearchQueryBuilder';
 import {COL_WIDTH_UNDEFINED} from 'sentry/components/tables/gridEditable';
 import {t} from 'sentry/locale';
 import {space} from 'sentry/styles/space';
@@ -18,9 +18,10 @@ import useOrganization from 'sentry/utils/useOrganization';
 import usePageFilters from 'sentry/utils/usePageFilters';
 import {MetricReadout} from 'sentry/views/insights/common/components/metricReadout';
 import {ReadoutRibbon} from 'sentry/views/insights/common/components/ribbon';
-import {useSpans} from 'sentry/views/insights/common/queries/useDiscover';
+import {useSpanMetrics} from 'sentry/views/insights/common/queries/useDiscover';
 import type {SpanSample} from 'sentry/views/insights/common/queries/useSpanSamples';
-import {formatVersionAndCenterTruncate} from 'sentry/views/insights/common/utils/formatVersionAndCenterTruncate';
+import {formatVersionAndCenterTruncate} from 'sentry/views/insights/common/utils/centerTruncate';
+import {useInsightsEap} from 'sentry/views/insights/common/utils/useEap';
 import {DataTitles} from 'sentry/views/insights/common/views/spans/types';
 import DurationChart from 'sentry/views/insights/common/views/spanSummaryPage/sampleList/durationChart';
 import SampleTable from 'sentry/views/insights/common/views/spanSummaryPage/sampleList/sampleTable/sampleTable';
@@ -29,12 +30,13 @@ import {InsightsSpanTagProvider} from 'sentry/views/insights/pages/insightsSpanT
 import {useDomainViewFilters} from 'sentry/views/insights/pages/useFilters';
 import {
   type ModuleName,
-  SpanFields,
-  type SpanQueryFilters,
+  SpanIndexedField,
+  SpanMetricsField,
+  type SpanMetricsQueryFilters,
 } from 'sentry/views/insights/types';
 import {TraceViewSources} from 'sentry/views/performance/newTraceDetails/traceHeader/breadcrumbs';
 
-const {SPAN_SELF_TIME, SPAN_OP} = SpanFields;
+const {SPAN_SELF_TIME, SPAN_OP} = SpanMetricsField;
 
 type Props = {
   groupId: string;
@@ -62,6 +64,7 @@ export function SpanSamplesContainer({
   const location = useLocation();
   const navigate = useNavigate();
   const {view} = useDomainViewFilters();
+  const useEap = useInsightsEap();
   const [highlightedSpanId, setHighlightedSpanId] = useState<string | undefined>(
     undefined
   );
@@ -82,7 +85,7 @@ export function SpanSamplesContainer({
     });
   }
 
-  const filters: SpanQueryFilters = {
+  const filters: SpanMetricsQueryFilters = {
     'span.group': groupId,
     transaction: transactionName,
   };
@@ -103,7 +106,7 @@ export function SpanSamplesContainer({
     filters['span.op'] = spanOp;
   }
 
-  const {data, isPending} = useSpans(
+  const {data, isPending} = useSpanMetrics(
     {
       search: MutableSearch.fromQueryObject({...filters, ...additionalFilters}),
       fields: [`avg(${SPAN_SELF_TIME})`, 'count()', SPAN_OP],
@@ -132,6 +135,7 @@ export function SpanSamplesContainer({
       navigate(
         generateLinkToEventInTraceView({
           targetId: span['transaction.span_id'],
+          projectSlug: span.project,
           spanId: span.span_id,
           location,
           organization,
@@ -207,12 +211,13 @@ export function SpanSamplesContainer({
         />
 
         <StyledSearchBar>
-          <EapSpanSearchQueryBuilderWrapper
+          <SpanSearchQueryBuilder
             searchSource={`${moduleName}-sample-panel`}
             initialQuery={searchQuery ?? ''}
             onSearch={handleSearch}
             placeholder={t('Search for span attributes')}
             projects={selection.projects}
+            useEap={useEap}
           />
         </StyledSearchBar>
 
@@ -245,7 +250,7 @@ export function SpanSamplesContainer({
               width: COL_WIDTH_UNDEFINED,
             },
           ]}
-          additionalFields={[SpanFields.PROFILER_ID]}
+          additionalFields={[SpanIndexedField.PROFILER_ID]}
         />
       </InsightsSpanTagProvider>
     </Fragment>

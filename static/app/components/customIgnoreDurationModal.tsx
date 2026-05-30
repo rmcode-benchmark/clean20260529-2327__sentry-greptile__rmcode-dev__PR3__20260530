@@ -99,11 +99,13 @@ export default function CustomIgnoreDurationModal(props: Props) {
       </Body>
       {dateWarning && (
         <Alert.Container>
-          <Alert type="error">{t('Please enter a valid date in the future')}</Alert>
+          <Alert type="error" showIcon>
+            {t('Please enter a valid date in the future')}
+          </Alert>
         </Alert.Container>
       )}
       <Footer>
-        <ButtonBar>
+        <ButtonBar gap={1}>
           <Button priority="default" onClick={closeModal}>
             {t('Cancel')}
           </Button>

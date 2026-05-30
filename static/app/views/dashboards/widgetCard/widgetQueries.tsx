@@ -17,7 +17,6 @@ import {
   type Widget,
   WidgetType,
 } from 'sentry/views/dashboards/types';
-import {SAMPLING_MODE} from 'sentry/views/explore/hooks/useProgressiveQuery';
 
 import {useDashboardsMEPContext} from './dashboardsMEPContext';
 import type {
@@ -167,9 +166,6 @@ function WidgetQueries({
           organization={organization}
           selection={selection}
           widget={widget}
-          samplingMode={
-            widget.widgetType === WidgetType.SPANS ? SAMPLING_MODE.NORMAL : undefined
-          }
           cursor={cursor}
           limit={limit}
           dashboardFilters={dashboardFilters}

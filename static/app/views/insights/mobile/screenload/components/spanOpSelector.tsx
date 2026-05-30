@@ -9,10 +9,10 @@ import {MutableSearch} from 'sentry/utils/tokenizeSearch';
 import {useLocation} from 'sentry/utils/useLocation';
 import {useNavigate} from 'sentry/utils/useNavigate';
 import useOrganization from 'sentry/utils/useOrganization';
-import {useSpans} from 'sentry/views/insights/common/queries/useDiscover';
+import {useSpanMetrics} from 'sentry/views/insights/common/queries/useDiscover';
 import {appendReleaseFilters} from 'sentry/views/insights/common/utils/releaseComparison';
 import {MobileCursors} from 'sentry/views/insights/mobile/screenload/constants';
-import {SpanFields} from 'sentry/views/insights/types';
+import {SpanMetricsField} from 'sentry/views/insights/types';
 
 export const TTID_CONTRIBUTING_SPAN_OPS = [
   'file.read',
@@ -36,7 +36,7 @@ export function SpanOpSelector({transaction, primaryRelease, secondaryRelease}: 
   const navigate = useNavigate();
   const location = useLocation();
   const organization = useOrganization();
-  const value = decodeScalar(location.query[SpanFields.SPAN_OP]) ?? '';
+  const value = decodeScalar(location.query[SpanMetricsField.SPAN_OP]) ?? '';
 
   const searchQuery = new MutableSearch([
     'transaction.op:[ui.load,navigation]',
@@ -50,11 +50,11 @@ export function SpanOpSelector({transaction, primaryRelease, secondaryRelease}: 
     secondaryRelease
   );
 
-  const {data} = useSpans(
+  const {data} = useSpanMetrics(
     {
       limit: 25,
       search: queryStringPrimary,
-      fields: [SpanFields.SPAN_OP, 'count()'],
+      fields: [SpanMetricsField.SPAN_OP, 'count()'],
     },
     'api.starfish.get-span-operations'
   );
@@ -62,11 +62,11 @@ export function SpanOpSelector({transaction, primaryRelease, secondaryRelease}: 
   const options = [
     {value: '', label: t('All')},
     ...data
-      .filter(datum => Boolean(datum[SpanFields.SPAN_OP]))
+      .filter(datum => Boolean(datum[SpanMetricsField.SPAN_OP]))
       .map(datum => {
         return {
-          value: datum[SpanFields.SPAN_OP],
-          label: datum[SpanFields.SPAN_OP],
+          value: datum[SpanMetricsField.SPAN_OP],
+          label: datum[SpanMetricsField.SPAN_OP],
         };
       }),
   ];
@@ -86,7 +86,7 @@ export function SpanOpSelector({transaction, primaryRelease, secondaryRelease}: 
           ...location,
           query: {
             ...location.query,
-            [SpanFields.SPAN_OP]: newValue.value,
+            [SpanMetricsField.SPAN_OP]: newValue.value,
             [MobileCursors.SPANS_TABLE]: undefined,
           },
         });

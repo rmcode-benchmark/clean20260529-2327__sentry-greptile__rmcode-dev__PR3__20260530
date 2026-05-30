@@ -1,4 +1,4 @@
-import type {ComponentProps, CSSProperties, HTMLAttributes} from 'react';
+import type {CSSProperties, HTMLAttributes} from 'react';
 import {css} from '@emotion/react';
 import styled from '@emotion/styled';
 
@@ -8,17 +8,18 @@ import Panel from 'sentry/components/panels/panel';
 import {IconArrow} from 'sentry/icons';
 import {space} from 'sentry/styles/space';
 
-interface TableProps extends HTMLAttributes<HTMLDivElement> {
+interface TableProps {
   children: React.ReactNode;
+  className?: string;
 }
 
 interface RowProps extends HTMLAttributes<HTMLDivElement> {
   variant?: 'default' | 'faded';
 }
 
-export function SimpleTable({children, ...props}: TableProps) {
+export function SimpleTable({className, children}: TableProps) {
   return (
-    <StyledPanel {...props} role="table">
+    <StyledPanel className={className} role="table">
       {children}
     </StyledPanel>
   );
@@ -30,11 +31,12 @@ function Header({children}: {children: React.ReactNode}) {
 
 function HeaderCell({
   children,
+  className,
   sort,
   handleSortClick,
-  ...props
-}: HTMLAttributes<HTMLDivElement> & {
+}: {
   children?: React.ReactNode;
+  className?: string;
   handleSortClick?: () => void;
   sort?: 'asc' | 'desc';
 }) {
@@ -43,7 +45,7 @@ function HeaderCell({
 
   return (
     <ColumnHeaderCell
-      {...props}
+      className={className}
       isSorted={isSorted}
       onClick={handleSortClick}
       role="columnheader"
@@ -76,20 +78,13 @@ function RowCell({
   children,
   className,
   justify,
-  ...props
-}: ComponentProps<typeof Flex> & {
+}: {
   children: React.ReactNode;
   className?: string;
   justify?: CSSProperties['justifyContent'];
 }) {
   return (
-    <StyledRowCell
-      {...props}
-      className={className}
-      role="cell"
-      align="center"
-      justify={justify}
-    >
+    <StyledRowCell className={className} role="cell" align="center" justify={justify}>
       {children}
     </StyledRowCell>
   );

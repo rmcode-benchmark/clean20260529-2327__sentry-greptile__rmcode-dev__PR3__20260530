@@ -581,6 +581,7 @@ class QueryExecutor:
                 return bulk_run_query(requests)
         except SnubaError as e:
             sentry_sdk.capture_exception(e)
+            metrics.incr(key="ddm.metrics_api.execution.error")
             raise MetricsQueryExecutionError("An error occurred while executing the query") from e
 
     def _bulk_execute(self) -> bool:

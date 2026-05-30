@@ -9,7 +9,6 @@ import {Button} from 'sentry/components/core/button';
 import {ButtonBar} from 'sentry/components/core/button/buttonBar';
 import {LinkButton} from 'sentry/components/core/button/linkButton';
 import {Flex} from 'sentry/components/core/layout';
-import {ExternalLink, Link} from 'sentry/components/core/link';
 import {DateTime} from 'sentry/components/dateTime';
 import AutofixFeedback from 'sentry/components/events/autofix/autofixFeedback';
 import {AutofixStartBox} from 'sentry/components/events/autofix/autofixStartBox';
@@ -20,6 +19,8 @@ import useDrawer from 'sentry/components/globalDrawer';
 import {DrawerBody, DrawerHeader} from 'sentry/components/globalDrawer/components';
 import {GroupSummary} from 'sentry/components/group/groupSummary';
 import HookOrDefault from 'sentry/components/hookOrDefault';
+import ExternalLink from 'sentry/components/links/externalLink';
+import Link from 'sentry/components/links/link';
 import Placeholder from 'sentry/components/placeholder';
 import QuestionTooltip from 'sentry/components/questionTooltip';
 import {IconSettings} from 'sentry/icons';
@@ -188,7 +189,7 @@ export function SeerDrawer({group, project, event}: SeerDrawerProps) {
   }
 
   const showWelcomeScreen =
-    aiConfig.orgNeedsGenAiAcknowledgement ||
+    aiConfig.needsGenAiAcknowledgement ||
     (!aiConfig.hasAutofixQuota && organization.features.includes('seer-billing'));
 
   return (
@@ -211,12 +212,12 @@ export function SeerDrawer({group, project, event}: SeerDrawerProps) {
       </SeerDrawerHeader>
       {(!showWelcomeScreen || aiConfig.isAutofixSetupLoading) && (
         <SeerDrawerNavigator>
-          <Flex align="center" gap="md">
+          <Flex align="center" gap={space(1)}>
             <Header>{t('Seer')}</Header>
             <QuestionTooltip
               isHoverable
               title={
-                <Flex direction="column" gap="md">
+                <Flex direction="column" gap={space(1)}>
                   <div>
                     {tct(
                       'Seer models are powered by generative Al. Per our [dataDocs:data usage policies], Sentry does not use your data to train Seer models or share your data with other customers without your express consent.',
@@ -244,9 +245,9 @@ export function SeerDrawer({group, project, event}: SeerDrawerProps) {
               size="sm"
             />
           </Flex>
-          {!aiConfig.orgNeedsGenAiAcknowledgement && (
+          {!aiConfig.needsGenAiAcknowledgement && (
             <ButtonBarWrapper data-test-id="seer-button-bar">
-              <ButtonBar>
+              <ButtonBar gap={1}>
                 <Feature features={['organizations:autofix-seer-preferences']}>
                   <LinkButton
                     to={`/settings/${organization.slug}/projects/${project.slug}/seer/`}

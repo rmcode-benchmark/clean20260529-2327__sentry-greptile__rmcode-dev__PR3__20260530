@@ -75,9 +75,6 @@
       "enhancedPrivacy": {
         "type": "boolean"
       },
-      "enablePrReviewTestGeneration": {
-        "type": "boolean"
-      },
       "experiments": {
         "type": "object"
       },
@@ -117,6 +114,10 @@
             },
             "task": {
               "type": "integer"
+            },
+            "user": {
+              "type": "string",
+              "nullable": true
             }
           }
         }

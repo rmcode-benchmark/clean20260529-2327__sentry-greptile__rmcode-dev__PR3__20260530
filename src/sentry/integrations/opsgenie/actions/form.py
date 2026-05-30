@@ -11,7 +11,6 @@ from sentry.integrations.opsgenie.metrics import record_event
 from sentry.integrations.opsgenie.utils import get_team
 from sentry.integrations.services.integration import integration_service
 from sentry.integrations.services.integration.model import RpcOrganizationIntegration
-from sentry.integrations.types import IntegrationProviderSlug
 from sentry.utils.forms import set_field_choices
 
 INVALID_TEAM = 1
@@ -70,7 +69,7 @@ class OpsgenieNotifyTeamForm(forms.Form):
                 "team": dict(self._teams).get(team_id),
             }
             integration = integration_service.get_integration(
-                integration_id=integration_id, provider=IntegrationProviderSlug.OPSGENIE.value
+                integration_id=integration_id, provider="opsgenie"
             )
             org_integration = integration_service.get_organization_integration(
                 integration_id=integration_id,

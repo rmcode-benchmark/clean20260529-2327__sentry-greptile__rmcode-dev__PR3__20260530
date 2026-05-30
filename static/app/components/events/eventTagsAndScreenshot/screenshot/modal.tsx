@@ -14,6 +14,7 @@ import ImageViewer from 'sentry/components/events/attachmentViewers/imageViewer'
 import {getImageAttachmentRenderer} from 'sentry/components/events/attachmentViewers/previewAttachmentTypes';
 import {KeyValueData} from 'sentry/components/keyValueData';
 import {t, tct} from 'sentry/locale';
+import {space} from 'sentry/styles/space';
 import type {EventAttachment} from 'sentry/types/group';
 import type {Project} from 'sentry/types/project';
 import {defined} from 'sentry/utils';
@@ -114,7 +115,7 @@ export default function ScreenshotModal({
         <h5>{t('Screenshot')}</h5>
       </Header>
       <Body>
-        <Flex direction="column" gap="lg">
+        <Flex direction="column" gap={space(1.5)}>
           {defined(paginationProps) && <ScreenshotPagination {...paginationProps} />}
           <AttachmentComponentWrapper>
             <AttachmentComponent
@@ -161,7 +162,7 @@ export default function ScreenshotModal({
         </Flex>
       </Body>
       <Footer>
-        <ButtonBar>
+        <ButtonBar gap={1}>
           {onDelete && (
             <Confirm
               confirmText={t('Delete')}
@@ -186,10 +187,9 @@ const AttachmentComponentWrapper = styled('div')`
   & > video {
     max-width: 100%;
     max-height: calc(100vh - 300px);
-    width: 100%;
+    width: auto;
     height: auto;
     object-fit: contain;
-    border-radius: ${p => p.theme.borderRadius};
   }
 `;
 

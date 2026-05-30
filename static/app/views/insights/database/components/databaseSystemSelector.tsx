@@ -4,9 +4,9 @@ import {decodeScalar} from 'sentry/utils/queryString';
 import {useLocation} from 'sentry/utils/useLocation';
 import {useNavigate} from 'sentry/utils/useNavigate';
 import {useSystemSelectorOptions} from 'sentry/views/insights/database/components/useSystemSelectorOptions';
-import {SpanFields} from 'sentry/views/insights/types';
+import {SpanMetricsField} from 'sentry/views/insights/types';
 
-const {SPAN_SYSTEM, SPAN_DOMAIN, SPAN_ACTION} = SpanFields;
+const {SPAN_SYSTEM, SPAN_DOMAIN, SPAN_ACTION} = SpanMetricsField;
 
 export function DatabaseSystemSelector() {
   const location = useLocation();

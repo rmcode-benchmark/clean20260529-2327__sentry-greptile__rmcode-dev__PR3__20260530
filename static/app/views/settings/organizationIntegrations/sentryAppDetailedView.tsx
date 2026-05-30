@@ -34,7 +34,6 @@ import {
 } from 'sentry/utils/queryClient';
 import {addQueryParamsToExistingUrl} from 'sentry/utils/queryString';
 import {recordInteraction} from 'sentry/utils/recordSentryAppInteraction';
-import {testableWindowLocation} from 'sentry/utils/testableWindowLocation';
 import useApi from 'sentry/utils/useApi';
 import {useNavigate} from 'sentry/utils/useNavigate';
 import useOrganization from 'sentry/utils/useOrganization';
@@ -145,7 +144,7 @@ export default function SentryAppDetailedView() {
           sentryApp.redirectUrl,
           queryParams
         );
-        testableWindowLocation.assign(redirectUrl);
+        window.location.assign(redirectUrl);
       }
     },
     [organization, sentryApp]

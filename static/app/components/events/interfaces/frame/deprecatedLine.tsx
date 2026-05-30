@@ -153,17 +153,12 @@ function DeprecatedLine({
         (data.absPath ?? '').endsWith(ending) || (data.filename ?? '').endsWith(ending)
     );
 
-  // If context is available (non-empty), users can already see the source code
-  // This means they have a "good stack trace" with readable source lines
-  // In this case, we want to hide the 'unminify code' button since the
-  // user already has sufficient debugging information
   const shouldShowSourceMapDebuggerButton =
-    !hasContextSource(data) &&
     !hideSourceMapDebugger &&
     data.inApp &&
     frameHasValidFileEndingForSourceMapDebugger &&
     frameSourceResolutionResults &&
-    !frameSourceResolutionResults.frameIsResolved;
+    (!frameSourceResolutionResults.frameIsResolved || !hasContextSource(data));
 
   const sourceMapDebuggerAmplitudeData = {
     organization: organization ?? null,
@@ -289,7 +284,7 @@ function DeprecatedLine({
                         <SourceMapsDebuggerModal
                           analyticsParams={sourceMapDebuggerAmplitudeData}
                           sourceResolutionResults={frameSourceResolutionResults}
-                          organization={organization}
+                          orgSlug={organization?.slug}
                           projectId={event.projectID}
                           {...modalProps}
                         />

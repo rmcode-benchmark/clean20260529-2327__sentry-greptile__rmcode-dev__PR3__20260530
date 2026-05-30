@@ -60,34 +60,34 @@ export const statusToText: Record<CheckInStatus, string> = {
   [CheckInStatus.UNKNOWN]: t('Unknown'),
 };
 
-export const tickStyle: TickStyle<CheckInStatus> = theme => ({
+export const tickStyle: Record<CheckInStatus, TickStyle> = {
   [CheckInStatus.ERROR]: {
-    labelColor: theme.red400,
-    tickColor: theme.red300,
+    labelColor: 'red400',
+    tickColor: 'red300',
   },
   [CheckInStatus.TIMEOUT]: {
-    labelColor: theme.red400,
-    tickColor: theme.red300,
-    hatchTick: theme.red200,
+    labelColor: 'red400',
+    tickColor: 'red300',
+    hatchTick: 'red200',
   },
   [CheckInStatus.OK]: {
-    labelColor: theme.green400,
-    tickColor: theme.green300,
+    labelColor: 'green400',
+    tickColor: 'green300',
   },
   [CheckInStatus.MISSED]: {
-    labelColor: theme.yellow400,
-    tickColor: theme.yellow300,
+    labelColor: 'yellow400',
+    tickColor: 'yellow300',
   },
   [CheckInStatus.IN_PROGRESS]: {
-    labelColor: theme.disabled,
-    tickColor: theme.disabled,
+    labelColor: 'disabled',
+    tickColor: 'disabled',
   },
   [CheckInStatus.UNKNOWN]: {
-    labelColor: theme.gray400,
-    tickColor: theme.gray300,
-    hatchTick: theme.gray200,
+    labelColor: 'gray400',
+    tickColor: 'gray300',
+    hatchTick: 'gray200',
   },
-});
+};
 
 export const getScheduleIntervals = (n: number): Array<SelectValue<string>> => [
   {value: 'minute', label: tn('minute', 'minutes', n)},

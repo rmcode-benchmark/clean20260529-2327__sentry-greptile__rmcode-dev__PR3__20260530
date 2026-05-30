@@ -49,9 +49,6 @@ class MessagingInteractionType(StrEnum):
     SEND_ACTIVITY_NOTIFICATION = "SEND_ACTIVITY_NOTIFICATION"
     SEND_GENERIC_NOTIFICATION = "SEND_GENERIC_NOTIFICATION"
 
-    def __str__(self) -> str:
-        return self.value.lower()
-
 
 @dataclass
 class MessagingInteractionEvent(IntegrationEventLifecycleMetric):

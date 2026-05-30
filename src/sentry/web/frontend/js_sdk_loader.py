@@ -15,7 +15,6 @@ from sentry.loader.dynamic_sdk_options import DynamicSdkLoaderOption, get_dynami
 from sentry.models.project import Project
 from sentry.models.projectkey import ProjectKey
 from sentry.utils import metrics
-from sentry.web.frontend.analytics import JsSdkLoaderRendered
 from sentry.web.frontend.base import region_silo_view
 from sentry.web.helpers import render_to_response
 
@@ -191,16 +190,15 @@ class JavaScriptSdkLoader(View):
 
         (
             analytics.record(
-                JsSdkLoaderRendered(
-                    organization_id=key.project.organization_id,
-                    project_id=key.project_id,
-                    is_lazy=loader_config["isLazy"],
-                    has_performance=loader_config["hasPerformance"],
-                    has_replay=loader_config["hasReplay"],
-                    has_debug=loader_config["hasDebug"],
-                    sdk_version=str(sdk_version) if sdk_version else None,
-                    tmpl=tmpl,
-                )
+                "js_sdk_loader.rendered",
+                organization_id=key.project.organization_id,
+                project_id=key.project_id,
+                is_lazy=loader_config["isLazy"],
+                has_performance=loader_config["hasPerformance"],
+                has_replay=loader_config["hasReplay"],
+                has_debug=loader_config["hasDebug"],
+                sdk_version=sdk_version,
+                tmpl=tmpl,
             )
             if key
             else None

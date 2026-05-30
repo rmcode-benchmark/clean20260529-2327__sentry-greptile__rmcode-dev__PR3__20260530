@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 from abc import ABC
+from collections.abc import Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import TYPE_CHECKING, Any, ClassVar
 
@@ -16,7 +17,6 @@ from sentry.constants import ObjectStatus
 from sentry.hybridcloud.models.webhookpayload import WebhookPayload
 from sentry.hybridcloud.outbox.category import WebhookProviderIdentifier
 from sentry.hybridcloud.services.organization_mapping import organization_mapping_service
-from sentry.hybridcloud.services.organization_mapping.model import RpcOrganizationMapping
 from sentry.integrations.middleware.metrics import (
     MiddlewareHaltReason,
     MiddlewareOperationEvent,
@@ -25,12 +25,12 @@ from sentry.integrations.middleware.metrics import (
 from sentry.integrations.models.integration import Integration
 from sentry.integrations.models.organization_integration import OrganizationIntegration
 from sentry.integrations.services.integration.model import RpcIntegration
+from sentry.organizations.services.organization import RpcOrganizationSummary
 from sentry.ratelimits import backend as ratelimiter
 from sentry.silo.base import SiloLimit, SiloMode
 from sentry.silo.client import RegionSiloClient, SiloClientError
 from sentry.types.region import Region, find_regions_for_orgs, get_region_by_name
 from sentry.utils import metrics
-from sentry.utils.options import sample_modulo
 
 logger = logging.getLogger(__name__)
 if TYPE_CHECKING:
@@ -135,10 +135,12 @@ class BaseRequestParser(ABC):
                 http_response = region_client.proxy_request(incoming_request=self.request)
                 return http_response
 
-    def get_responses_from_region_silos(self, regions: list[Region]) -> dict[str, RegionResult]:
+    def get_responses_from_region_silos(
+        self, regions: Sequence[Region]
+    ) -> Mapping[str, RegionResult]:
         """
         Used to handle the requests on a given list of regions (synchronously).
-        Returns a dict of region name to response/exception.
+        Returns a mapping of region name to response/exception.
         """
         self.ensure_control_silo()
 
@@ -162,7 +164,7 @@ class BaseRequestParser(ABC):
 
     def get_response_from_webhookpayload(
         self,
-        regions: list[Region],
+        regions: Sequence[Region],
         identifier: int | str | None = None,
         integration_id: int | None = None,
     ):
@@ -186,7 +188,7 @@ class BaseRequestParser(ABC):
         return HttpResponse(status=status.HTTP_202_ACCEPTED)
 
     def get_mailbox_identifier(
-        self, integration: RpcIntegration | Integration, data: dict[str, Any]
+        self, integration: RpcIntegration | Integration, data: Mapping[str, Any]
     ) -> str:
         """
         Used by integrations with higher hook volumes to create smaller mailboxes
@@ -218,7 +220,7 @@ class BaseRequestParser(ABC):
 
         return f"{integration.id}:{bucket_number}"
 
-    def mailbox_bucket_id(self, data: dict[str, Any]) -> int | None:
+    def mailbox_bucket_id(self, data: Mapping[str, Any]) -> int | None:
         raise NotImplementedError(
             "You must implement mailbox_bucket_id to use bucketed identifiers"
         )
@@ -274,7 +276,7 @@ class BaseRequestParser(ABC):
 
     def get_integration_from_request(self) -> Integration | None:
         """
-        Parse the request to retrieve integration the request pertains to.
+        Parse the request to retreive organizations to forward the request to.
         Should be overwritten by implementation.
         """
         return None
@@ -283,7 +285,7 @@ class BaseRequestParser(ABC):
 
     def get_organizations_from_integration(
         self, integration: Integration | RpcIntegration | None = None
-    ) -> list[RpcOrganizationMapping]:
+    ) -> Sequence[RpcOrganizationSummary]:
         """
         Use the get_integration_from_request() method to identify organizations associated with
         the integration request.
@@ -316,30 +318,11 @@ class BaseRequestParser(ABC):
                 return []
 
             organization_ids = [oi.organization_id for oi in organization_integrations]
-            all_organizations = organization_mapping_service.get_many(
-                organization_ids=organization_ids
-            )
-
-            # (1-TARGET_RATE)% of integrations will return all the organizations
-            if not sample_modulo("hybrid_cloud.integration_region_targeting_rate", integration.id):
-                return all_organizations
-
-            # (TARGET_RATE)% of integrations will attempt to target a specific organization
-            return self.filter_organizations_from_request(organizations=all_organizations)
-
-    def filter_organizations_from_request(
-        self,
-        organizations: list[RpcOrganizationMapping],
-    ) -> list[RpcOrganizationMapping]:
-        """
-        Parse the request to retrieve the organization to forward the request to.
-        Should be overwritten by implementation.
-        """
-        return organizations
+            return organization_mapping_service.get_many(organization_ids=organization_ids)
 
     def get_regions_from_organizations(
-        self, organizations: list[RpcOrganizationMapping] | None = None
-    ) -> list[Region]:
+        self, organizations: Sequence[RpcOrganizationSummary] | None = None
+    ) -> Sequence[Region]:
         """
         Use the get_organizations_from_integration() method to identify forwarding regions.
         """

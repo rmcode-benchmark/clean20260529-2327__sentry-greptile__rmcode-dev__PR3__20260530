@@ -39,10 +39,7 @@ function useReplayerInstance() {
       return () => {};
     }
 
-    const webFrames = replay?.getRRWebFrames();
-    if (!webFrames) {
-      return () => {};
-    }
+    const webFrames = replay.getRRWebFrames();
 
     const replayer = new Replayer(webFrames, {
       root,

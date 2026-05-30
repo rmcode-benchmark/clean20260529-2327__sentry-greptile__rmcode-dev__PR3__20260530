@@ -8,7 +8,6 @@ import ProjectsStore from 'sentry/stores/projectsStore';
 import {useLocation} from 'sentry/utils/useLocation';
 import usePageFilters from 'sentry/utils/usePageFilters';
 import {useReleaseStats} from 'sentry/utils/useReleaseStats';
-import {SAMPLING_MODE} from 'sentry/views/explore/hooks/useProgressiveQuery';
 import {QueryParameterNames} from 'sentry/views/insights/common/views/queryParameters';
 import {HTTPLandingPage} from 'sentry/views/insights/http/views/httpLandingPage';
 
@@ -268,8 +267,7 @@ describe('HTTPLandingPage', function () {
         method: 'GET',
         query: {
           cursor: undefined,
-          dataset: 'spans',
-          sampling: SAMPLING_MODE.NORMAL,
+          dataset: 'spansMetrics',
           environment: [],
           excludeOther: 0,
           field: [],
@@ -293,7 +291,7 @@ describe('HTTPLandingPage', function () {
       expect.objectContaining({
         method: 'GET',
         query: {
-          dataset: 'spans',
+          dataset: 'spansMetrics',
           environment: [],
           field: ['user.geo.subregion', 'count()'],
           per_page: 50,
@@ -301,7 +299,6 @@ describe('HTTPLandingPage', function () {
           query: 'has:user.geo.subregion',
           sort: '-count()',
           referrer: 'api.insights.user-geo-subregion-selector',
-          sampling: SAMPLING_MODE.NORMAL,
           statsPeriod: '10d',
         },
       })
@@ -314,8 +311,7 @@ describe('HTTPLandingPage', function () {
         method: 'GET',
         query: {
           cursor: undefined,
-          dataset: 'spans',
-          sampling: SAMPLING_MODE.NORMAL,
+          dataset: 'spansMetrics',
           environment: [],
           excludeOther: 0,
           field: [],
@@ -341,8 +337,7 @@ describe('HTTPLandingPage', function () {
         method: 'GET',
         query: {
           cursor: undefined,
-          dataset: 'spans',
-          sampling: SAMPLING_MODE.NORMAL,
+          dataset: 'spansMetrics',
           environment: [],
           excludeOther: 0,
           field: [],
@@ -370,7 +365,7 @@ describe('HTTPLandingPage', function () {
       expect.objectContaining({
         method: 'GET',
         query: {
-          dataset: 'spans',
+          dataset: 'spansMetrics',
           environment: [],
           field: [
             'project',
@@ -389,7 +384,6 @@ describe('HTTPLandingPage', function () {
           referrer: 'api.performance.http.landing-domains-list',
           sort: '-sum(span.self_time)',
           statsPeriod: '10d',
-          sampling: SAMPLING_MODE.NORMAL,
         },
       })
     );
@@ -462,7 +456,7 @@ describe('HTTPLandingPage', function () {
       expect.objectContaining({
         method: 'GET',
         query: {
-          dataset: 'spans',
+          dataset: 'spansMetrics',
           environment: [],
           field: [
             'project',
@@ -481,7 +475,6 @@ describe('HTTPLandingPage', function () {
           referrer: 'api.performance.http.landing-domains-list',
           sort: '-avg(span.self_time)',
           statsPeriod: '10d',
-          sampling: SAMPLING_MODE.NORMAL,
         },
       })
     );

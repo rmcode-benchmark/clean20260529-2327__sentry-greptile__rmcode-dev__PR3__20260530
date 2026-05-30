@@ -127,7 +127,7 @@ export function SeerSectionCtaButton({
   };
 
   const showCtaButton =
-    aiConfig.orgNeedsGenAiAcknowledgement ||
+    aiConfig.needsGenAiAcknowledgement ||
     aiConfig.hasAutofix ||
     (aiConfig.hasSummary && aiConfig.hasResources);
   const isButtonLoading =

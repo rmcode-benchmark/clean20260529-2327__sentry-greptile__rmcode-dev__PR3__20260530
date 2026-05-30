@@ -246,7 +246,6 @@ class ReleaseWidgetQueries extends Component<ReleaseWidgetQueriesProps, State> {
       'layout',
       'tempId',
       'widgetType',
-      'tableWidths',
     ];
     const ignoredQueryProps = ['name', 'fields', 'aggregates', 'columns'];
     return (

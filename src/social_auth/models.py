@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from typing import Any
 
 from django.apps import apps
 from django.conf import settings
@@ -8,6 +9,7 @@ from django.db import models
 
 from sentry.db.models import control_silo_model
 
+from .fields import JSONField
 from .utils import setting
 
 AUTH_USER_MODEL = settings.AUTH_USER_MODEL
@@ -28,7 +30,7 @@ class UserSocialAuth(models.Model):
     user = models.ForeignKey(AUTH_USER_MODEL, related_name="social_auth", on_delete=models.CASCADE)
     provider = models.CharField(max_length=32)
     uid = models.CharField(max_length=UID_LENGTH)
-    extra_data = models.JSONField(default=dict)
+    extra_data: models.Field[dict[str, Any] | None, dict[str, Any]] = JSONField(default="{}")
 
     class Meta:
         """Meta data"""

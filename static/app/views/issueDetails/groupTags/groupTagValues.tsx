@@ -5,13 +5,14 @@ import {useFetchIssueTag, useFetchIssueTagValues} from 'sentry/actionCreators/gr
 import {addMessage} from 'sentry/actionCreators/indicator';
 import {ButtonBar} from 'sentry/components/core/button/buttonBar';
 import {LinkButton} from 'sentry/components/core/button/linkButton';
-import {ExternalLink, Link} from 'sentry/components/core/link';
 import DataExport, {ExportQueryType} from 'sentry/components/dataExport';
 import {DeviceName} from 'sentry/components/deviceName';
 import {DropdownMenu} from 'sentry/components/dropdownMenu';
 import GlobalSelectionLink from 'sentry/components/globalSelectionLink';
 import UserBadge from 'sentry/components/idBadge/userBadge';
 import * as Layout from 'sentry/components/layouts/thirds';
+import ExternalLink from 'sentry/components/links/externalLink';
+import Link from 'sentry/components/links/link';
 import LoadingError from 'sentry/components/loadingError';
 import LoadingIndicator from 'sentry/components/loadingIndicator';
 import {extractSelectionParameters} from 'sentry/components/organizations/pageFilters/utils';
@@ -292,7 +293,7 @@ export function GroupTagValues() {
       <Layout.Main fullWidth>
         <TitleWrapper>
           <Title>{t('Tag Details')}</Title>
-          <ButtonBar>
+          <ButtonBar gap={1}>
             <LinkButton
               size="sm"
               priority="default"

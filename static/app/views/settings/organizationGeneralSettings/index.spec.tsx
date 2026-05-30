@@ -18,7 +18,6 @@ import OrganizationsStore from 'sentry/stores/organizationsStore';
 import ProjectsStore from 'sentry/stores/projectsStore';
 import type {Config} from 'sentry/types/system';
 import {trackAnalytics} from 'sentry/utils/analytics';
-import {testableWindowLocation} from 'sentry/utils/testableWindowLocation';
 import OrganizationGeneralSettings from 'sentry/views/settings/organizationGeneralSettings';
 
 jest.mock('sentry/utils/analytics');
@@ -162,7 +161,7 @@ describe('OrganizationGeneralSettings', function () {
         })
       );
     });
-    expect(testableWindowLocation.replace).toHaveBeenCalledWith(
+    expect(window.location.replace).toHaveBeenCalledWith(
       'https://acme.sentry.io/settings/organization/'
     );
   });

@@ -47,7 +47,7 @@ function ApiTokenRow({
       <div>
         <ScopeList>{token.scopes.join(', ')}</ScopeList>
       </div>
-      <Actions>
+      <Actions gap={1}>
         {canEdit && (
           <LinkButton size="sm" to={`/settings/account/api/auth-tokens/${token.id}/`}>
             {t('Edit')}

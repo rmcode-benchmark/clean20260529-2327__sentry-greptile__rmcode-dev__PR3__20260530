@@ -3,7 +3,6 @@ import {OrganizationFixture} from 'sentry-fixture/organization';
 import {initializeOrg} from 'sentry-test/initializeOrg';
 import {render, screen, userEvent} from 'sentry-test/reactTestingLibrary';
 
-import {testableWindowLocation} from 'sentry/utils/testableWindowLocation';
 import OrganizationRestore from 'sentry/views/organizationRestore';
 
 describe('OrganizationRestore', function () {
@@ -66,7 +65,7 @@ describe('OrganizationRestore', function () {
     await userEvent.click(button);
 
     expect(mockUpdate).toHaveBeenCalled();
-    expect(testableWindowLocation.assign).toHaveBeenCalledWith(
+    expect(window.location.assign).toHaveBeenCalledWith(
       `/organizations/${pendingDeleteOrg.slug}/issues/`
     );
   });

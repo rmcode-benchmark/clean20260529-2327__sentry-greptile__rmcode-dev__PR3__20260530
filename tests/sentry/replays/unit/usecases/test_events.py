@@ -14,16 +14,18 @@ def test_archive_event():
     assert parsed_event["project_id"] == 1
     assert parsed_event["replay_id"] == "2"
     assert parsed_event["retention_days"] == 90
-    assert parsed_event["payload"]["type"] == "replay_event"
-    assert parsed_event["payload"]["replay_id"] == "2"
-    assert len(parsed_event["payload"]["event_id"]) == 32
-    assert parsed_event["payload"]["segment_id"] is None
-    assert parsed_event["payload"]["trace_ids"] == []
-    assert parsed_event["payload"]["error_ids"] == []
-    assert parsed_event["payload"]["urls"] == []
-    assert parsed_event["payload"]["is_archived"] is True
-    assert parsed_event["payload"]["platform"] == ""
-    assert isinstance(parsed_event["payload"]["timestamp"], float)
+
+    payload = json.loads(bytes(parsed_event["payload"]))
+    assert payload["type"] == "replay_event"
+    assert payload["replay_id"] == "2"
+    assert len(payload["event_id"]) == 32
+    assert payload["segment_id"] is None
+    assert payload["trace_ids"] == []
+    assert payload["error_ids"] == []
+    assert payload["urls"] == []
+    assert payload["is_archived"] is True
+    assert payload["platform"] == ""
+    assert isinstance(payload["timestamp"], float)
 
 
 def test_viewed_event():
@@ -37,6 +39,8 @@ def test_viewed_event():
     assert parsed_event["project_id"] == 1
     assert parsed_event["replay_id"] == "2"
     assert parsed_event["retention_days"] == 90
-    assert parsed_event["payload"]["type"] == "replay_viewed"
-    assert parsed_event["payload"]["viewed_by_id"] == 3
-    assert parsed_event["payload"]["timestamp"] == ts
+
+    payload = json.loads(bytes(parsed_event["payload"]))
+    assert payload["type"] == "replay_viewed"
+    assert payload["viewed_by_id"] == 3
+    assert payload["timestamp"] == ts

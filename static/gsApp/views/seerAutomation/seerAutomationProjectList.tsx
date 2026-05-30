@@ -1,4 +1,4 @@
-import {Fragment, useMemo, useState} from 'react';
+import {Fragment, useState} from 'react';
 import styled from '@emotion/styled';
 
 import {
@@ -12,8 +12,9 @@ import {Button} from 'sentry/components/core/button';
 import {ButtonBar} from 'sentry/components/core/button/buttonBar';
 import {Checkbox} from 'sentry/components/core/checkbox';
 import {Flex} from 'sentry/components/core/layout';
+import {Tooltip} from 'sentry/components/core/tooltip';
 import {DropdownMenu} from 'sentry/components/dropdownMenu';
-import {useProjectSeerPreferences} from 'sentry/components/events/autofix/preferences/hooks/useProjectSeerPreferences';
+import Link from 'sentry/components/links/link';
 import LoadingError from 'sentry/components/loadingError';
 import LoadingIndicator from 'sentry/components/loadingIndicator';
 import Panel from 'sentry/components/panels/panel';
@@ -21,7 +22,6 @@ import PanelBody from 'sentry/components/panels/panelBody';
 import PanelHeader from 'sentry/components/panels/panelHeader';
 import PanelItem from 'sentry/components/panels/panelItem';
 import Placeholder from 'sentry/components/placeholder';
-import SearchBar from 'sentry/components/searchBar';
 import {IconChevron} from 'sentry/icons';
 import {t} from 'sentry/locale';
 import {space} from 'sentry/styles/space';
@@ -32,11 +32,9 @@ import {
   makeDetailedProjectQueryKey,
   useDetailedProject,
 } from 'sentry/utils/useDetailedProject';
-import {useNavigate} from 'sentry/utils/useNavigate';
 import useOrganization from 'sentry/utils/useOrganization';
 import useProjects from 'sentry/utils/useProjects';
 import {SEER_THRESHOLD_MAP} from 'sentry/views/settings/projectSeer';
-import {SEER_THRESHOLD_OPTIONS} from 'sentry/views/settings/projectSeer/constants';
 
 const PROJECTS_PER_PAGE = 20;
 
@@ -46,13 +44,7 @@ function ProjectSeerSetting({project, orgSlug}: {orgSlug: string; project: Proje
     projectSlug: project.slug,
   });
 
-  const {
-    preference,
-    isPending: isLoadingPreferences,
-    codeMappingRepos,
-  } = useProjectSeerPreferences(project);
-
-  if (detailedProject.isPending || isLoadingPreferences) {
+  if (detailedProject.isPending) {
     return (
       <div>
         <Placeholder height="12px" width="50px" />
@@ -67,45 +59,27 @@ function ProjectSeerSetting({project, orgSlug}: {orgSlug: string; project: Proje
   const {autofixAutomationTuning = 'off', seerScannerAutomation = false} =
     detailedProject.data;
 
-  let repoCount = preference?.repositories?.length || 0;
-  if (repoCount === 0 && codeMappingRepos) {
-    repoCount = codeMappingRepos.length;
-  }
-
   return (
     <SeerValue>
-      <ValueWrapper isDangerous={!seerScannerAutomation}>
-        <Subheading>{t('Scans:')}</Subheading>{' '}
+      <span>
+        <Subheading>{t('Scans')}:</Subheading>{' '}
         {seerScannerAutomation ? t('On') : t('Off')}
-      </ValueWrapper>
-      <ValueWrapper isDangerous={autofixAutomationTuning === 'off'}>
-        <Subheading>{t('Fixes:')}</Subheading>{' '}
+      </span>
+      {' | '}
+      <span>
+        <Subheading>{t('Fixes')}:</Subheading>{' '}
         {getSeerLabel(autofixAutomationTuning, seerScannerAutomation)}
-      </ValueWrapper>
-      <ValueWrapper isDangerous={repoCount === 0}>
-        <Subheading>{t('Repos:')}</Subheading> {repoCount}
-      </ValueWrapper>
+      </span>
     </SeerValue>
   );
 }
-
-const ValueWrapper = styled('span')<{isDangerous?: boolean}>`
-  color: ${p => (p.isDangerous ? p.theme.errorText : p.theme.subText)};
-`;
 
 const Subheading = styled('span')`
   font-weight: ${p => p.theme.fontWeight.bold};
 `;
 
-const SeerDropdownLabel = styled('div')`
-  display: flex;
-  flex-direction: column;
-  gap: ${space(0.25)};
-`;
-
-const SeerDropdownDescription = styled('div')`
-  font-size: ${p => p.theme.fontSize.sm};
-  color: ${p => p.theme.subText};
+const SeerSelectLabel = styled('div')`
+  margin-bottom: ${space(0.5)};
 `;
 
 function getSeerLabel(key: string, seerScannerAutomation: boolean) {
@@ -113,51 +87,34 @@ function getSeerLabel(key: string, seerScannerAutomation: boolean) {
     return t('Off');
   }
 
-  const option = SEER_THRESHOLD_OPTIONS.find(opt => opt.value === key);
-  return option ? option.label : key;
-}
-
-function getSeerDropdownLabel(key: string) {
-  const option = SEER_THRESHOLD_OPTIONS.find(opt => opt.value === key);
-  if (!option) {
-    return (
-      <SeerDropdownLabel>
-        <div>{key}</div>
-        <SeerDropdownDescription />
-      </SeerDropdownLabel>
-    );
+  switch (key) {
+    case 'off':
+      return t('Off');
+    case 'super_low':
+      return t('Only the Most Actionable Issues');
+    case 'low':
+      return t('Highly Actionable and Above');
+    case 'medium':
+      return t('Moderately Actionable and Above');
+    case 'high':
+      return t('Minimally Actionable and Above');
+    case 'always':
+      return t('All Issues');
+    default:
+      return key;
   }
-
-  return (
-    <SeerDropdownLabel>
-      <div>{option.label}</div>
-      <SeerDropdownDescription>{option.details}</SeerDropdownDescription>
-    </SeerDropdownLabel>
-  );
 }
 
 export function SeerAutomationProjectList() {
   const organization = useOrganization();
   const api = useApi({persistInFlight: true});
   const {projects, fetching, fetchError} = useProjects();
+  const projectsWithWriteAccess = projects.filter(p =>
+    hasEveryAccess(['project:write'], {organization, project: p})
+  );
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Set<string>>(() => new Set());
   const queryClient = useQueryClient();
-  const [search, setSearch] = useState('');
-  const navigate = useNavigate();
-
-  const filteredProjects = useMemo(() => {
-    return projects.filter(
-      project =>
-        project.slug.toLowerCase().includes(search.toLowerCase()) &&
-        hasEveryAccess(['project:read'], {organization, project})
-    );
-  }, [projects, search, organization]);
-
-  const handleSearchChange = (searchQuery: string) => {
-    setSearch(searchQuery);
-    setPage(1); // Reset to first page when search changes
-  };
 
   if (fetching) {
     return <LoadingIndicator />;
@@ -167,10 +124,10 @@ export function SeerAutomationProjectList() {
     return <LoadingError />;
   }
 
-  const totalProjects = filteredProjects.length;
+  const totalProjects = projects.length;
   const pageStart = (page - 1) * PROJECTS_PER_PAGE;
   const pageEnd = page * PROJECTS_PER_PAGE;
-  const paginatedProjects = filteredProjects.slice(pageStart, pageEnd);
+  const paginatedProjects = projects.slice(pageStart, pageEnd);
 
   const previousDisabled = page <= 1;
   const nextDisabled = pageEnd >= totalProjects;
@@ -183,24 +140,14 @@ export function SeerAutomationProjectList() {
     setPage(p => p + 1);
   };
 
-  const allFilteredSelected =
-    filteredProjects.length > 0 &&
-    filteredProjects.every(project => selected.has(project.id));
+  const allSelected = selected.size === projects.length && projects.length > 0;
   const toggleSelectAll = () => {
-    if (allFilteredSelected) {
-      // Unselect all filtered projects
-      setSelected(prev => {
-        const newSet = new Set(prev);
-        filteredProjects.forEach(project => newSet.delete(project.id));
-        return newSet;
-      });
+    if (allSelected) {
+      // Unselect all projects
+      setSelected(new Set());
     } else {
-      // Select all filtered projects
-      setSelected(prev => {
-        const newSet = new Set(prev);
-        filteredProjects.forEach(project => newSet.add(project.id));
-        return newSet;
-      });
+      // Select all projects
+      setSelected(new Set(projects.map(project => project.id)));
     }
   };
 
@@ -216,18 +163,6 @@ export function SeerAutomationProjectList() {
     });
   };
 
-  const handleRowClick = (project: Project) => {
-    navigate(`/settings/${organization.slug}/projects/${project.slug}/seer/`);
-  };
-
-  const handleCheckboxChange = (projectId: string) => {
-    toggleProject(projectId);
-  };
-
-  const handleCheckboxClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent row click when clicking checkbox
-  };
-
   async function updateProjectsSeerValue(value: string) {
     addLoadingMessage('Updating projects...', {duration: 30000});
     try {
@@ -235,17 +170,9 @@ export function SeerAutomationProjectList() {
         Array.from(selected).map(projectId => {
           const project = projects.find(p => p.id === projectId);
           if (!project) return Promise.resolve();
-
-          const updateData: any = {autofixAutomationTuning: value};
-
-          // If setting fixes to anything other than "off", also enable scanner
-          if (value !== 'off') {
-            updateData.seerScannerAutomation = true;
-          }
-
           return api.requestPromise(`/projects/${organization.slug}/${project.slug}/`, {
             method: 'PUT',
-            data: updateData,
+            data: {autofixAutomationTuning: value},
           });
         })
       );
@@ -298,7 +225,7 @@ export function SeerAutomationProjectList() {
 
   const actionMenuItems = SEER_THRESHOLD_MAP.map(key => ({
     key,
-    label: getSeerDropdownLabel(key),
+    label: <SeerSelectLabel>{getSeerLabel(key, true)}</SeerSelectLabel>,
     onAction: () => updateProjectsSeerValue(key),
   }));
 
@@ -317,71 +244,62 @@ export function SeerAutomationProjectList() {
 
   return (
     <Fragment>
-      <SearchWrapper>
-        <SearchBarWrapper>
-          <SearchBar
-            query={search}
-            onChange={handleSearchChange}
-            placeholder={t('Search projects')}
-          />
-        </SearchBarWrapper>
-        <Button
-          size="md"
-          priority="primary"
-          onClick={() => navigate(`/settings/${organization.slug}/seer/onboarding`)}
-        >
-          {t('Open Setup Wizard')}
-        </Button>
-      </SearchWrapper>
       <Panel>
         <PanelHeader hasButtons>
-          <div>{t('Automation for Existing Projects')}</div>
-          <Flex gap="md" align="center" style={{marginLeft: 'auto'}}>
-            <ActionDropdownMenu
-              items={scanMenuItems}
-              triggerLabel={t('Set Issue Scans to')}
-              size="sm"
-              isDisabled={selected.size === 0}
-            />
-            <ActionDropdownMenu
-              items={actionMenuItems}
-              triggerLabel={t('Set Issue Fixes to')}
-              size="sm"
-              isDisabled={selected.size === 0}
-            />
+          {selected.size > 0 ? (
+            <Flex gap={space(1)} align="center">
+              <ActionDropdownMenu
+                items={scanMenuItems}
+                triggerLabel={t('Set Issue Scans to')}
+                size="sm"
+              />
+              <ActionDropdownMenu
+                items={actionMenuItems}
+                triggerLabel={t('Set Issue Fixes to')}
+                size="sm"
+              />
+            </Flex>
+          ) : (
+            <div>{t('Automation for Current Projects')}</div>
+          )}
+          <div style={{marginLeft: 'auto'}}>
             <Button size="sm" onClick={toggleSelectAll}>
-              {allFilteredSelected ? t('Unselect All') : t('Select All')}
+              {allSelected ? t('Unselect All') : t('Select All')}
             </Button>
-          </Flex>
+          </div>
         </PanelHeader>
         <PanelBody>
-          {filteredProjects.length === 0 && search && (
-            <div style={{padding: space(2), textAlign: 'center', color: '#888'}}>
-              {t('No projects found matching "%(search)s"', {search})}
-            </div>
-          )}
           {paginatedProjects.map(project => (
-            <ClickablePanelItem key={project.id} onClick={() => handleRowClick(project)}>
-              <Flex justify="space-between" align="center" gap="xl" flex={1}>
-                <Flex gap="md" align="center">
-                  <StyledCheckbox
-                    checked={selected.has(project.id)}
-                    onChange={() => handleCheckboxChange(project.id)}
-                    onClick={handleCheckboxClick}
-                    aria-label={t('Toggle project')}
-                  />
+            <PanelItem key={project.id}>
+              <Flex justify="space-between" gap={space(2)} flex={1}>
+                <Flex gap={space(1)} align="center">
+                  <Tooltip
+                    title={t('You do not have permission to edit this project')}
+                    disabled={projectsWithWriteAccess.includes(project)}
+                  >
+                    <Checkbox
+                      checked={selected.has(project.id)}
+                      onChange={() => toggleProject(project.id)}
+                      aria-label={t('Toggle project')}
+                      disabled={!projectsWithWriteAccess.includes(project)}
+                    />
+                  </Tooltip>
                   <ProjectAvatar project={project} title={project.slug} />
-                  <ProjectName>{project.slug}</ProjectName>
+                  <Link
+                    to={`/settings/${organization.slug}/projects/${project.slug}/seer/`}
+                  >
+                    {project.slug}
+                  </Link>
                 </Flex>
                 <ProjectSeerSetting project={project} orgSlug={organization.slug} />
               </Flex>
-            </ClickablePanelItem>
+            </PanelItem>
           ))}
         </PanelBody>
       </Panel>
       {totalProjects > PROJECTS_PER_PAGE && (
         <Flex justify="flex-end">
-          <ButtonBar merged gap="none">
+          <ButtonBar merged>
             <Button
               icon={<IconChevron direction="left" />}
               aria-label={t('Previous')}
@@ -403,45 +321,13 @@ export function SeerAutomationProjectList() {
   );
 }
 
-const SearchWrapper = styled('div')`
-  margin-bottom: ${space(2)};
-  display: flex;
-  gap: ${space(2)};
-  align-items: center;
-`;
-
-const SearchBarWrapper = styled('div')`
-  flex: 1;
-`;
-
 const SeerValue = styled('div')`
   color: ${p => p.theme.subText};
-  display: flex;
-  justify-content: flex-end;
-  gap: ${space(4)};
 `;
 
 const ActionDropdownMenu = styled(DropdownMenu)`
   [data-test-id='menu-list-item-label'] {
     font-weight: normal;
     text-transform: none;
-    white-space: normal;
-    word-break: break-word;
   }
-`;
-
-const StyledCheckbox = styled(Checkbox)`
-  margin-bottom: 0;
-  padding-bottom: 0;
-`;
-
-const ClickablePanelItem = styled(PanelItem)`
-  cursor: pointer;
-  &:hover {
-    background-color: ${p => p.theme.backgroundSecondary};
-  }
-`;
-
-const ProjectName = styled('span')`
-  font-weight: ${p => p.theme.fontWeight.normal};
 `;

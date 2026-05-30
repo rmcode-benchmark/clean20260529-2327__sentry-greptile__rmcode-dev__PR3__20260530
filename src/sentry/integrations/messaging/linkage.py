@@ -20,11 +20,7 @@ from sentry.integrations.messaging.spec import MessagingIntegrationSpec
 from sentry.integrations.models.external_actor import ExternalActor
 from sentry.integrations.models.integration import Integration
 from sentry.integrations.services.integration import RpcIntegration, integration_service
-from sentry.integrations.types import (
-    ExternalProviderEnum,
-    ExternalProviders,
-    IntegrationProviderSlug,
-)
+from sentry.integrations.types import ExternalProviderEnum, ExternalProviders
 from sentry.integrations.utils.identities import get_identity_or_404
 from sentry.models.organizationmember import OrganizationMember
 from sentry.models.team import Team
@@ -464,8 +460,7 @@ class LinkTeamView(TeamLinkageView, ABC):
         logger_params["team_id"] = team.id
 
         idp = identity_service.get_provider(
-            provider_type=IntegrationProviderSlug.SLACK.value,
-            provider_ext_id=integration.external_id,
+            provider_type="slack", provider_ext_id=integration.external_id
         )
         logger_params["provider_ext_id"] = integration.external_id
         if idp is None:

@@ -10,7 +10,6 @@ import TextField from 'sentry/components/forms/fields/textField';
 import LoadingIndicator from 'sentry/components/loadingIndicator';
 import {getFormattedDate} from 'sentry/utils/dates';
 import {handleXhrErrorResponse} from 'sentry/utils/handleXhrErrorResponse';
-import {testableWindowLocation} from 'sentry/utils/testableWindowLocation';
 import useApi from 'sentry/utils/useApi';
 import useRouter from 'sentry/utils/useRouter';
 
@@ -87,7 +86,7 @@ function InstanceLevelOAuthDetails() {
           <ApiForm
             apiMethod="PUT"
             apiEndpoint={`/_admin/instance-level-oauth/${clientDetails.clientID}/`}
-            onSubmitSuccess={() => testableWindowLocation.reload()}
+            onSubmitSuccess={() => window.location.reload()}
             submitLabel="Save Client Settings"
           >
             <TextField

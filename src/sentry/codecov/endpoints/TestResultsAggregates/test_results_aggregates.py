@@ -6,7 +6,7 @@ from sentry.api.api_owners import ApiOwner
 from sentry.api.api_publish_status import ApiPublishStatus
 from sentry.api.base import region_silo_endpoint
 from sentry.apidocs.constants import RESPONSE_BAD_REQUEST, RESPONSE_FORBIDDEN, RESPONSE_NOT_FOUND
-from sentry.apidocs.parameters import GlobalParams, PreventParams
+from sentry.apidocs.parameters import PreventParams
 from sentry.codecov.base import CodecovEndpoint
 from sentry.codecov.client import CodecovApiClient
 from sentry.codecov.endpoints.TestResultsAggregates.query import query
@@ -14,7 +14,6 @@ from sentry.codecov.endpoints.TestResultsAggregates.serializers import (
     TestResultAggregatesSerializer,
 )
 from sentry.codecov.enums import MeasurementInterval
-from sentry.integrations.services.integration.model import RpcIntegration
 
 
 @extend_schema(tags=["Prevent"])
@@ -28,9 +27,8 @@ class TestResultsAggregatesEndpoint(CodecovEndpoint):
     }
 
     @extend_schema(
-        operation_id="Retrieve aggregated test result metrics for repository, owner, and organization",
+        operation_id="Retrieve aggregated test result metrics for repository and owner",
         parameters=[
-            GlobalParams.ORG_ID_OR_SLUG,
             PreventParams.OWNER,
             PreventParams.REPOSITORY,
             PreventParams.INTERVAL,
@@ -43,23 +41,21 @@ class TestResultsAggregatesEndpoint(CodecovEndpoint):
             404: RESPONSE_NOT_FOUND,
         },
     )
-    def get(self, request: Request, owner: RpcIntegration, repository: str, **kwargs) -> Response:
+    def get(self, request: Request, owner: str, repository: str, **kwargs) -> Response:
         """
         Retrieves aggregated test result metrics for a given repository and owner.
         Also accepts a query parameter to specify the time period for the metrics.
         """
 
-        owner_slug = owner.name
-
         variables = {
-            "owner": owner_slug,
+            "owner": owner,
             "repo": repository,
             "interval": request.query_params.get(
                 "interval", MeasurementInterval.INTERVAL_30_DAY.value
             ),
         }
 
-        client = CodecovApiClient(git_provider_org=owner_slug)
+        client = CodecovApiClient(git_provider_org=owner)
         graphql_response = client.query(query=query, variables=variables)
         test_results = TestResultAggregatesSerializer().to_representation(graphql_response.json())
 

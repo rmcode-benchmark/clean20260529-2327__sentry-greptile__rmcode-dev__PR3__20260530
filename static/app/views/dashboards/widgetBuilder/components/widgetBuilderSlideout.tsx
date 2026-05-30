@@ -5,7 +5,6 @@ import isEqual from 'lodash/isEqual';
 
 import {Breadcrumbs} from 'sentry/components/breadcrumbs';
 import {openConfirmModal} from 'sentry/components/confirm';
-import {Alert} from 'sentry/components/core/alert';
 import {Button} from 'sentry/components/core/button';
 import ErrorBoundary from 'sentry/components/errorBoundary';
 import SlideOverPanel from 'sentry/components/slideOverPanel';
@@ -42,7 +41,6 @@ import Visualize from 'sentry/views/dashboards/widgetBuilder/components/visualiz
 import WidgetTemplatesList from 'sentry/views/dashboards/widgetBuilder/components/widgetTemplatesList';
 import {useWidgetBuilderContext} from 'sentry/views/dashboards/widgetBuilder/contexts/widgetBuilderContext';
 import useDashboardWidgetSource from 'sentry/views/dashboards/widgetBuilder/hooks/useDashboardWidgetSource';
-import {useDisableTransactionWidget} from 'sentry/views/dashboards/widgetBuilder/hooks/useDisableTransactionWidget';
 import useIsEditingWidget from 'sentry/views/dashboards/widgetBuilder/hooks/useIsEditingWidget';
 import {convertBuilderStateToWidget} from 'sentry/views/dashboards/widgetBuilder/utils/convertBuilderStateToWidget';
 import {convertWidgetToBuilderStateParams} from 'sentry/views/dashboards/widgetBuilder/utils/convertWidgetToBuilderStateParams';
@@ -85,7 +83,6 @@ function WidgetBuilderSlideout({
   const theme = useTheme();
   const isEditing = useIsEditingWidget();
   const source = useDashboardWidgetSource();
-  const disableTransactionWidget = useDisableTransactionWidget();
   const validatedWidgetResponse = useValidateWidgetQuery(
     convertBuilderStateToWidget(state)
   );
@@ -211,15 +208,6 @@ function WidgetBuilderSlideout({
         </CloseButton>
       </SlideoutHeaderWrapper>
       <SlideoutBodyWrapper>
-        {disableTransactionWidget && isEditing && (
-          <Section>
-            <Alert type="warning">
-              {t(
-                'You may have limited functionality due to the ongoing migration of transactions to spans. To expedite and re-enable edit functionality, switch to the spans dataset below.'
-              )}
-            </Alert>
-          </Section>
-        )}
         {openWidgetTemplates ? (
           <Fragment>
             <div ref={templatesPreviewRef}>
@@ -255,60 +243,58 @@ function WidgetBuilderSlideout({
             <Section>
               <WidgetBuilderDatasetSelector />
             </Section>
-            <DisableTransactionWidget>
-              <Section>
-                <WidgetBuilderTypeSelector error={error} setError={setError} />
-              </Section>
-              <div ref={customPreviewRef}>
-                {isSmallScreen && (
-                  <Section>
-                    <WidgetPreviewContainer
-                      dashboard={dashboard}
-                      dashboardFilters={dashboardFilters}
-                      isWidgetInvalid={isWidgetInvalid}
-                      onDataFetched={onDataFetched}
-                      openWidgetTemplates={openWidgetTemplates}
-                    />
-                  </Section>
-                )}
-              </div>
+            <Section>
+              <WidgetBuilderTypeSelector error={error} setError={setError} />
+            </Section>
+            <div ref={customPreviewRef}>
               {isSmallScreen && (
                 <Section>
-                  <WidgetBuilderFilterBar releases={dashboard.filters?.release ?? []} />
+                  <WidgetPreviewContainer
+                    dashboard={dashboard}
+                    dashboardFilters={dashboardFilters}
+                    isWidgetInvalid={isWidgetInvalid}
+                    onDataFetched={onDataFetched}
+                    openWidgetTemplates={openWidgetTemplates}
+                  />
                 </Section>
               )}
+            </div>
+            {isSmallScreen && (
               <Section>
-                <Visualize error={error} setError={setError} />
+                <WidgetBuilderFilterBar releases={dashboard.filters?.release ?? []} />
               </Section>
+            )}
+            <Section>
+              <Visualize error={error} setError={setError} />
+            </Section>
+            <Section>
+              <WidgetBuilderQueryFilterBuilder
+                onQueryConditionChange={onQueryConditionChange}
+                validatedWidgetResponse={validatedWidgetResponse}
+              />
+            </Section>
+            {state.displayType === DisplayType.BIG_NUMBER && (
               <Section>
-                <WidgetBuilderQueryFilterBuilder
-                  onQueryConditionChange={onQueryConditionChange}
+                <ThresholdsSection
+                  dataType={thresholdMetaState?.dataType}
+                  dataUnit={thresholdMetaState?.dataUnit}
+                  error={error}
+                  setError={setError}
+                />
+              </Section>
+            )}
+            {isChartWidget && (
+              <Section>
+                <WidgetBuilderGroupBySelector
                   validatedWidgetResponse={validatedWidgetResponse}
                 />
               </Section>
-              {state.displayType === DisplayType.BIG_NUMBER && (
-                <Section>
-                  <ThresholdsSection
-                    dataType={thresholdMetaState?.dataType}
-                    dataUnit={thresholdMetaState?.dataUnit}
-                    error={error}
-                    setError={setError}
-                  />
-                </Section>
-              )}
-              {isChartWidget && (
-                <Section>
-                  <WidgetBuilderGroupBySelector
-                    validatedWidgetResponse={validatedWidgetResponse}
-                  />
-                </Section>
-              )}
-              {showSortByStep && (
-                <Section>
-                  <WidgetBuilderSortBySelector />
-                </Section>
-              )}
-            </DisableTransactionWidget>
+            )}
+            {showSortByStep && (
+              <Section>
+                <WidgetBuilderSortBySelector />
+              </Section>
+            )}
             <SaveButtonGroup
               isEditing={isEditing}
               onSave={onSave}
@@ -329,36 +315,6 @@ function Section({children}: {children: React.ReactNode}) {
     <SectionWrapper>
       <ErrorBoundary mini>{children}</ErrorBoundary>
     </SectionWrapper>
-  );
-}
-
-type DisableModeProps = {
-  children: React.ReactNode;
-};
-
-function DisableTransactionWidget({children}: DisableModeProps) {
-  const disableTransactionWidget = useDisableTransactionWidget();
-
-  if (!disableTransactionWidget) {
-    return children;
-  }
-
-  return (
-    <div
-      data-test-id="transaction-widget-disabled-wrapper"
-      style={{
-        opacity: 0.6,
-        cursor: 'not-allowed',
-      }}
-    >
-      <div
-        style={{
-          pointerEvents: 'none',
-        }}
-      >
-        {children}
-      </div>
-    </div>
   );
 }
 

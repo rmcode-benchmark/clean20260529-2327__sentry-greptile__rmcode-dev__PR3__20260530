@@ -5,6 +5,7 @@ import {ProjectFixture} from 'sentry-fixture/project';
 import {render, screen, waitForElementToBeRemoved} from 'sentry-test/reactTestingLibrary';
 import {textWithMarkupMatcher} from 'sentry-test/utils';
 
+import {EntryType} from 'sentry/types/event';
 import usePageFilters from 'sentry/utils/usePageFilters';
 import {DatabaseSpanDescription} from 'sentry/views/insights/common/components/spanDescription';
 
@@ -44,7 +45,7 @@ describe('DatabaseSpanDescription', function () {
     expect(screen.getByText('SELECT USERS FRO*')).toBeInTheDocument();
   });
 
-  it('shows full query from indexed span', async function () {
+  it('shows full query if full event is available', async function () {
     MockApiClient.addMockResponse({
       url: `/organizations/${organization.slug}/events/`,
       body: {
@@ -53,7 +54,24 @@ describe('DatabaseSpanDescription', function () {
             'transaction.id': eventId,
             project: project.slug,
             span_id: spanId,
-            'span.description': 'SELECT users FROM my_table LIMIT 1;',
+          },
+        ],
+      },
+    });
+
+    MockApiClient.addMockResponse({
+      url: `/organizations/${organization.slug}/events/${project.slug}:${eventId}/`,
+      body: {
+        id: eventId,
+        entries: [
+          {
+            type: EntryType.SPANS,
+            data: [
+              {
+                span_id: spanId,
+                description: 'SELECT users FROM my_table LIMIT 1;',
+              },
+            ],
           },
         ],
       },
@@ -83,9 +101,28 @@ describe('DatabaseSpanDescription', function () {
             'transaction.id': eventId,
             project: project.slug,
             span_id: spanId,
-            'code.filepath': '/app/views/users.py',
-            'code.lineno': 78,
-            'span.description': 'SELECT users FROM my_table LIMIT 1;',
+          },
+        ],
+      },
+    });
+
+    MockApiClient.addMockResponse({
+      url: `/organizations/${organization.slug}/events/${project.slug}:${eventId}/`,
+      body: {
+        id: eventId,
+        entries: [
+          {
+            type: EntryType.SPANS,
+            data: [
+              {
+                span_id: spanId,
+                description: 'SELECT users FROM my_table LIMIT 1;',
+                data: {
+                  'code.filepath': '/app/views/users.py',
+                  'code.lineno': 78,
+                },
+              },
+            ],
           },
         ],
       },
@@ -110,18 +147,37 @@ describe('DatabaseSpanDescription', function () {
   });
 
   it('correctly formats and displays MongoDB queries', async function () {
-    const sampleMongoDBQuery = `{"a": "?", "insert": "documents"}`;
-
     MockApiClient.addMockResponse({
       url: `/organizations/${organization.slug}/events/`,
       body: {
         data: [
           {
-            'transaction.span_id': eventId,
+            'transaction.id': eventId,
             project: project.slug,
             span_id: spanId,
-            'span.description': sampleMongoDBQuery,
-            'db.system': 'mongodb',
+          },
+        ],
+      },
+    });
+
+    const sampleMongoDBQuery = `{"a": "?", "insert": "documents"}`;
+
+    MockApiClient.addMockResponse({
+      url: `/organizations/${organization.slug}/events/${project.slug}:${eventId}/`,
+      body: {
+        id: eventId,
+        entries: [
+          {
+            type: EntryType.SPANS,
+            data: [
+              {
+                span_id: spanId,
+                description: sampleMongoDBQuery,
+                data: {
+                  'db.system': 'mongodb',
+                },
+              },
+            ],
           },
         ],
       },

@@ -89,14 +89,7 @@ class WorkflowValidator(CamelSnakeSerializer):
 
         validator = BaseActionValidator(context=self.context)
         for action in actions_data:
-            action_instance = self._update_or_create(action, validator, Action)
-
-            # If this is a new action, associate it to the condition group
-            if action.get("id") is None:
-                DataConditionGroupAction.objects.create(
-                    action=action_instance,
-                    condition_group=condition_group,
-                )
+            self._update_or_create(action, validator, Action)
 
     def update_or_create_data_condition_group(
         self,

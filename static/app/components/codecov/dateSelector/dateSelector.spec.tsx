@@ -15,7 +15,7 @@ describe('DateSelector', function () {
             pathname: '/codecov/tests',
             query: {
               codecovPeriod: '7d',
-              integratedOrgId: '123',
+              integratedOrg: 'some-org-name',
               repository: 'some-repository',
             },
           },
@@ -36,7 +36,7 @@ describe('DateSelector', function () {
             pathname: '/codecov/tests',
             query: {
               codecovPeriod: '1y',
-              integratedOrgId: '123',
+              integratedOrg: 'some-org-name',
               repository: 'some-repository',
             },
           },

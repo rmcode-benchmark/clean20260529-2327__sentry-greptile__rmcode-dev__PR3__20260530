@@ -1,9 +1,13 @@
 import type {ReactNode} from 'react';
 
-import type {FieldKind} from 'sentry/utils/fields';
-
-export interface FunctionArgument {
-  kind: FieldKind;
+export interface AggregateFunction {
   name: string;
   label?: ReactNode;
+  // TODO: add other attributes here like arguments
+}
+
+export interface FunctionArgument {
+  name: string;
+  label?: ReactNode;
+  // TODO: add other attributes here like argument type
 }

@@ -11,7 +11,6 @@ import {defined} from 'sentry/utils';
 import {getFieldDefinition} from 'sentry/utils/fields';
 import {useDimensions} from 'sentry/utils/useDimensions';
 import type {BaseVisualize} from 'sentry/views/explore/contexts/pageParamsContext/visualizes';
-import {prettifyAggregation} from 'sentry/views/explore/utils';
 
 const MORE_TOKENS_WIDTH = 32;
 
@@ -86,7 +85,7 @@ export function ExploreParams({
     yAxes.forEach((yAxis, index) => {
       tokens.push(
         <Token key={`visualize-${index}`}>
-          <ExploreVisualizes>{prettifyAggregation(yAxis) ?? yAxis}</ExploreVisualizes>
+          <ExploreVisualizes>{yAxis}</ExploreVisualizes>
         </Token>
       );
     });

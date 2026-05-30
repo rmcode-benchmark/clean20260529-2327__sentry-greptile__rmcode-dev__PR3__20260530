@@ -25,7 +25,7 @@ import {
 } from 'sentry/utils/fields';
 import Measurements from 'sentry/utils/measurements/measurements';
 import useApi from 'sentry/utils/useApi';
-import useTags from 'sentry/utils/useTags';
+import withTags from 'sentry/utils/withTags';
 import {isCustomMeasurement} from 'sentry/views/dashboards/utils';
 
 import {
@@ -137,6 +137,7 @@ export const getHasTag = (tags: TagCollection) => ({
 
 export type SearchBarProps = Omit<React.ComponentProps<typeof SmartSearchBar>, 'tags'> & {
   organization: Organization;
+  tags: TagCollection;
   customMeasurements?: CustomMeasurementCollection;
   dataset?: DiscoverDatasets;
   fields?: readonly Field[];
@@ -153,10 +154,11 @@ export type SearchBarProps = Omit<React.ComponentProps<typeof SmartSearchBar>, '
   supportedTags?: TagCollection | undefined;
 };
 
-export default function SearchBar(props: SearchBarProps) {
+function SearchBar(props: SearchBarProps) {
   const {
     maxSearchItems,
     organization,
+    tags,
     omitTags,
     fields,
     projectIds,
@@ -169,7 +171,6 @@ export default function SearchBar(props: SearchBarProps) {
   } = props;
 
   const api = useApi();
-  const tags = useTags();
 
   const functionTags = useMemo(() => getFunctionTags(fields), [fields]);
   const tagsWithKind = useMemo(() => {
@@ -309,3 +310,5 @@ export default function SearchBar(props: SearchBarProps) {
     </Measurements>
   );
 }
+
+export default withTags(SearchBar);

@@ -11,17 +11,15 @@ from rest_framework.response import Response
 
 from sentry.constants import ObjectStatus
 from sentry.integrations.mixins import ResolveSyncAction
-from sentry.integrations.mixins.issues import IntegrationSyncTargetNotFound, IssueSyncIntegration
+from sentry.integrations.mixins.issues import IssueSyncIntegration
 from sentry.integrations.services.integration import integration_service
 from sentry.integrations.source_code_management.issues import SourceCodeIssueIntegration
-from sentry.integrations.types import IntegrationProviderSlug
 from sentry.models.activity import Activity
 from sentry.shared_integrations.exceptions import (
     ApiError,
     ApiUnauthorized,
     IntegrationError,
     IntegrationFormError,
-    IntegrationInstallationConfigurationError,
 )
 from sentry.silo.base import all_silo_function
 from sentry.users.models.identity import Identity
@@ -48,7 +46,7 @@ VSTS_INTEGRATION_FORM_ERROR_CODES_SUBSTRINGS = ["TF401320"]
 
 class VstsIssuesSpec(IssueSyncIntegration, SourceCodeIssueIntegration, ABC):
     description = "Integrate Azure DevOps work items by linking a project."
-    slug = IntegrationProviderSlug.AZURE_DEVOPS.value
+    slug = "vsts"
     conf_key = slug
 
     issue_fields = frozenset(["id", "title", "url"])
@@ -296,11 +294,11 @@ class VstsIssuesSpec(IssueSyncIntegration, SourceCodeIssueIntegration, ABC):
                         "issue_key": external_issue.key,
                     },
                 )
-                raise IntegrationSyncTargetNotFound("No matching VSTS user found.")
+                return
 
         try:
             client.update_work_item(external_issue.key, assigned_to=assignee)
-        except (ApiUnauthorized, ApiError) as e:
+        except (ApiUnauthorized, ApiError):
             self.logger.info(
                 "vsts.failed-to-assign",
                 extra={
@@ -309,11 +307,6 @@ class VstsIssuesSpec(IssueSyncIntegration, SourceCodeIssueIntegration, ABC):
                     "issue_key": external_issue.key,
                 },
             )
-            if isinstance(e, ApiUnauthorized):
-                raise IntegrationInstallationConfigurationError(
-                    "Insufficient permissions to assign user to the VSTS issue."
-                ) from e
-            raise IntegrationError("There was an error assigning the issue.") from e
         except Exception as e:
             self.raise_error(e)
 

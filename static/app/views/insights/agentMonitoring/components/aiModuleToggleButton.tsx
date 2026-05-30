@@ -19,7 +19,7 @@ export function AiModuleToggleButton() {
 
     trackAnalytics('agent-monitoring.ui-toggle', {
       organization,
-      isEnabled,
+      enabled: isEnabled,
     });
     togglePreferedModule();
   };

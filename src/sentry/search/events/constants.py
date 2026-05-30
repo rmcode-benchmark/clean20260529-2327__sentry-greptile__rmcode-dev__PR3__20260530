@@ -66,7 +66,6 @@ SPAN_OP = "span.op"
 SPAN_DESCRIPTION = "span.description"
 SPAN_STATUS = "span.status"
 SPAN_CATEGORY = "span.category"
-TRACE = "trace"
 REPLAY_ALIAS = "replay"
 MESSAGING_OPERATION_TYPE_ALIAS = "messaging.operation.type"
 MESSAGING_OPERATION_NAME_ALIAS = "messaging.operation.name"
@@ -187,14 +186,7 @@ SIZE_UNITS: dict[SizeUnit, float] = {
 }
 
 DurationUnit = Literal[
-    "nanosecond",
-    "microsecond",
-    "millisecond",
-    "second",
-    "minute",
-    "hour",
-    "day",
-    "week",
+    "nanosecond", "microsecond", "millisecond", "second", "minute", "hour", "day", "week"
 ]
 
 # event_search normalizes to seconds

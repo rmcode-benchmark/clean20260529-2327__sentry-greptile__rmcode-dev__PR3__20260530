@@ -73,7 +73,7 @@ export function CronTimelineSection({event, organization, project}: Props) {
     (new Date(event.dateReceived).valueOf() - start.valueOf()) / msPerPixel;
 
   const actions = (
-    <ButtonBar>
+    <ButtonBar gap={1}>
       <LinkButton
         size="xs"
         icon={<IconOpen />}

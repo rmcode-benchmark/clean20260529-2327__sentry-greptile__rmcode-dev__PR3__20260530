@@ -71,6 +71,7 @@ export function IssueViewQueryCount({view, isActive}: IssueViewQueryCountProps) 
 
   return (
     <QueryCountBubble
+      layout="preserve-aspect"
       animate={{
         backgroundColor: isFetching
           ? [theme.surface400, theme.surface100, theme.surface400]

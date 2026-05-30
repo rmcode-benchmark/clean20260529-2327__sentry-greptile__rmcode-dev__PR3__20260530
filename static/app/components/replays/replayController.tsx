@@ -13,7 +13,6 @@ import {IconNext, IconRewind10} from 'sentry/icons';
 import {t} from 'sentry/locale';
 import {space} from 'sentry/styles/space';
 import {getNextReplayFrame} from 'sentry/utils/replays/getReplayEvent';
-import {useReplayReader} from 'sentry/utils/replays/playback/providers/replayReaderProvider';
 
 const SECOND = 1000;
 
@@ -27,11 +26,10 @@ interface Props {
 }
 
 function ReplayPlayPauseBar({isLoading}: {isLoading?: boolean}) {
-  const replay = useReplayReader();
-  const {currentTime, setCurrentTime} = useReplayContext();
+  const {currentTime, replay, setCurrentTime} = useReplayContext();
 
   return (
-    <ButtonBar>
+    <ButtonBar gap={1}>
       <Button
         size="sm"
         title={t('Rewind 10s')}
@@ -93,7 +91,7 @@ export default function ReplayController({
       <Container>
         <TimeAndScrubberGrid isCompact={isCompact} showZoom isLoading={isLoading} />
       </Container>
-      <ButtonBar>
+      <ButtonBar gap={1}>
         <ReplayPreferenceDropdown
           isLoading={isLoading}
           speedOptions={speedOptions}

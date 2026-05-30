@@ -1,5 +1,4 @@
 import {useLocation} from 'sentry/utils/useLocation';
-import {AGENTS_LANDING_SUB_PATH} from 'sentry/views/insights/pages/agents/settings';
 import {AI_LANDING_SUB_PATH} from 'sentry/views/insights/pages/ai/settings';
 import {BACKEND_LANDING_SUB_PATH} from 'sentry/views/insights/pages/backend/settings';
 import {FRONTEND_LANDING_SUB_PATH} from 'sentry/views/insights/pages/frontend/settings';
@@ -10,15 +9,13 @@ export type DomainView =
   | typeof FRONTEND_LANDING_SUB_PATH
   | typeof BACKEND_LANDING_SUB_PATH
   | typeof AI_LANDING_SUB_PATH
-  | typeof AGENTS_LANDING_SUB_PATH
   | typeof MOBILE_LANDING_SUB_PATH;
 
-export const domainViews: DomainView[] = [
+const domainViews = [
   FRONTEND_LANDING_SUB_PATH,
   BACKEND_LANDING_SUB_PATH,
   AI_LANDING_SUB_PATH,
   MOBILE_LANDING_SUB_PATH,
-  AGENTS_LANDING_SUB_PATH,
 ];
 
 export type DomainViewFilters = {
@@ -35,7 +32,7 @@ export const useDomainViewFilters = () => {
   const view = pathSegments[indexOfInsights + 1] as DomainViewFilters['view'];
   const isInOverviewPage = pathSegments.length === indexOfInsights + 2; // TODO: remove this with `useInsightsEap`, only needed to seperately control eap on overview page
 
-  if (!view || !domainViews.includes(view)) {
+  if (!domainViews.includes(view || '')) {
     return {isInDomainView: false};
   }
 

@@ -27,7 +27,7 @@ import {
 import {useTraceItemTags} from 'sentry/views/explore/contexts/spanTagsContext';
 import {TraceItemDataset} from 'sentry/views/explore/types';
 import {SPANS_FILTER_KEY_SECTIONS} from 'sentry/views/insights/constants';
-import {SpanFields} from 'sentry/views/insights/types';
+import {SpanIndexedField} from 'sentry/views/insights/types';
 import {
   useSpanFieldCustomTags,
   useSpanFieldSupportedTags,
@@ -155,6 +155,7 @@ function useSpanSearchQueryBuilderProps({
     disallowUnsupportedFilters: true,
     recentSearches: SavedSearchType.SPAN,
     showUnsubmittedIndicator: true,
+    searchOnChange: organization.features.includes('ui-search-on-change'),
   };
 }
 
@@ -190,7 +191,7 @@ function IndexedSpanSearchQueryBuilder({
   return <SearchQueryBuilder {...searchQueryBuilderProps} />;
 }
 
-export function EapSpanSearchQueryBuilderWrapper(props: SpanSearchQueryBuilderProps) {
+function EapSpanSearchQueryBuilderWrapper(props: SpanSearchQueryBuilderProps) {
   const {tags: numberTags} = useTraceItemTags('number');
   const {tags: stringTags} = useTraceItemTags('string');
 
@@ -218,7 +219,7 @@ export function useEAPSpanSearchQueryBuilderProps(props: EAPSpanSearchQueryBuild
 
   const numberAttributes = numberTags;
   const stringAttributes = useMemo(() => {
-    if (stringTags.hasOwnProperty(SpanFields.RELEASE)) {
+    if (stringTags.hasOwnProperty(SpanIndexedField.RELEASE)) {
       return {
         ...stringTags,
         ...STATIC_SEMVER_TAGS,

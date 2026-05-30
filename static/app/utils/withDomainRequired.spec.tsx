@@ -2,13 +2,13 @@ import {OrganizationFixture} from 'sentry-fixture/organization';
 
 import {initializeOrg} from 'sentry-test/initializeOrg';
 import {render, screen} from 'sentry-test/reactTestingLibrary';
-import {setWindowLocation} from 'sentry-test/utils';
 
 import ConfigStore from 'sentry/stores/configStore';
 import type {RouteComponentProps} from 'sentry/types/legacyReactRouter';
 import type {Config} from 'sentry/types/system';
-import {testableWindowLocation} from 'sentry/utils/testableWindowLocation';
 import withDomainRequired from 'sentry/utils/withDomainRequired';
+
+const originalLocation = window.location;
 
 describe('withDomainRequired', function () {
   type Props = RouteComponentProps<{orgId: string}>;
@@ -19,9 +19,15 @@ describe('withDomainRequired', function () {
   let configState: Config;
 
   beforeEach(function () {
-    setWindowLocation(
-      'http://localhost:3000/organizations/albertos-apples/issues/?q=123#hash'
-    );
+    Object.defineProperty(window, 'location', {
+      writable: true,
+      value: {
+        replace: jest.fn(),
+        pathname: '/organizations/albertos-apples/issues/',
+        search: '?q=123',
+        hash: '#hash',
+      },
+    });
     configState = ConfigStore.getState();
     ConfigStore.loadInitialData({
       ...configState,
@@ -39,6 +45,7 @@ describe('withDomainRequired', function () {
   });
 
   afterEach(function () {
+    window.location = originalLocation as typeof window.location & string;
     ConfigStore.loadInitialData(configState);
   });
 
@@ -81,8 +88,8 @@ describe('withDomainRequired', function () {
     );
 
     expect(container).toBeEmptyDOMElement();
-    expect(testableWindowLocation.replace).toHaveBeenCalledTimes(1);
-    expect(testableWindowLocation.replace).toHaveBeenCalledWith(
+    expect(window.location.replace).toHaveBeenCalledTimes(1);
+    expect(window.location.replace).toHaveBeenCalledWith(
       'https://sentry.io/organizations/albertos-apples/issues/?q=123#hash'
     );
   });
@@ -130,8 +137,8 @@ describe('withDomainRequired', function () {
     );
 
     expect(container).toBeEmptyDOMElement();
-    expect(testableWindowLocation.replace).toHaveBeenCalledTimes(1);
-    expect(testableWindowLocation.replace).toHaveBeenCalledWith(
+    expect(window.location.replace).toHaveBeenCalledTimes(1);
+    expect(window.location.replace).toHaveBeenCalledWith(
       'https://sentry.io/organizations/albertos-apples/issues/?q=123#hash'
     );
   });
@@ -179,6 +186,6 @@ describe('withDomainRequired', function () {
     );
 
     expect(screen.getByText('Org slug: albertos-apples')).toBeInTheDocument();
-    expect(testableWindowLocation.replace).toHaveBeenCalledTimes(0);
+    expect(window.location.replace).toHaveBeenCalledTimes(0);
   });
 });

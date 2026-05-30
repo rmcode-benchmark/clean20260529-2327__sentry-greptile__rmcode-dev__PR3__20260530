@@ -14,7 +14,6 @@ from sentry.integrations.source_code_management.metrics import (
     SourceCodeSearchEndpointHaltReason,
 )
 from sentry.integrations.source_code_management.search import SourceCodeSearchEndpoint
-from sentry.integrations.types import IntegrationProviderSlug
 from sentry.shared_integrations.exceptions import ApiError
 
 logger = logging.getLogger("sentry.integrations.bitbucket")
@@ -35,7 +34,7 @@ class BitbucketSearchEndpoint(SourceCodeSearchEndpoint):
 
     @property
     def integration_provider(self):
-        return IntegrationProviderSlug.BITBUCKET.value
+        return "bitbucket"
 
     @property
     def installation_class(self):

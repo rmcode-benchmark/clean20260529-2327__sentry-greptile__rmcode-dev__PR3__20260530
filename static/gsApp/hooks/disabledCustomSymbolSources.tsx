@@ -43,7 +43,7 @@ function DisabledCustomSymbolSources({organization}: Props) {
         }
       )}
       action={
-        <ButtonBar gap="sm">
+        <ButtonBar gap={0.75}>
           <StyledButton
             priority="primary"
             icon={<IconBusiness />}

@@ -170,7 +170,7 @@ def apply_cors_headers(
     # to be sent.
     basehost = options.get("system.base-hostname")
     if basehost and origin:
-        if "," not in origin and (
+        if (
             origin.endswith(("://" + basehost, "." + basehost))
             or origin in settings.ALLOWED_CREDENTIAL_ORIGINS
         ):
@@ -186,9 +186,7 @@ class BaseEndpointMixin(abc.ABC):
     """
 
     @abc.abstractmethod
-    def create_audit_entry(
-        self, request: Request, transaction_id=None, *, data: dict[str, Any], **kwargs
-    ):
+    def create_audit_entry(self, request: Request, transaction_id=None, **kwargs):
         pass
 
     @abc.abstractmethod
@@ -332,10 +330,8 @@ class Endpoint(APIView):
 
         return response
 
-    def create_audit_entry(
-        self, request: Request, transaction_id=None, *, data: dict[str, Any], **kwargs
-    ):
-        return create_audit_entry(request, transaction_id, audit_logger, data=data, **kwargs)
+    def create_audit_entry(self, request: Request, transaction_id=None, **kwargs):
+        return create_audit_entry(request, transaction_id, audit_logger, **kwargs)
 
     def initialize_request(self, request: HttpRequest, *args: Any, **kwargs: Any) -> Request:
         # XXX: Since DRF 3.x, when the request is passed into
@@ -377,8 +373,7 @@ class Endpoint(APIView):
             self.request = request
             self.headers = self.default_response_headers  # deprecate?
 
-        if request.META.get("HTTP_REFERER"):
-            sentry_sdk.set_tag("http.referer", request.META.get("HTTP_REFERER"))
+        sentry_sdk.set_tag("http.referer", request.META.get("HTTP_REFERER", ""))
 
         start_time = time.time()
 

@@ -3,8 +3,7 @@ from unittest.mock import patch
 
 from django.test import TestCase
 
-from sentry.seer.autofix.constants import AutofixStatus
-from sentry.seer.autofix.utils import AutofixState
+from sentry.autofix.utils import AutofixState, AutofixStatus
 from sentry.tasks.autofix import check_autofix_status
 
 

@@ -1,5 +1,4 @@
 import {Fragment} from 'react';
-import {useTheme} from '@emotion/react';
 import styled from '@emotion/styled';
 
 import {BarChart} from 'sentry/components/charts/barChart';
@@ -16,6 +15,7 @@ import type {Organization} from 'sentry/types/organization';
 import type {Project} from 'sentry/types/project';
 import {formatPercentage} from 'sentry/utils/number/formatPercentage';
 import {useApiQuery} from 'sentry/utils/queryClient';
+import type {ColorOrAlias} from 'sentry/utils/theme';
 
 import {ProjectBadge, ProjectBadgeContainer} from './styles';
 import {
@@ -45,7 +45,6 @@ export function TeamUnresolvedIssues({
   utc,
   environment,
 }: TeamUnresolvedIssuesProps) {
-  const theme = useTheme();
   const {
     data: periodIssues = {},
     isPending,
@@ -185,10 +184,10 @@ export function TeamUnresolvedIssues({
                       <SubText
                         color={
                           totals.percentChange === 0
-                            ? theme.subText
+                            ? 'subText'
                             : totals.percentChange > 0
-                              ? theme.errorText
-                              : theme.successText
+                              ? 'errorText'
+                              : 'successText'
                         }
                       >
                         {formatPercentage(
@@ -246,6 +245,6 @@ const PaddedIconArrow = styled(IconArrow)`
   margin: 0 ${space(0.5)};
 `;
 
-const SubText = styled('div')<{color: string}>`
-  color: ${p => p.color};
+const SubText = styled('div')<{color: ColorOrAlias}>`
+  color: ${p => p.theme[p.color]};
 `;

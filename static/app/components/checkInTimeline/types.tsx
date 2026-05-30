@@ -1,6 +1,5 @@
-import type {Theme} from '@emotion/react';
-
 import type {DateTimeProps} from 'sentry/components/dateTime';
+import type {ColorOrAlias} from 'sentry/utils/theme';
 
 export type TimeWindow = '1h' | '24h' | '7d' | '30d';
 
@@ -95,25 +94,21 @@ export interface TimeWindowConfig {
   timelineWidth: number;
 }
 
-interface StatusStyle {
+export interface TickStyle {
   /**
    * The color of the tooltip label
    */
-  labelColor: string;
+  labelColor: ColorOrAlias;
   /**
    * The color of the tick
    */
-  tickColor: string;
+  tickColor: ColorOrAlias;
   /**
    * Use a cross hatch fill for the tick instead of a solid color. The tick
    * color will be used as the border color
    */
-  hatchTick?: string;
+  hatchTick?: ColorOrAlias;
 }
-
-export type TickStyle<Status extends string> = (
-  theme: Theme
-) => Record<Status, StatusStyle>;
 
 export type CheckInBucket<Status extends string> = [
   timestamp: number,

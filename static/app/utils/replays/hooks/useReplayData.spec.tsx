@@ -16,7 +16,6 @@ import ProjectsStore from 'sentry/stores/projectsStore';
 import {DiscoverDatasets} from 'sentry/utils/discover/types';
 import {QueryClientProvider} from 'sentry/utils/queryClient';
 import useReplayData from 'sentry/utils/replays/hooks/useReplayData';
-import {OrganizationContext} from 'sentry/views/organizationContext';
 import type {HydratedReplayRecord} from 'sentry/views/replays/types';
 
 const {organization, project} = initializeOrg();
@@ -30,11 +29,7 @@ function wrapper({children}: {children?: ReactNode}) {
 
   queryClient.invalidateQueries = mockInvalidateQueries;
 
-  return (
-    <QueryClientProvider client={queryClient}>
-      <OrganizationContext value={organization}>{children}</OrganizationContext>
-    </QueryClientProvider>
-  );
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 }
 
 function getMockReplayRecord(replayRecord?: Partial<HydratedReplayRecord>) {
@@ -101,7 +96,6 @@ describe('useReplayData', () => {
       expect(result.current).toEqual({
         attachments: expect.any(Array),
         errors: expect.any(Array),
-        feedbackEvents: expect.any(Array),
         fetchError: undefined,
         isError: false,
         isPending: false,
@@ -461,7 +455,6 @@ describe('useReplayData', () => {
     const expectedReplayData = {
       attachments: [],
       errors: [],
-      feedbackEvents: [],
       fetchError: undefined,
       isError: true,
       isPending: true,

@@ -3,22 +3,8 @@ import {render, screen, userEvent} from 'sentry-test/reactTestingLibrary';
 import CodecovQueryParamsProvider from 'sentry/components/codecov/container/codecovParamsProvider';
 import {IntegratedOrgSelector} from 'sentry/components/codecov/integratedOrgSelector/integratedOrgSelector';
 
-const mockIntegrations = [
-  {name: 'my-other-org-with-a-super-long-name', id: '1'},
-  {name: 'my-other-org-with-a-super-long-name', id: '2'},
-];
-
-const mockApiCall = () => {
-  MockApiClient.addMockResponse({
-    url: `/organizations/org-slug/integrations/`,
-    method: 'GET',
-    body: mockIntegrations,
-  });
-};
-
 describe('IntegratedOrgSelector', function () {
   it('renders when given integrated org', async function () {
-    mockApiCall();
     render(
       <CodecovQueryParamsProvider>
         <IntegratedOrgSelector />
@@ -27,7 +13,7 @@ describe('IntegratedOrgSelector', function () {
         initialRouterConfig: {
           location: {
             pathname: '/',
-            query: {integratedOrgId: '1'},
+            query: {integratedOrg: 'my-other-org-with-a-super-long-name'},
           },
         },
       }
@@ -38,7 +24,6 @@ describe('IntegratedOrgSelector', function () {
   });
 
   it('renders the chosen org as the first option', async function () {
-    mockApiCall();
     render(
       <CodecovQueryParamsProvider>
         <IntegratedOrgSelector />
@@ -47,7 +32,7 @@ describe('IntegratedOrgSelector', function () {
         initialRouterConfig: {
           location: {
             pathname: '/',
-            query: {integratedOrgId: '2'},
+            query: {integratedOrg: 'my-other-org-with-a-super-long-name'},
           },
         },
       }

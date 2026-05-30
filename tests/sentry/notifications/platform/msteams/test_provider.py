@@ -11,13 +11,14 @@ from sentry.testutils.notifications.platform import MockNotification, MockNotifi
 
 class MSTeamsRendererTest(TestCase):
     def test_default_renderer(self):
-        data = MockNotification(message="test")
-        template = MockNotificationTemplate()
-        rendered_template = template.render(data)
-        renderer = MSTeamsNotificationProvider.get_renderer(
-            data=data, category=NotificationCategory.DEBUG
+        renderer = MSTeamsNotificationProvider.get_renderer(category=NotificationCategory.DEBUG)
+        # TODO(ecosystem): Replace this with a real data blob, template and renderable
+        assert (
+            renderer.render(
+                data=MockNotification(message="test"), template=MockNotificationTemplate()
+            )
+            == {}
         )
-        assert renderer.render(data=data, rendered_template=rendered_template) == {}
 
 
 class MSTeamsNotificationProviderTest(TestCase):

@@ -1,5 +1,3 @@
-from typing import Any
-
 from django.conf import settings
 from django.db import models
 from django.db.models import UniqueConstraint
@@ -45,7 +43,7 @@ class TempestCredentials(DefaultFieldsModel):
             )
         ]
 
-    def get_audit_log_data(self) -> dict[str, Any]:
+    def get_audit_log_data(self) -> dict:
         return {
             "project_id": self.project.id,
             "client_id": self.client_id,

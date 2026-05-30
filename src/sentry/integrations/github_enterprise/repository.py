@@ -1,10 +1,6 @@
-from typing import Any
-
 from sentry.integrations.github.repository import GitHubRepositoryProvider
 from sentry.integrations.services.integration import integration_service
-from sentry.integrations.types import IntegrationProviderSlug
 from sentry.organizations.services.organization.model import RpcOrganization
-from sentry.plugins.providers.integration_repository import RepositoryConfig
 from sentry.shared_integrations.exceptions import ApiError, IntegrationError
 
 WEBHOOK_EVENTS = ["push", "pull_request"]
@@ -12,7 +8,7 @@ WEBHOOK_EVENTS = ["push", "pull_request"]
 
 class GitHubEnterpriseRepositoryProvider(GitHubRepositoryProvider):
     name = "GitHub Enterprise"
-    repo_provider = IntegrationProviderSlug.GITHUB_ENTERPRISE.value
+    repo_provider = "github_enterprise"
 
     def _validate_repo(self, client, installation, repo):
         try:
@@ -28,9 +24,7 @@ class GitHubEnterpriseRepositoryProvider(GitHubRepositoryProvider):
 
         return repo_data
 
-    def build_repository_config(
-        self, organization: RpcOrganization, data: dict[str, Any]
-    ) -> RepositoryConfig:
+    def build_repository_config(self, organization: RpcOrganization, data):
         integration = integration_service.get_integration(
             integration_id=data["integration_id"], provider=self.repo_provider
         )

@@ -36,10 +36,6 @@ describe('SimilarIssuesDrawer', function () {
       url: `/projects/${organization.slug}/${project.slug}/`,
       body: {features: []},
     });
-    MockApiClient.addMockResponse({
-      url: `/issues/${group.id}/related-issues/`,
-      body: {data: [], type: 'same_root_cause'},
-    });
   });
 
   it('renders the content as expected', async function () {

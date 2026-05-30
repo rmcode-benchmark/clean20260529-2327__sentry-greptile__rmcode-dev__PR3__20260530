@@ -130,7 +130,7 @@ export function ProjectInstallPlatform({
               }
               return (
                 <Alert.Container>
-                  <StyledAlert type="info">
+                  <StyledAlert type="info" showIcon>
                     {t(
                       `Your selected platform supports performance, but your organization does not have performance enabled.`
                     )}
@@ -140,7 +140,7 @@ export function ProjectInstallPlatform({
             }}
           </Feature>
         )}
-        <StyledButtonBar>
+        <StyledButtonBar gap={1}>
           <Button
             priority="primary"
             onClick={() => {

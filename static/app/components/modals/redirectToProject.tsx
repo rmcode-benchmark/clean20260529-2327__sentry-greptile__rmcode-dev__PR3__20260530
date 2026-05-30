@@ -7,7 +7,6 @@ import Text from 'sentry/components/text';
 import {t, tct} from 'sentry/locale';
 import type {WithRouterProps} from 'sentry/types/legacyReactRouter';
 import recreateRoute from 'sentry/utils/recreateRoute';
-import {testableWindowLocation} from 'sentry/utils/testableWindowLocation';
 // eslint-disable-next-line no-restricted-imports
 import withSentryRouter from 'sentry/utils/withSentryRouter';
 
@@ -28,7 +27,7 @@ class RedirectToProjectModal extends Component<Props, State> {
   componentDidMount() {
     this.redirectInterval = window.setInterval(() => {
       if (this.state.timer <= 1) {
-        testableWindowLocation.assign(this.newPath);
+        window.location.assign(this.newPath);
         return;
       }
 

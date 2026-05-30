@@ -91,7 +91,7 @@ import {FoldSection} from 'sentry/views/issueDetails/streamline/foldSection';
         <FoldSection
           title="Header with Actions"
           actions={
-            <ButtonBar>
+            <ButtonBar gap={1}>
               <Button size="xs" icon={<IconAdd />}>
                 Add
               </Button>

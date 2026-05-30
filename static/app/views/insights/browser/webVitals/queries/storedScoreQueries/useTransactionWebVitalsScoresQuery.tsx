@@ -1,18 +1,19 @@
 import type {Sort} from 'sentry/utils/discover/fields';
 import {MutableSearch} from 'sentry/utils/tokenizeSearch';
 import {getWebVitalScoresFromTableDataRow} from 'sentry/views/insights/browser/webVitals/queries/storedScoreQueries/getWebVitalScoresFromTableDataRow';
-import {DEFAULT_QUERY_FILTER} from 'sentry/views/insights/browser/webVitals/settings';
 import type {
   Opportunity,
   Score,
   WebVitals,
 } from 'sentry/views/insights/browser/webVitals/types';
 import type {BrowserType} from 'sentry/views/insights/browser/webVitals/utils/queryParameterDecoders/browserType';
+import {useDefaultWebVitalsQuery} from 'sentry/views/insights/browser/webVitals/utils/useDefaultQuery';
 import {useWebVitalsSort} from 'sentry/views/insights/browser/webVitals/utils/useWebVitalsSort';
-import {useSpans} from 'sentry/views/insights/common/queries/useDiscover';
+import {useMetrics} from 'sentry/views/insights/common/queries/useDiscover';
+import {useInsightsEap} from 'sentry/views/insights/common/utils/useEap';
 import {
-  SpanFields,
-  type SpanProperty,
+  type MetricsProperty,
+  SpanIndexedField,
   type SubregionCode,
 } from 'sentry/views/insights/types';
 
@@ -42,13 +43,25 @@ export const useTransactionWebVitalsScoresQuery = ({
   subregions,
 }: Props) => {
   const sort = useWebVitalsSort({sortName, defaultSort});
+  const defaultQuery = useDefaultWebVitalsQuery();
 
-  const totalOpportunityScoreField =
-    'opportunity_score(measurements.score.total)' satisfies SpanProperty;
+  const useEap = useInsightsEap();
+
+  const totalOpportunityScoreField = (
+    useEap ? 'opportunity_score(measurements.score.total)' : 'total_opportunity_score()'
+  ) satisfies MetricsProperty;
 
   if (sort !== undefined) {
     if (sort.field === 'avg(measurements.score.total)') {
       sort.field = 'performance_score(measurements.score.total)';
+    }
+    if (
+      [
+        'opportunity_score(measurements.score.total)',
+        'total_opportunity_score()',
+      ].includes(sort.field)
+    ) {
+      sort.field = totalOpportunityScoreField;
     }
   }
 
@@ -60,16 +73,16 @@ export const useTransactionWebVitalsScoresQuery = ({
     search.addFilterValue('transaction', transaction, shouldEscapeFilters);
   }
   if (browserTypes) {
-    search.addDisjunctionFilterValues(SpanFields.BROWSER_NAME, browserTypes);
+    search.addDisjunctionFilterValues(SpanIndexedField.BROWSER_NAME, browserTypes);
   }
   if (subregions) {
-    search.addDisjunctionFilterValues(SpanFields.USER_GEO_SUBREGION, subregions);
+    search.addDisjunctionFilterValues(SpanIndexedField.USER_GEO_SUBREGION, subregions);
   }
 
-  const {data, isPending, ...rest} = useSpans(
+  const {data, isPending, ...rest} = useMetrics(
     {
       limit: limit ?? 50,
-      search: [DEFAULT_QUERY_FILTER, search.formatString()].join(' ').trim(),
+      search: [defaultQuery, search.formatString()].join(' ').trim(),
       sorts: [sort],
       enabled,
       fields: [

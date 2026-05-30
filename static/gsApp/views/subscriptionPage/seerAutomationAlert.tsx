@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 
 import {Alert} from 'sentry/components/core/alert';
 import {Button} from 'sentry/components/core/button';
-import {Link} from 'sentry/components/core/link';
+import Link from 'sentry/components/links/link';
 import {IconClose} from 'sentry/icons';
 import {t} from 'sentry/locale';
 import {space} from 'sentry/styles/space';
@@ -35,6 +35,7 @@ export default function SeerAutomationAlert({organization}: SeerAutomationAlertP
     <Alert.Container>
       <Alert
         type="info"
+        showIcon
         trailingItems={
           <Button
             icon={<IconClose />}

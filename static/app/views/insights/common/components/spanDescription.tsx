@@ -12,7 +12,10 @@ import {useNavigate} from 'sentry/utils/useNavigate';
 import useOrganization from 'sentry/utils/useOrganization';
 import useProjects from 'sentry/utils/useProjects';
 import {useRelease} from 'sentry/utils/useRelease';
-import {useSpans} from 'sentry/views/insights/common/queries/useDiscover';
+import {useSpansIndexed} from 'sentry/views/insights/common/queries/useDiscover';
+import {useEventDetails} from 'sentry/views/insights/common/queries/useEventDetails';
+import {useFullSpanFromTrace} from 'sentry/views/insights/common/queries/useFullSpanFromTrace';
+import {useInsightsEap} from 'sentry/views/insights/common/utils/useEap';
 import {
   MissingFrame,
   StackTraceMiniFrame,
@@ -22,12 +25,12 @@ import {
   isValidJson,
   prettyPrintJsonString,
 } from 'sentry/views/insights/database/utils/jsonUtils';
-import type {SpanResponse} from 'sentry/views/insights/types';
-import {SpanFields} from 'sentry/views/insights/types';
+import type {SpanIndexedFieldTypes} from 'sentry/views/insights/types';
+import {SpanIndexedField} from 'sentry/views/insights/types';
 
 interface Props {
-  groupId: SpanResponse[SpanFields.SPAN_GROUP];
-  op: SpanResponse[SpanFields.SPAN_OP];
+  groupId: SpanIndexedFieldTypes[SpanIndexedField.SPAN_GROUP];
+  op: SpanIndexedFieldTypes[SpanIndexedField.SPAN_OP];
   preliminaryDescription?: string;
 }
 
@@ -49,38 +52,45 @@ export function DatabaseSpanDescription({
 }: Omit<Props, 'op'>) {
   const navigate = useNavigate();
   const location = useLocation();
+  const useEap = useInsightsEap();
   const {projects} = useProjects();
   const organization = useOrganization();
 
-  const {data: indexedSpans, isFetching: areIndexedSpansLoading} = useSpans(
+  const {data: indexedSpans, isFetching: areIndexedSpansLoading} = useSpansIndexed(
     {
       search: MutableSearch.fromQueryObject({'span.group': groupId}),
       limit: 1,
       fields: [
-        SpanFields.PROJECT_ID,
-        SpanFields.SPAN_DESCRIPTION,
-        SpanFields.DB_SYSTEM,
-        SpanFields.CODE_FILEPATH,
-        SpanFields.CODE_LINENO,
-        SpanFields.CODE_FUNCTION,
-        SpanFields.SDK_NAME,
-        SpanFields.SDK_VERSION,
-        SpanFields.RELEASE,
-        SpanFields.PLATFORM,
+        SpanIndexedField.PROJECT_ID,
+        SpanIndexedField.TRANSACTION_ID, // TODO: remove this with `useInsightsEap`, it's only needed to get the full event when eap is off
+        SpanIndexedField.SPAN_DESCRIPTION,
+        SpanIndexedField.DB_SYSTEM,
+        SpanIndexedField.CODE_FILEPATH,
+        SpanIndexedField.CODE_LINENO,
+        SpanIndexedField.CODE_FUNCTION,
+        SpanIndexedField.SDK_NAME,
+        SpanIndexedField.SDK_VERSION,
+        SpanIndexedField.RELEASE,
+        SpanIndexedField.PLATFORM,
       ],
-      sorts: [{field: SpanFields.CODE_FILEPATH, kind: 'desc'}],
+      sorts: [{field: SpanIndexedField.CODE_FILEPATH, kind: 'desc'}],
     },
     'api.starfish.span-description'
   );
   const indexedSpan = indexedSpans?.[0];
 
-  const project = projects.find(p => p.id === indexedSpan?.['project.id']?.toString());
+  const project = projects.find(p => p.id === indexedSpan?.project_id?.toString());
+
+  const {data: eventDetailsData} = useEventDetails({
+    eventId: indexedSpan?.['transaction.id'],
+    projectSlug: project?.slug,
+  });
 
   const {data: release} = useRelease({
     orgSlug: organization.slug,
     projectSlug: project?.slug ?? '',
     releaseVersion: indexedSpan?.release ?? '',
-    enabled: indexedSpan?.release !== undefined,
+    enabled: useEap,
   });
 
   const sdk =
@@ -91,11 +101,20 @@ export function DatabaseSpanDescription({
         }
       : undefined;
 
-  const event = {
-    platform: indexedSpan?.platform,
-    release,
-    sdk,
-  };
+  const event = useEap
+    ? {
+        platform: indexedSpan?.platform,
+        release,
+        sdk,
+      }
+    : eventDetailsData;
+
+  // NOTE: We only need this for `span.data`! If this info existed in indexed spans, we could skip it
+  const {data: rawSpan, isFetching: isRawSpanLoading} = useFullSpanFromTrace(
+    groupId,
+    [INDEXED_SPAN_SORT],
+    Boolean(indexedSpan) && !useEap
+  );
 
   // isExpanded is a query param that is meant to be accessed only when clicking on the
   // "View full query" button from the hover tooltip. It is removed from the query params
@@ -111,24 +130,39 @@ export function DatabaseSpanDescription({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
 
-  const system = indexedSpan?.['db.system'];
-  const codeFilepath = indexedSpan?.['code.filepath'];
-  const codeLineno = indexedSpan?.['code.lineno'];
-  const codeFunction = indexedSpan?.['code.function'];
+  const system = useEap ? indexedSpan?.['db.system'] : rawSpan?.data?.['db.system'];
+  const codeFilepath = useEap
+    ? indexedSpan?.['code.filepath']
+    : rawSpan?.data?.['code.filepath'];
+  const codeLineno = useEap
+    ? indexedSpan?.['code.lineno']
+    : rawSpan?.data?.['code.lineno'];
+  const codeFunction = useEap
+    ? indexedSpan?.['code.function']
+    : rawSpan?.data?.['code.function'];
 
   const formattedDescription = useMemo(() => {
-    const rawDescription = indexedSpan?.['span.description'] || preliminaryDescription;
+    const description = useEap ? indexedSpan?.['span.description'] : rawSpan?.description;
+    const rawDescription =
+      description || indexedSpan?.['span.description'] || preliminaryDescription;
 
     if (system === SupportedDatabaseSystem.MONGODB) {
       let bestDescription = '';
 
-      if (preliminaryDescription && isValidJson(preliminaryDescription)) {
+      if (
+        rawSpan?.sentry_tags?.description &&
+        isValidJson(rawSpan.sentry_tags.description)
+      ) {
+        bestDescription = rawSpan.sentry_tags.description;
+      } else if (preliminaryDescription && isValidJson(preliminaryDescription)) {
         bestDescription = preliminaryDescription;
       } else if (
         indexedSpan?.['span.description'] &&
         isValidJson(indexedSpan?.['span.description'])
       ) {
         bestDescription = indexedSpan?.['span.description'];
+      } else if (rawSpan?.description && isValidJson(rawSpan.description)) {
+        bestDescription = rawSpan?.description;
       } else {
         return rawDescription ?? 'N/A';
       }
@@ -137,11 +171,11 @@ export function DatabaseSpanDescription({
     }
 
     return formatter.toString(rawDescription ?? '');
-  }, [preliminaryDescription, indexedSpan, system]);
+  }, [preliminaryDescription, rawSpan, indexedSpan, system, useEap]);
 
   return (
     <Frame>
-      {areIndexedSpansLoading ? (
+      {areIndexedSpansLoading || isRawSpanLoading ? (
         <WithPadding>
           <LoadingIndicator mini />
         </WithPadding>
@@ -153,11 +187,11 @@ export function DatabaseSpanDescription({
         </QueryClippedBox>
       )}
 
-      {!areIndexedSpansLoading && (
+      {!areIndexedSpansLoading && !isRawSpanLoading && (
         <Fragment>
           {codeFilepath ? (
             <StackTraceMiniFrame
-              projectId={indexedSpan?.['project.id']?.toString()}
+              projectId={indexedSpan?.project_id?.toString()}
               event={event}
               frame={{
                 filename: codeFilepath,
@@ -183,6 +217,11 @@ function QueryClippedBox(props: any) {
 
   return <StyledClippedBox {...props} />;
 }
+
+const INDEXED_SPAN_SORT = {
+  field: 'span.self_time',
+  kind: 'desc' as const,
+};
 
 export const Frame = styled('div')`
   border: solid 1px ${p => p.theme.border};

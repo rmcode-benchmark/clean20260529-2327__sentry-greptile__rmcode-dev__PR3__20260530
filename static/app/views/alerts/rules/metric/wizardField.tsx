@@ -112,6 +112,14 @@ export default function WizardField({
       label: AlertWizardAlertNames.trace_item_lcp,
       value: 'trace_item_lcp',
     },
+    {
+      label: AlertWizardAlertNames.trace_item_fid,
+      value: 'trace_item_fid',
+    },
+    {
+      label: AlertWizardAlertNames.trace_item_cls,
+      value: 'trace_item_cls',
+    },
   ];
 
   const menuOptions: GroupedMenuOption[] = [

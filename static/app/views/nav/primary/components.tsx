@@ -3,14 +3,13 @@ import type {Theme} from '@emotion/react';
 import {css, useTheme} from '@emotion/react';
 import styled from '@emotion/styled';
 import {useHover} from '@react-aria/interactions';
-import {mergeProps} from '@react-aria/utils';
 
 import type {ButtonProps} from 'sentry/components/core/button';
 import {Button} from 'sentry/components/core/button';
 import InteractionStateLayer from 'sentry/components/core/interactionStateLayer';
-import {Link} from 'sentry/components/core/link';
 import {Tooltip} from 'sentry/components/core/tooltip';
 import {DropdownMenu, type MenuItemProps} from 'sentry/components/dropdownMenu';
+import Link from 'sentry/components/links/link';
 import {SIDEBAR_NAVIGATION_SOURCE} from 'sentry/components/sidebar/utils';
 import {IconDefaultsProvider} from 'sentry/icons/useIconDefaults';
 import {space} from 'sentry/styles/space';
@@ -171,7 +170,7 @@ function useActivateNavGroupOnHover(group: PrimaryNavGroup) {
 
   // Slightly delay changing the active nav group to prevent accidentally triggering a new menu
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const {hoverProps} = useHover({
+  return useHover({
     onHoverStart: () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
@@ -192,15 +191,6 @@ function useActivateNavGroupOnHover(group: PrimaryNavGroup) {
       }
     },
   });
-
-  return mergeProps(hoverProps, {
-    onClick: () => {
-      setActivePrimaryNavGroup(group);
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    },
-  });
 }
 
 function SidebarNavLink({
@@ -216,24 +206,22 @@ function SidebarNavLink({
   const location = useLocation();
   const isActive = isLinkActive(normalizeUrl(activeTo, location), location.pathname);
   const label = PRIMARY_NAV_GROUP_CONFIG[group].label;
-  const hoverProps = useActivateNavGroupOnHover(group);
-  const linkProps = mergeProps(hoverProps, {
-    onClick: () => {
-      recordPrimaryItemClick(analyticsKey, organization);
-    },
-  });
+  const {hoverProps} = useActivateNavGroupOnHover(group);
 
   return (
     <NavLink
       to={to}
       state={{source: SIDEBAR_NAVIGATION_SOURCE}}
+      onClick={() => {
+        recordPrimaryItemClick(analyticsKey, organization);
+      }}
       aria-selected={activePrimaryNavGroup === group ? true : isActive}
       aria-current={isActive ? 'page' : undefined}
       isMobile={layout === NavLayout.MOBILE}
       {...{
         [NAV_PRIMARY_LINK_DATA_ATTRIBUTE]: true,
       }}
-      {...linkProps}
+      {...hoverProps}
     >
       {layout === NavLayout.MOBILE ? (
         <Fragment>

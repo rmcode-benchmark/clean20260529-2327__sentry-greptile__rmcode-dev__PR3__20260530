@@ -7,6 +7,7 @@ import type {FlamegraphFrame} from 'sentry/utils/profiling/flamegraphFrame';
 import {getFlamegraphFrameSearchId} from 'sentry/utils/profiling/flamegraphFrame';
 import {
   computeHighlightedBounds,
+  ELLIPSIS,
   getContext,
   lowerBound,
   resizeCanvasToDisplaySize,
@@ -14,9 +15,7 @@ import {
 } from 'sentry/utils/profiling/gl/utils';
 import {TextRenderer} from 'sentry/utils/profiling/renderers/textRenderer';
 import type {Rect} from 'sentry/utils/profiling/speedscope';
-import {findRangeBinarySearch} from 'sentry/utils/profiling/speedscope';
-import {trimTextCenter} from 'sentry/utils/string/trimTextCenter';
-import {ELLIPSIS} from 'sentry/utils/string/unicode';
+import {findRangeBinarySearch, trimTextCenter} from 'sentry/utils/profiling/speedscope';
 
 class FlamegraphTextRenderer extends TextRenderer {
   flamegraph: Flamegraph;

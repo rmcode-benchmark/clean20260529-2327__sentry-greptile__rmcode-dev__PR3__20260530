@@ -33,6 +33,7 @@ export function ProfileEventEvidence({event, projectSlug}: ProfileEvidenceProps)
                   traceSlug,
                   timestamp: evidenceData.timestamp,
                   eventId: evidenceData.transactionId,
+                  projectSlug,
                   location: {...location, query: {...location.query, referrer: 'issue'}},
                   organization,
                 })}

@@ -154,7 +154,6 @@ class OnDemandBudgetEdit extends Component<Props> {
                           };
                           setOnDemandBudget({
                             ...onDemandBudget,
-                            ...{[categoryBudgetKey]: inputValue},
                             budgets: updatedBudgets,
                           });
                         }}
@@ -173,7 +172,7 @@ class OnDemandBudgetEdit extends Component<Props> {
           />
           {organization.features.includes('seer-billing') && (
             <Alert.Container>
-              <Alert type="warning">
+              <Alert type="warning" showIcon>
                 {t(
                   "Additional Seer usage is only available through a shared on-demand budget. To ensure you'll have access to additional Seer usage, set up a shared on-demand budget instead."
                 )}

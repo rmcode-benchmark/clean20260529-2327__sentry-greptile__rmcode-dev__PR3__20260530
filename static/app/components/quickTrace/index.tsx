@@ -4,7 +4,10 @@ import type {Location, LocationDescriptor} from 'history';
 import {Tooltip} from 'sentry/components/core/tooltip';
 import DropdownLink from 'sentry/components/dropdownLink';
 import ProjectBadge from 'sentry/components/idBadge/projectBadge';
-import type {ErrorDestination} from 'sentry/components/quickTrace/utils';
+import type {
+  ErrorDestination,
+  TransactionDestination,
+} from 'sentry/components/quickTrace/utils';
 import {
   generateSingleErrorTarget,
   generateTraceTarget,
@@ -30,7 +33,7 @@ import Projects from 'sentry/utils/projects';
 const FRONTEND_PLATFORMS: string[] = [...frontend, ...mobile];
 const BACKEND_PLATFORMS: string[] = [...backend, ...serverless];
 
-import {Link} from 'sentry/components/core/link';
+import Link from 'sentry/components/links/link';
 import type {Organization} from 'sentry/types/organization';
 import {generateLinkToEventInTraceView} from 'sentry/utils/discover/urls';
 
@@ -59,7 +62,10 @@ const TOOLTIP_PREFIX = {
   descendants: 'descendant',
 };
 
-type QuickTraceProps = Pick<EventNodeSelectorProps, 'anchor' | 'errorDest'> & {
+type QuickTraceProps = Pick<
+  EventNodeSelectorProps,
+  'anchor' | 'errorDest' | 'transactionDest'
+> & {
   event: Event;
   location: Location;
   organization: Organization;
@@ -73,6 +79,7 @@ export default function QuickTrace({
   organization,
   anchor,
   errorDest,
+  transactionDest,
 }: QuickTraceProps) {
   let parsedQuickTrace: any;
   const traceSlug = event.contexts?.trace?.trace_id ?? '';
@@ -114,6 +121,7 @@ export default function QuickTrace({
       nodeKey="current"
       errorDest={errorDest}
       isOrphanErrorNode={isOrphanErrorNode}
+      transactionDest={transactionDest}
     />
   );
 
@@ -130,6 +138,7 @@ export default function QuickTrace({
         anchor={anchor}
         nodeKey="root"
         errorDest={errorDest}
+        transactionDest={transactionDest}
       />
     );
     nodes.push(<TraceConnector key="root-connector" dashed={isOrphanErrorNode} />);
@@ -148,6 +157,7 @@ export default function QuickTrace({
         anchor={anchor}
         nodeKey="root"
         errorDest={errorDest}
+        transactionDest={transactionDest}
       />
     );
     nodes.push(<TraceConnector key="root-connector" dashed />);
@@ -168,6 +178,7 @@ export default function QuickTrace({
         anchor={anchor}
         nodeKey="ancestors"
         errorDest={errorDest}
+        transactionDest={transactionDest}
       />
     );
     nodes.push(<TraceConnector key="ancestors-connector" />);
@@ -186,6 +197,7 @@ export default function QuickTrace({
         anchor={anchor}
         nodeKey="parent"
         errorDest={errorDest}
+        transactionDest={transactionDest}
       />
     );
     nodes.push(<TraceConnector key="parent-connector" />);
@@ -250,6 +262,7 @@ export default function QuickTrace({
         anchor={anchor}
         nodeKey="children"
         errorDest={errorDest}
+        transactionDest={transactionDest}
       />
     );
   }
@@ -268,6 +281,7 @@ export default function QuickTrace({
         anchor={anchor}
         nodeKey="descendants"
         errorDest={errorDest}
+        transactionDest={transactionDest}
       />
     );
   }
@@ -302,6 +316,7 @@ type EventNodeSelectorProps = {
   organization: Organization;
   text: React.ReactNode;
   traceSlug: string;
+  transactionDest: TransactionDestination;
   isOrphanErrorNode?: boolean;
   numEvents?: number;
 };
@@ -316,6 +331,7 @@ function EventNodeSelector({
   nodeKey,
   anchor,
   errorDest,
+  transactionDest,
   isOrphanErrorNode,
   numEvents = 5,
 }: EventNodeSelectorProps) {
@@ -388,9 +404,12 @@ function EventNodeSelector({
         : generateLinkToEventInTraceView({
             traceSlug,
             eventId: events[0]!.event_id,
+            projectSlug: events[0]!.project_slug,
             timestamp: events[0]!.timestamp,
             location,
             organization,
+            transactionName: events[0]!.transaction,
+            type: transactionDest,
           });
     return (
       <StyledEventNode
@@ -456,9 +475,12 @@ function EventNodeSelector({
           const target = generateLinkToEventInTraceView({
             traceSlug,
             timestamp: event.timestamp,
+            projectSlug: event.project_slug,
             eventId: event.event_id,
             location,
             organization,
+            type: transactionDest,
+            transactionName: event.transaction,
           });
           return (
             <DropdownNodeItem

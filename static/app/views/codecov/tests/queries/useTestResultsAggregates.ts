@@ -4,7 +4,6 @@ import {useCodecovContext} from 'sentry/components/codecov/context/codecovContex
 import type {QueryKeyEndpointOptions} from 'sentry/utils/queryClient';
 import {useQuery} from 'sentry/utils/queryClient';
 import useApi from 'sentry/utils/useApi';
-import useOrganization from 'sentry/utils/useOrganization';
 import {DATE_TO_QUERY_INTERVAL} from 'sentry/views/codecov/tests/config';
 
 type TestResultAggregate = {
@@ -28,8 +27,7 @@ type QueryKey = [url: string, endpointOptions: QueryKeyEndpointOptions];
 
 export function useTestResultsAggregates() {
   const api = useApi();
-  const organization = useOrganization();
-  const {integratedOrgId, repository, codecovPeriod} = useCodecovContext();
+  const {integratedOrg, repository, codecovPeriod} = useCodecovContext();
 
   const {data, ...rest} = useQuery<
     TestResultAggregate,
@@ -38,7 +36,7 @@ export function useTestResultsAggregates() {
     QueryKey
   >({
     queryKey: [
-      `/organizations/${organization.slug}/prevent/owner/${integratedOrgId}/repository/${repository}/test-results-aggregates/`,
+      `/prevent/owner/${integratedOrg}/repository/${repository}/test-results-aggregates/`,
       {query: {codecovPeriod}},
     ],
     queryFn: async ({queryKey: [url]}): Promise<TestResultAggregate> => {

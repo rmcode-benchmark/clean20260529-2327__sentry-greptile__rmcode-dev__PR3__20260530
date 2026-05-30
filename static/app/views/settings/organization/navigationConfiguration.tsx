@@ -138,18 +138,14 @@ export function getOrganizationNavigationConfiguration({
           path: `${organizationSettingsPathPrefix}/feature-flags/`,
           title: t('Feature Flags'),
           description: t('Set up feature flag integrations'),
-        },
-        {
-          path: `${organizationSettingsPathPrefix}/seer/`,
-          title: t('Seer Automation'),
-          description: t(
-            "Manage settings for Seer's automated analysis across your organization"
+          badge: () => (
+            <FeatureBadge
+              type="beta"
+              tooltipProps={{
+                title: t('This feature is currently in open beta and may change'),
+              }}
+            />
           ),
-          show: ({organization}) =>
-            !!organization &&
-            organization.features.includes('trigger-autofix-on-issue-summary') &&
-            !organization.hideAiFeatures,
-          id: 'seer',
         },
         {
           path: `${organizationSettingsPathPrefix}/stats/`,

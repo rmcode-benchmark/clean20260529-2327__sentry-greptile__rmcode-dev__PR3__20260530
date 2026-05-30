@@ -1,4 +1,4 @@
-import {useEffect} from 'react';
+import {useEffect, useMemo} from 'react';
 import {css, useTheme} from '@emotion/react';
 import styled from '@emotion/styled';
 
@@ -16,7 +16,9 @@ import type {OnboardingTask} from 'sentry/types/onboarding';
 import {trackAnalytics} from 'sentry/utils/analytics';
 import {isDemoModeActive} from 'sentry/utils/demoMode';
 import {useLocalStorageState} from 'sentry/utils/useLocalStorageState';
+import useMutateUserOptions from 'sentry/utils/useMutateUserOptions';
 import useOrganization from 'sentry/utils/useOrganization';
+import {useUser} from 'sentry/utils/useUser';
 import {useNavContext} from 'sentry/views/nav/context';
 import {
   SidebarButton,
@@ -122,6 +124,9 @@ function OnboardingItem({
 export function PrimaryNavigationOnboarding() {
   const currentPanel = useLegacyStore(SidebarPanelStore);
   const isActive = currentPanel === SidebarPanelKey.ONBOARDING_WIZARD;
+  const user = useUser();
+  const {mutate: mutateUserOptions} = useMutateUserOptions();
+  const {activateSidebar} = useOnboardingSidebar();
   const organization = useOrganization();
   const [quickStartCompleted, setQuickStartCompleted] = useLocalStorageState(
     `quick-start:${organization.slug}:completed`,
@@ -139,6 +144,14 @@ export function PrimaryNavigationOnboarding() {
   const skipQuickStart =
     (!demoMode && !organization.features?.includes('onboarding')) ||
     (allTasksCompleted && !isActive);
+
+  const orgId = organization.id;
+
+  const quickStartDisplay = useMemo(() => {
+    return user?.options?.quickStartDisplay ?? {};
+  }, [user?.options?.quickStartDisplay]);
+
+  const quickStartDisplayStatus = quickStartDisplay[orgId] ?? 0;
 
   useEffect(() => {
     if (!allTasksCompleted || skipQuickStart || quickStartCompleted) {
@@ -163,6 +176,26 @@ export function PrimaryNavigationOnboarding() {
     setQuickStartCompleted,
     allTasksCompleted,
   ]);
+
+  useEffect(() => {
+    if (skipQuickStart || quickStartDisplayStatus > 1) {
+      return;
+    }
+
+    const newQuickStartDisplay = {...quickStartDisplay};
+    newQuickStartDisplay[orgId] = quickStartDisplayStatus + 1;
+
+    mutateUserOptions({['quickStartDisplay']: newQuickStartDisplay});
+
+    if (quickStartDisplayStatus === 1) {
+      activateSidebar({
+        userClicked: false,
+        source: 'onboarding_sidebar_user_second_visit',
+      });
+    }
+    // be careful when adding dependencies here as it can cause side-effects, e.g activateSidebar
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mutateUserOptions, orgId, skipQuickStart]);
 
   if (skipQuickStart) {
     return null;

@@ -1,4 +1,3 @@
-import {initializeOrg} from 'sentry-test/initializeOrg';
 import {
   act,
   renderGlobalModal,
@@ -56,11 +55,6 @@ const numberTags: TagCollection = {
   'span.self_time': {
     key: 'span.self_time',
     name: 'span.self_time',
-    kind: FieldKind.MEASUREMENT,
-  },
-  'tags[foo,number]': {
-    key: 'tags[foo,number]',
-    name: 'foo',
     kind: FieldKind.MEASUREMENT,
   },
 };
@@ -267,47 +261,6 @@ describe('AggregateColumnEditorModal', function () {
     expect(onColumnsChange).toHaveBeenCalledWith([
       {groupBy: 'geo.city'},
       {yAxes: ['count(span.duration)']},
-    ]);
-  });
-
-  it('allows adding an equation', async function () {
-    const {organization} = initializeOrg({
-      organization: {
-        features: ['visibility-explore-equations'],
-      },
-    });
-
-    const onColumnsChange = jest.fn();
-
-    renderGlobalModal({organization});
-
-    act(() => {
-      openModal(
-        modalProps => (
-          <AggregateColumnEditorModal
-            {...modalProps}
-            columns={[{groupBy: 'geo.country'}, new Visualize(DEFAULT_VISUALIZATION)]}
-            onColumnsChange={onColumnsChange}
-            stringTags={stringTags}
-            numberTags={numberTags}
-          />
-        ),
-        {onClose: jest.fn()}
-      );
-    });
-
-    await userEvent.click(screen.getByRole('button', {name: 'Add a Column'}));
-    await userEvent.click(screen.getByRole('menuitemradio', {name: 'Equation'}));
-
-    await userEvent.click(screen.getByRole('combobox', {name: 'Add a term'}));
-
-    await userEvent.keyboard('avg(foo{Enter}*5{Escape}');
-
-    await userEvent.click(screen.getByRole('button', {name: 'Apply'}));
-    expect(onColumnsChange).toHaveBeenCalledWith([
-      {groupBy: 'geo.country'},
-      {yAxes: ['count(span.duration)']},
-      {yAxes: ['equation|avg(tags[foo,number]) * 5']},
     ]);
   });
 });
