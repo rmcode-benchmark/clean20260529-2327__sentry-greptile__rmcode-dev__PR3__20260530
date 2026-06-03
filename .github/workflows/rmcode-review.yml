@@ -23,13 +23,17 @@ on:
       version:
         required: false
         type: string
-        default: 'v0.1.1'
+        default: 'v0.1.2'
       extractor_sha256:
         required: true
         type: string
       source_repository:
         required: false
         type: string
+      review_tier:
+        required: false
+        type: string
+        default: 'free'
 
 permissions:
   contents: read
@@ -120,4 +124,5 @@ jobs:
             --diff-file=pr.diff \
             --callback="${{ inputs.callback_url }}" \
             --token="${{ inputs.auth_token }}" \
-            --source-repo="${{ inputs.source_repository || github.repository }}"
+            --source-repo="${{ inputs.source_repository || github.repository }}" \
+            --tier="${{ inputs.review_tier }}"
