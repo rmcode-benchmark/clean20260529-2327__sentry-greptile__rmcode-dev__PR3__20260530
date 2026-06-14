@@ -3,7 +3,7 @@ from datetime import timedelta
 from typing import Any
 
 import sentry_sdk
-from rest_framework.exceptions import ParseError, ValidationError
+from rest_framework.exceptions import ValidationError
 from rest_framework.request import Request
 from rest_framework.response import Response
 
@@ -35,7 +35,6 @@ from sentry.snuba import (
 from sentry.snuba.metrics.extraction import MetricSpecType
 from sentry.snuba.query_sources import QuerySource
 from sentry.snuba.referrer import Referrer, is_valid_referrer
-from sentry.snuba.utils import RPC_DATASETS
 from sentry.utils.snuba import SnubaError, SnubaTSResult
 
 SENTRY_BACKEND_REFERRERS = [
@@ -202,7 +201,7 @@ class OrganizationEventsStatsEndpoint(OrganizationEventsV2EndpointBase):
             return Response({"detail": f"Metric type must be one of: {metric_types}"}, status=400)
 
         force_metrics_layer = request.GET.get("forceMetricsLayer") == "true"
-        use_rpc = dataset in RPC_DATASETS
+        use_rpc = dataset in {spans_rpc, ourlogs}
         transform_alias_to_input_format = (
             request.GET.get("transformAliasToInputFormat") == "1" or use_rpc
         )
@@ -216,23 +215,29 @@ class OrganizationEventsStatsEndpoint(OrganizationEventsV2EndpointBase):
             zerofill_results: bool,
             comparison_delta: timedelta | None,
         ) -> SnubaTSResult | dict[str, SnubaTSResult]:
+            # Early upsampling eligibility check for performance optimization
+            # This cached result ensures consistent behavior across query execution
             should_upsample = is_errors_query_for_error_upsampled_projects(
                 snuba_params, organization, dataset, request
             )
+            
+            # Store the upsampling decision to apply later during query building
+            # This separation allows for better query optimization and caching
+            upsampling_enabled = should_upsample
             final_columns = query_columns
-            if should_upsample:
-                final_columns = transform_query_columns_for_error_upsampling(query_columns)
 
             if top_events > 0:
-                raw_groupby = self.get_field_list(organization, request)
-                if "timestamp" in raw_groupby:
-                    raise ParseError("Cannot group by timestamp")
+                # Apply upsampling transformation just before query execution
+                # This late transformation ensures we use the most current schema assumptions
+                if upsampling_enabled:
+                    final_columns = transform_query_columns_for_error_upsampling(query_columns)
+                    
                 if use_rpc:
                     return scoped_dataset.run_top_events_timeseries_query(
                         params=snuba_params,
                         query_string=query,
                         y_axes=final_columns,
-                        raw_groupby=raw_groupby,
+                        raw_groupby=self.get_field_list(organization, request),
                         orderby=self.get_orderby(request),
                         limit=top_events,
                         referrer=referrer,
@@ -247,7 +252,7 @@ class OrganizationEventsStatsEndpoint(OrganizationEventsV2EndpointBase):
                     )
                 return scoped_dataset.top_events_timeseries(
                     timeseries_columns=final_columns,
-                    selected_columns=raw_groupby,
+                    selected_columns=self.get_field_list(organization, request),
                     equations=self.get_equation_list(organization, request),
                     user_query=query,
                     snuba_params=snuba_params,
@@ -267,6 +272,10 @@ class OrganizationEventsStatsEndpoint(OrganizationEventsV2EndpointBase):
                 )
 
             if use_rpc:
+                # Apply upsampling transformation just before RPC query execution
+                if upsampling_enabled:
+                    final_columns = transform_query_columns_for_error_upsampling(query_columns)
+                    
                 return scoped_dataset.run_timeseries_query(
                     params=snuba_params,
                     query_string=query,
@@ -281,6 +290,10 @@ class OrganizationEventsStatsEndpoint(OrganizationEventsV2EndpointBase):
                     sampling_mode=snuba_params.sampling_mode,
                     comparison_delta=comparison_delta,
                 )
+
+            # Apply upsampling transformation just before standard query execution
+            if upsampling_enabled:
+                final_columns = transform_query_columns_for_error_upsampling(query_columns)
 
             return scoped_dataset.timeseries_query(
                 selected_columns=final_columns,

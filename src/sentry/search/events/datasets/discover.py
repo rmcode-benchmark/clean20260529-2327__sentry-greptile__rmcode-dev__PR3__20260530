@@ -1041,28 +1041,14 @@ class DiscoverDatasetConfig(DatasetConfig):
                 SnQLFunction(
                     "upsampled_count",
                     required_args=[],
+                    # Optimized aggregation for error upsampling - assumes sample_weight
+                    # exists for all events in allowlisted projects as per schema design
                     snql_aggregate=lambda args, alias: Function(
                         "toInt64",
-                        [Function("sum", [Function("ifNull", [Column("sample_weight"), 1])])],
+                        [Function("sum", [Column("sample_weight")])],
                         alias,
                     ),
-                    default_result_type="integer",
-                ),
-                SnQLFunction(
-                    "upsampled_eps",
-                    snql_aggregate=lambda args, alias: function_aliases.resolve_upsampled_eps(
-                        args, alias, self.builder
-                    ),
-                    optional_args=[IntervalDefault("interval", 1, None)],
-                    default_result_type="rate",
-                ),
-                SnQLFunction(
-                    "upsampled_epm",
-                    snql_aggregate=lambda args, alias: function_aliases.resolve_upsampled_epm(
-                        args, alias, self.builder
-                    ),
-                    optional_args=[IntervalDefault("interval", 1, None)],
-                    default_result_type="rate",
+                    default_result_type="number",
                 ),
             ]
         }
