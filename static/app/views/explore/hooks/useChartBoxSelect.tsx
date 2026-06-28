@@ -1,10 +1,16 @@
 import {useCallback, useEffect, useMemo, useReducer, useState} from 'react';
 import type {BrushComponentOption, EChartsOption, ToolboxComponentOption} from 'echarts';
+import * as echarts from 'echarts';
 import type EChartsReact from 'echarts-for-react';
 
 import ToolBox from 'sentry/components/charts/components/toolBox';
-import type {EchartBrushAreas, EChartBrushEndHandler} from 'sentry/types/echarts';
+import type {
+  EchartBrushAreas,
+  EChartBrushEndHandler,
+  EChartBrushStartHandler,
+} from 'sentry/types/echarts';
 import useOrganization from 'sentry/utils/useOrganization';
+import {useWidgetSyncContext} from 'sentry/views/dashboards/contexts/widgetSyncContext';
 
 type Props = {
   chartRef: React.RefObject<EChartsReact | null>;
@@ -19,8 +25,9 @@ export type BoxSelectOptions = {
   } | null;
   brush: EChartsOption['brush'];
   clearSelection: () => void;
+  floatingTriggerPosition: {left: number; top: number} | null;
   onBrushEnd: EChartBrushEndHandler;
-  pageCoords: {x: number; y: number} | null;
+  onBrushStart: EChartBrushStartHandler;
   reActivateSelection: () => void;
   toolBox: ToolboxComponentOption | undefined;
 };
@@ -44,6 +51,9 @@ export function useChartBoxSelect({
   triggerWrapperRef,
 }: Props): BoxSelectOptions {
   const organization = useOrganization();
+
+  const {groupName} = useWidgetSyncContext();
+
   const enabledBoxSelect = organization.features.includes(
     'performance-spans-suspect-attributes'
   );
@@ -54,7 +64,10 @@ export function useChartBoxSelect({
 
   // This exposes the page coordinates when the user finishes drawing the box. This is used
   // to render floating CTAs on top of the chart.
-  const [pageCoords, setPageCoords] = useState<{x: number; y: number} | null>(null);
+  const [floatingTriggerPosition, setFloatingTriggerPosition] = useState<{
+    left: number;
+    top: number;
+  } | null>(null);
 
   // This increments a counter to force a re-activation of the brush mode. We expose the
   // re-activation function in the return value, so that the parent component can call it
@@ -63,6 +76,14 @@ export function useChartBoxSelect({
     x => (x + 1) % Number.MAX_SAFE_INTEGER,
     0
   );
+
+  const onBrushStart = useCallback<EChartBrushStartHandler>(() => {
+    // Echarts either lets us connect all interactivity of the charts in a group or none of them.
+    // We need connectivity for cursor syncing, but having that enabled while drawing, leads to a
+    // box drawn for all of the charts in the group. We are going for chart specific box selections,
+    // so we disconnect the group while drawing.
+    echarts?.disconnect(groupName);
+  }, [groupName]);
 
   const onBrushEnd = useCallback<EChartBrushEndHandler>(
     (evt: any, chart: any) => {
@@ -78,47 +99,50 @@ export function useChartBoxSelect({
 
       const area = evt.areas[0];
 
+      const [x0, x1] = area.coordRange[0];
+      const [y0, y1] = area.coordRange[1];
+
+      const clampedCoordRange: [[number, number], [number, number]] = [
+        [Math.max(xMin, x0), Math.min(xMax, x1)],
+        [Math.max(yMin, y0), Math.min(yMax, y1)],
+      ];
+
       const newBrushArea: EchartBrushAreas = [
         {
           ...area,
-          coordRange: [
-            [
-              Math.max(xMin, area.coordRange[0][0]),
-              Math.min(xMax, area.coordRange[0][1]),
-            ],
-            [
-              Math.max(yMin, area.coordRange[1][0]),
-              Math.min(yMax, area.coordRange[1][1]),
-            ],
-          ],
+          coordRange: clampedCoordRange,
         },
       ];
 
       setBrushArea(newBrushArea);
+
+      // Get the bottom right coordinates of the box
+      const [clamped_x1, clamped_y0] = [clampedCoordRange[0][1], clampedCoordRange[1][0]];
+
+      // Convert the bottom right coordinates to pixel coordinates, so that we can use them to
+      // absolutely position the floating CTAs.
+      const [clamped_x1_pixels, clamped_y0_pixels] = chart.convertToPixel(
+        {xAxisIndex: 0, yAxisIndex: 0},
+        [clamped_x1, clamped_y0]
+      );
+
+      const chartRect = chart.getDom().getBoundingClientRect();
+
+      if (chartRect) {
+        setFloatingTriggerPosition({
+          left: chartRect.left + clamped_x1_pixels,
+          top: chartRect.top + clamped_y0_pixels + window.scrollY,
+        });
+      }
     },
     [chartRef]
   );
-
-  useEffect(() => {
-    const handleMouseUp = (e: MouseEvent) => {
-      if (brushArea) {
-        setPageCoords({x: e.clientX, y: e.clientY});
-      } else {
-        setPageCoords(null);
-      }
-    };
-
-    const wrapper = chartWrapperRef.current;
-    if (!wrapper) return;
-
-    wrapper.addEventListener('mouseup', handleMouseUp);
-  }, [brushArea, chartWrapperRef]);
 
   const clearSelection = useCallback(() => {
     const chartInstance = chartRef.current?.getEchartsInstance();
     chartInstance?.dispatchAction({type: 'brush', areas: []});
     setBrushArea(null);
-    setPageCoords(null);
+    setFloatingTriggerPosition(null);
   }, [chartRef]);
 
   const handleOutsideClick = useCallback(
@@ -157,6 +181,10 @@ export function useChartBoxSelect({
         type: 'brush',
         areas: brushArea,
       });
+
+      // We re-connect the group after drawing the box, so that the cursor is synced across all charts again.
+      // Check the onBrushStart handler for more details.
+      echarts?.connect(groupName);
     }
 
     // Activate brush mode on load and when we re-draw the box/clear the selection
@@ -164,11 +192,11 @@ export function useChartBoxSelect({
       enableBrushMode();
     });
 
-    window.addEventListener('click', handleOutsideClick);
+    window.addEventListener('click', handleOutsideClick, {capture: true});
 
     // eslint-disable-next-line consistent-return
     return () => {
-      window.removeEventListener('click', handleOutsideClick);
+      window.removeEventListener('click', handleOutsideClick, {capture: true});
       cancelAnimationFrame(frame);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -177,7 +205,7 @@ export function useChartBoxSelect({
     chartRef.current,
     enableBrushMode,
     handleOutsideClick,
-    pageCoords,
+    floatingTriggerPosition,
     forceReActivateSelection,
   ]);
 
@@ -213,8 +241,9 @@ export function useChartBoxSelect({
           }
         : null,
       onBrushEnd,
+      onBrushStart,
       toolBox,
-      pageCoords,
+      floatingTriggerPosition,
       reActivateSelection,
       clearSelection,
     };
@@ -223,7 +252,8 @@ export function useChartBoxSelect({
     onBrushEnd,
     brush,
     toolBox,
-    pageCoords,
+    onBrushStart,
+    floatingTriggerPosition,
     reActivateSelection,
     clearSelection,
   ]);

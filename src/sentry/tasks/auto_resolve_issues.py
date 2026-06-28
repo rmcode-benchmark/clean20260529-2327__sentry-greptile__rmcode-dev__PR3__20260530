@@ -60,7 +60,11 @@ def schedule_auto_resolution():
         if int(options.get("sentry:_last_auto_resolve", 0)) > cutoff:
             continue
 
-        auto_resolve_project_issues.delay(project_id=project_id, expires=ONE_HOUR)
+        auto_resolve_project_issues.apply_async(
+            args=[project_id],
+            expires=ONE_HOUR,
+            headers={"sentry-propagate-traces": False},
+        )
 
 
 @instrumented_task(
@@ -71,7 +75,7 @@ def schedule_auto_resolution():
     silo_mode=SiloMode.REGION,
     taskworker_config=TaskworkerConfig(
         namespace=issues_tasks,
-        processing_deadline_duration=75,
+        processing_deadline_duration=90,
     ),
 )
 @log_error_if_queue_has_items
@@ -81,7 +85,7 @@ def auto_resolve_project_issues(project_id, cutoff=None, chunk_size=1000, **kwar
     if not age:
         return
 
-    project.update_option("sentry:_last_auto_resolve", int(time()))
+    project.update_option("sentry:_last_auto_resolve", int(time()), reload_cache=False)
 
     if cutoff:
         cutoff = datetime.fromtimestamp(cutoff, timezone.utc)
@@ -158,6 +162,9 @@ def auto_resolve_project_issues(project_id, cutoff=None, chunk_size=1000, **kwar
             )
 
     if might_have_more:
-        auto_resolve_project_issues.delay(
-            project_id=project_id, cutoff=int(cutoff.strftime("%s")), chunk_size=chunk_size
+        auto_resolve_project_issues.apply_async(
+            args=[project_id],
+            kwargs={"cutoff": int(cutoff.strftime("%s")), "chunk_size": chunk_size},
+            expires=ONE_HOUR,
+            headers={"sentry-propagate-traces": False},
         )

@@ -3,6 +3,8 @@ import logging
 import sentry_sdk
 from rest_framework import serializers
 
+from sentry.codecov.endpoints.common.serializers import PageInfoSerializer
+
 logger = logging.getLogger(__name__)
 
 
@@ -11,8 +13,11 @@ class TestResultNodeSerializer(serializers.Serializer):
     Serializer for individual test result nodes from GraphQL response
     """
 
+    __test__ = False
+
     updatedAt = serializers.CharField()
     avgDuration = serializers.FloatField()
+    totalDuration = serializers.FloatField()
     name = serializers.CharField()
     failureRate = serializers.FloatField()
     flakeRate = serializers.FloatField()
@@ -24,19 +29,12 @@ class TestResultNodeSerializer(serializers.Serializer):
     lastDuration = serializers.FloatField()
 
 
-class PageInfoSerializer(serializers.Serializer):
-    """
-    Serializer for pagination information
-    """
-
-    endCursor = serializers.CharField(allow_null=True)
-    hasNextPage = serializers.BooleanField()
-
-
 class TestResultSerializer(serializers.Serializer):
     """
     Serializer for test results response including pagination metadata
     """
+
+    __test__ = False
 
     results = TestResultNodeSerializer(many=True)
     pageInfo = PageInfoSerializer()
@@ -60,7 +58,13 @@ class TestResultSerializer(serializers.Serializer):
             response_data = {
                 "results": nodes,
                 "pageInfo": test_results_data.get(
-                    "pageInfo", {"endCursor": None, "hasNextPage": False}
+                    "pageInfo",
+                    {
+                        "endCursor": None,
+                        "hasNextPage": False,
+                        "startCursor": None,
+                        "hasPreviousPage": False,
+                    },
                 ),
                 "totalCount": test_results_data.get("totalCount", len(nodes)),
             }

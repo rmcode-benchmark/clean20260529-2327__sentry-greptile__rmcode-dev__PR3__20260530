@@ -219,9 +219,11 @@ export function DebugImageDetails({
     refetch,
   } = useApiQuery<DebugFile[]>(
     [
-      `/projects/${organization.slug}/${projSlug}/files/dsyms/?debug_id=${image?.debug_id}`,
+      `/projects/${organization.slug}/${projSlug}/files/dsyms/`,
       {
         query: {
+          debug_id: image?.debug_id,
+          code_id: image?.code_id,
           // FIXME(swatinem): Ideally we should not filter here at all,
           // though Symbolicator does not currently report `bcsymbolmap` and `il2cpp`
           // candidates, and we would thus show bogus "unapplied" entries for those,
@@ -315,7 +317,7 @@ export function DebugImageDetails({
         </Content>
       </Body>
       <Footer>
-        <StyledButtonBar gap={1}>
+        <StyledButtonBar>
           <LinkButton
             href="https://docs.sentry.io/platforms/native/data-management/debug-files/"
             external
@@ -368,15 +370,15 @@ export const modalCss = (theme: Theme) => css`
     overflow: initial;
   }
 
-  @media (min-width: ${theme.breakpoints.small}) {
+  @media (min-width: ${theme.breakpoints.sm}) {
     width: 90%;
   }
 
-  @media (min-width: ${theme.breakpoints.xlarge}) {
+  @media (min-width: ${theme.breakpoints.xl}) {
     width: 70%;
   }
 
-  @media (min-width: ${theme.breakpoints.xxlarge}) {
+  @media (min-width: ${theme.breakpoints['2xl']}) {
     width: 50%;
   }
 `;

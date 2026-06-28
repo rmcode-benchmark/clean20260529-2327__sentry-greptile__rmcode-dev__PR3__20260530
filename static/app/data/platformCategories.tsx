@@ -8,6 +8,7 @@ export enum PlatformCategory {
   SERVERLESS = 3,
   DESKTOP = 4,
   OTHER = 5,
+  GAMING = 6,
 }
 
 // Mirrors `FRONTEND` in src/sentry/utils/platform_categories.py
@@ -24,6 +25,7 @@ export const frontend: PlatformKey[] = [
   'javascript-nextjs',
   'javascript-nuxt',
   'javascript-react',
+  'javascript-react-router',
   'javascript-remix',
   'javascript-solid',
   'javascript-solidstart',
@@ -163,6 +165,18 @@ export const desktop: PlatformKey[] = [
   'unreal',
 ];
 
+// Mirrors `GAMING` in src/sentry/utils/platform_categories.py
+// When changing this file, make sure to keep src/sentry/utils/platform_categories.py in sync.
+export const gaming: PlatformKey[] = [
+  'godot',
+  'native',
+  'nintendo-switch',
+  'playstation',
+  'unity',
+  'unreal',
+  'xbox',
+];
+
 export const sourceMaps: PlatformKey[] = [
   ...frontend,
   'react-native',
@@ -238,6 +252,7 @@ export const platformsWithNestedInstrumentationGuides: PlatformKey[] = [
   'javascript-nextjs',
   'javascript-nuxt',
   'javascript-react',
+  'javascript-react-router',
   'javascript-remix',
   'javascript-solid',
   'javascript-svelte',
@@ -285,6 +300,8 @@ export const withoutPerformanceSupport: Set<PlatformKey> = new Set([
   'elixir',
   'minidump',
   'nintendo-switch',
+  'playstation',
+  'xbox',
 ]);
 
 export const profiling: PlatformKey[] = [
@@ -305,6 +322,7 @@ export const profiling: PlatformKey[] = [
   'javascript-nextjs',
   'javascript-nuxt',
   'javascript-react',
+  'javascript-react-router',
   'javascript-remix',
   'javascript-solid',
   'javascript-solidstart',
@@ -356,6 +374,8 @@ export const profiling: PlatformKey[] = [
 export const releaseHealth: PlatformKey[] = [
   'javascript',
   'javascript-react',
+  'javascript-react-router',
+  'javascript-remix',
   'javascript-angular',
   'javascript-angularjs',
   'javascript-astro',
@@ -365,7 +385,6 @@ export const releaseHealth: PlatformKey[] = [
   'javascript-vue',
   'javascript-nextjs',
   'javascript-nuxt',
-  'javascript-remix',
   'javascript-solid',
   'javascript-solidstart',
   'javascript-svelte',
@@ -473,6 +492,7 @@ export const replayFrontendPlatforms: readonly PlatformKey[] = [
   'javascript-nextjs',
   'javascript-nuxt',
   'javascript-react',
+  'javascript-react-router',
   'javascript-remix',
   'javascript-solid',
   'javascript-solidstart',
@@ -604,6 +624,7 @@ export const featureFlagDrawerPlatforms: readonly PlatformKey[] = platformKeys.f
 export const agentMonitoringPlatforms: ReadonlySet<PlatformKey> = new Set([
   'javascript-nextjs',
   'javascript-remix',
+  'javascript-react-router',
   'javascript-solidstart',
   'javascript-sveltekit',
   'javascript-tanstackstart-react',

@@ -98,9 +98,6 @@ export function WizardProjectSelection({
     if (orgDetailsRequest.data?.access.includes('org:admin')) {
       return teamsRequest.data;
     }
-    if (orgDetailsRequest.data?.allowMemberProjectCreation) {
-      return teamsRequest.data?.filter(team => team.isMember);
-    }
     return teamsRequest.data?.filter(team => team.teamRole === 'admin');
   }, [orgDetailsRequest.data, teamsRequest.data]);
 
@@ -410,7 +407,7 @@ const Columns = styled('div')`
   grid-template-columns: 1fr 1fr;
   gap: ${space(2)};
 
-  @media (max-width: ${p => p.theme.breakpoints.xsmall}) {
+  @media (max-width: ${p => p.theme.breakpoints.xs}) {
     grid-template-columns: 1fr;
   }
 `;

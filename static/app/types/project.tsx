@@ -35,6 +35,7 @@ export type Project = {
   hasInsightsDb: boolean;
   hasInsightsHttp: boolean;
   hasInsightsLlmMonitoring: boolean;
+  hasInsightsMCP: boolean;
   hasInsightsQueues: boolean;
   hasInsightsScreenLoad: boolean;
   hasInsightsVitals: boolean;
@@ -68,9 +69,6 @@ export type Project = {
   autofixAutomationTuning?: 'off' | 'super_low' | 'low' | 'medium' | 'high' | 'always';
   builtinSymbolSources?: string[];
   defaultEnvironment?: string;
-  eventProcessing?: {
-    symbolicationDegraded?: boolean;
-  };
   hasUserReports?: boolean;
   highlightContext?: Record<string, string[]>;
   highlightPreset?: {
@@ -229,6 +227,7 @@ export type PlatformKey =
   | 'javascript-nextjs'
   | 'javascript-nuxt'
   | 'javascript-react'
+  | 'javascript-react-router'
   | 'javascript-remix'
   | 'javascript-solid'
   | 'javascript-solidstart'
@@ -267,6 +266,7 @@ export type PlatformKey =
   | 'php-monolog'
   | 'php-symfony'
   | 'php-symfony2'
+  | 'playstation'
   | 'powershell'
   | 'python'
   | 'python-aiohttp'
@@ -307,7 +307,8 @@ export type PlatformKey =
   | 'swift'
   | 'switt'
   | 'unity'
-  | 'unreal';
+  | 'unreal'
+  | 'xbox';
 
 export type PlatformIntegration = {
   id: PlatformKey;

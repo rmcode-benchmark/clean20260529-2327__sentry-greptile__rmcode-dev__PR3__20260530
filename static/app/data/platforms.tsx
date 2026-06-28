@@ -320,6 +320,13 @@ export const platforms: PlatformIntegration[] = [
     link: 'https://docs.sentry.io/platforms/javascript/guides/react/',
   },
   {
+    id: 'javascript-react-router',
+    name: 'React Router Framework',
+    type: 'framework',
+    language: 'javascript',
+    link: 'https://docs.sentry.io/platforms/javascript/guides/react-router/',
+  },
+  {
     id: 'javascript-remix',
     name: 'Remix',
     type: 'framework',
@@ -406,8 +413,8 @@ export const platforms: PlatformIntegration[] = [
   {
     id: 'nintendo-switch',
     name: 'Nintendo Switch',
-    type: 'framework',
-    language: 'native',
+    type: 'console',
+    language: 'console',
     link: 'https://docs.sentry.io/platforms/nintendo-switch/',
   },
   {
@@ -514,6 +521,13 @@ export const platforms: PlatformIntegration[] = [
     type: 'framework',
     language: 'php',
     link: 'https://docs.sentry.io/platforms/php/guides/symfony/',
+  },
+  {
+    id: 'playstation',
+    name: 'Playstation',
+    type: 'console',
+    language: 'console',
+    link: 'https://docs.sentry.io/platforms/playstation/',
   },
   {
     id: 'powershell',
@@ -731,6 +745,13 @@ export const platforms: PlatformIntegration[] = [
     type: 'framework',
     language: 'unreal',
     link: 'https://docs.sentry.io/platforms/unreal/',
+  },
+  {
+    id: 'xbox',
+    name: 'Xbox',
+    type: 'console',
+    language: 'console',
+    link: 'https://docs.sentry.io/platforms/xbox/',
   },
 ];
 

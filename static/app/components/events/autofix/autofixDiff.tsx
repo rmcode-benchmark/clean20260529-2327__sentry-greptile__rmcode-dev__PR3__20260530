@@ -122,8 +122,8 @@ const SyntaxHighlightedCode = styled('div')`
   font-family: ${p => p.theme.text.familyMono};
   white-space: pre;
 
-  pre,
-  code {
+  && pre,
+  && code {
     margin: 0;
     padding: 0;
     background: transparent;
@@ -863,7 +863,7 @@ const EditOverlay = styled('div')`
   flex-direction: column;
   max-height: calc(100vh - 18rem);
 
-  @media (max-width: ${p => p.theme.breakpoints.small}) {
+  @media (max-width: ${p => p.theme.breakpoints.sm}) {
     left: ${space(2)};
   }
 `;

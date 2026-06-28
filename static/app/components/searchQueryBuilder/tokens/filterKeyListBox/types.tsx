@@ -31,6 +31,11 @@ export interface FilterValueItem extends SelectOptionWithKey<string> {
   value: string;
 }
 
+export interface RawSearchFilterValueItem extends SelectOptionWithKey<string> {
+  type: 'raw-search-filter-value';
+  value: string;
+}
+
 interface RecentFilterItem extends SelectOptionWithKey<string> {
   type: 'recent-filter';
   value: string;
@@ -42,7 +47,25 @@ export interface RecentQueryItem extends SelectOptionWithKey<string> {
   value: string;
 }
 
-export type SearchKeyItem = KeySectionItem | KeyItem | RawSearchItem | FilterValueItem;
+export interface AskSeerItem extends SelectOptionWithKey<string> {
+  hideCheck: boolean;
+  type: 'ask-seer';
+  value: string;
+}
+
+export interface AskSeerConsentItem extends SelectOptionWithKey<string> {
+  type: 'ask-seer-consent';
+  value: string;
+}
+
+export type SearchKeyItem =
+  | KeySectionItem
+  | KeyItem
+  | RawSearchItem
+  | FilterValueItem
+  | RawSearchFilterValueItem
+  | AskSeerItem
+  | AskSeerConsentItem;
 
 export type FilterKeyItem =
   | KeyItem
@@ -50,7 +73,10 @@ export type FilterKeyItem =
   | KeySectionItem
   | RecentQueryItem
   | RawSearchItem
-  | FilterValueItem;
+  | FilterValueItem
+  | RawSearchFilterValueItem
+  | AskSeerItem
+  | AskSeerConsentItem;
 
 export type Section = {
   label: ReactNode;

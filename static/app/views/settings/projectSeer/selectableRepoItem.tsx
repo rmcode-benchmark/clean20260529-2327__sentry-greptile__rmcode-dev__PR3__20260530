@@ -15,7 +15,7 @@ interface Props {
 }
 
 export function SelectableRepoItem({repo, isSelected, onToggle}: Props) {
-  const isSupportedProvider = isSupportedAutofixProvider(repo.provider?.name || '');
+  const isSupportedProvider = isSupportedAutofixProvider(repo.provider);
 
   return (
     <RepoListItemContainer
@@ -99,7 +99,7 @@ const RepoInfoWrapper = styled('div')`
 `;
 
 const RepoName = styled('div')`
-  font-weight: ${p => p.theme.fontWeightBold};
+  font-weight: ${p => p.theme.fontWeight.bold};
 `;
 
 const RepoProvider = styled('div')`

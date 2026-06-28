@@ -113,8 +113,8 @@ function WidgetBuilderV2({
   const [isPreviewDraggable, setIsPreviewDraggable] = useState(false);
   const [thresholdMetaState, setThresholdMetaState] = useState<ThresholdMetaState>({});
 
-  const isSmallScreen = useMedia(`(max-width: ${theme.breakpoints.small})`);
-  const isMediumScreen = useMedia(`(max-width: ${theme.breakpoints.medium})`);
+  const isSmallScreen = useMedia(`(max-width: ${theme.breakpoints.sm})`);
+  const isMediumScreen = useMedia(`(max-width: ${theme.breakpoints.md})`);
 
   const [translate, setTranslate] = useState<WidgetDragPositioning>(
     DEFAULT_WIDGET_DRAG_POSITIONING
@@ -283,7 +283,7 @@ export function WidgetPreviewContainer({
   const organization = useOrganization();
   const location = useLocation();
   const theme = useTheme();
-  const isSmallScreen = useMedia(`(max-width: ${theme.breakpoints.small})`);
+  const isSmallScreen = useMedia(`(max-width: ${theme.breakpoints.sm})`);
   // if small screen and draggable, enable dragging
   const isDragEnabled = isSmallScreen && isDraggable;
 
@@ -370,15 +370,10 @@ export function WidgetPreviewContainer({
                 ref={setNodeRef}
                 id={WIDGET_PREVIEW_DRAG_ID}
                 style={draggableStyle}
-                aria-label={t('Draggable Widget Preview')}
+                aria-label={t('Draggable Preview')}
                 {...attributes}
                 {...listeners}
               >
-                {!isSmallScreen && (
-                  <WidgetPreviewTitle {...animatedProps}>
-                    {t('Widget Preview')}
-                  </WidgetPreviewTitle>
-                )}
                 <SampleWidgetCard
                   {...animatedProps}
                   style={{
@@ -468,15 +463,15 @@ const SampleWidgetCard = styled(motion.div)`
   z-index: ${p => p.theme.zIndex.initial};
   position: relative;
 
-  @media (min-width: ${p => p.theme.breakpoints.small}) {
+  @media (min-width: ${p => p.theme.breakpoints.sm}) {
     width: 40vw;
     min-width: 300px;
     z-index: ${p => p.theme.zIndex.modal};
     cursor: auto;
   }
 
-  @media (max-width: ${p => p.theme.breakpoints.large}) and (min-width: ${p =>
-      p.theme.breakpoints.medium}) {
+  @media (max-width: ${p => p.theme.breakpoints.lg}) and (min-width: ${p =>
+      p.theme.breakpoints.md}) {
     width: 30vw;
     min-width: 100px;
   }
@@ -489,7 +484,7 @@ const DraggableWidgetContainer = styled(`div`)`
   margin: auto;
   cursor: auto;
 
-  @media (min-width: ${p => p.theme.breakpoints.small}) {
+  @media (min-width: ${p => p.theme.breakpoints.sm}) {
     z-index: ${p => p.theme.zIndex.modal};
     transform: none;
     cursor: auto;
@@ -506,7 +501,7 @@ const ContainerWithoutSidebar = styled('div')<{
   right: 0;
   bottom: 0;
 
-  @media (max-width: ${p => p.theme.breakpoints.medium}) {
+  @media (max-width: ${p => p.theme.breakpoints.md}) {
     left: 0;
     top: ${SIDEBAR_MOBILE_HEIGHT};
   }
@@ -543,7 +538,7 @@ const TemplateWidgetPreviewPlaceholder = styled('div')`
   color: ${p => p.theme.subText};
   font-style: italic;
   font-size: ${p => p.theme.fontSize.md};
-  font-weight: ${p => p.theme.fontWeightNormal};
+  font-weight: ${p => p.theme.fontWeight.normal};
 `;
 
 const WidgetPreviewPlaceholder = styled('div')`
@@ -564,27 +559,20 @@ const SurroundingWidgetContainer = styled('div')`
   align-items: center;
 `;
 
-const WidgetPreviewTitle = styled(motion.h5)`
-  margin-bottom: ${space(1)};
-  margin-left: ${space(1)};
-  color: ${p => p.theme.white};
-  font-weight: ${p => p.theme.fontWeightBold};
-`;
-
 const FilterBarContainer = styled(motion.div)`
   margin-top: ${space(1)};
   background-color: ${p => p.theme.background};
   border-radius: ${p => p.theme.borderRadius};
 
-  @media (min-width: ${p => p.theme.breakpoints.small}) {
+  @media (min-width: ${p => p.theme.breakpoints.sm}) {
     width: 40vw;
     min-width: 300px;
     z-index: ${p => p.theme.zIndex.modal};
     cursor: auto;
   }
 
-  @media (max-width: ${p => p.theme.breakpoints.large}) and (min-width: ${p =>
-      p.theme.breakpoints.medium}) {
+  @media (max-width: ${p => p.theme.breakpoints.lg}) and (min-width: ${p =>
+      p.theme.breakpoints.md}) {
     width: 30vw;
     min-width: 100px;
   }
