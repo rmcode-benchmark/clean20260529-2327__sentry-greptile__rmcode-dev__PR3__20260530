@@ -13,7 +13,6 @@ import {
 } from 'sentry/components/workflowEngine/ui/footer';
 import {useWorkflowEngineFeatureGate} from 'sentry/components/workflowEngine/useWorkflowEngineFeatureGate';
 import {t} from 'sentry/locale';
-import {space} from 'sentry/styles/space';
 import type {DetectorType} from 'sentry/types/workflowEngine/detectors';
 import {useLocation} from 'sentry/utils/useLocation';
 import {useNavigate} from 'sentry/utils/useNavigate';
@@ -33,6 +32,7 @@ export default function DetectorNew() {
   useWorkflowEngineFeatureGate({redirect: true});
   const location = useLocation();
   const {projects} = useProjects();
+  const detectorType = location.query.detectorType as DetectorType;
 
   const projectIdFromLocation =
     typeof location.query.project === 'string' ? location.query.project : undefined;
@@ -55,7 +55,7 @@ export default function DetectorNew() {
       hideFooter
       initialData={
         {
-          detectorType: 'metric_issue',
+          detectorType,
           project: projectIdFromLocation ?? defaultProject?.id ?? '',
         } satisfies NewDetectorFormData
       }
@@ -81,7 +81,7 @@ export default function DetectorNew() {
       </Layout.Page>
       <StickyFooter>
         <StickyFooterLabel>{t('Step 1 of 2')}</StickyFooterLabel>
-        <Flex gap={space(1)}>
+        <Flex gap="md">
           <LinkButton priority="default" to={makeMonitorBasePathname(organization.slug)}>
             {t('Cancel')}
           </LinkButton>

@@ -6,8 +6,8 @@ import {openModal} from 'sentry/actionCreators/modal';
 import {FeatureDisabledModal} from 'sentry/components/acl/featureDisabledModal';
 import {Button} from 'sentry/components/core/button';
 import {Checkbox} from 'sentry/components/core/checkbox';
+import {ExternalLink} from 'sentry/components/core/link';
 import {Tooltip} from 'sentry/components/core/tooltip';
-import ExternalLink from 'sentry/components/links/externalLink';
 import {ProductSolution} from 'sentry/components/onboarding/gettingStartedDoc/types';
 import {IconQuestion} from 'sentry/icons';
 import {t, tct} from 'sentry/locale';
@@ -98,7 +98,11 @@ export const platformProductAvailability = {
   'dotnet-winforms': [ProductSolution.PERFORMANCE_MONITORING],
   'dotnet-wpf': [ProductSolution.PERFORMANCE_MONITORING],
   'dotnet-xamarin': [ProductSolution.PERFORMANCE_MONITORING],
-  flutter: [ProductSolution.PERFORMANCE_MONITORING, ProductSolution.PROFILING],
+  flutter: [
+    ProductSolution.PERFORMANCE_MONITORING,
+    ProductSolution.PROFILING,
+    ProductSolution.SESSION_REPLAY,
+  ],
   kotlin: [ProductSolution.PERFORMANCE_MONITORING],
   go: [ProductSolution.PERFORMANCE_MONITORING],
   'go-echo': [ProductSolution.PERFORMANCE_MONITORING],
@@ -298,7 +302,10 @@ export type ProductSelectionProps = {
   /**
    * Fired when the product selection changes
    */
-  onChange?: (products: ProductSolution[]) => void;
+  onChange?: (params: {
+    previousProducts: ProductSolution[];
+    products: ProductSolution[];
+  }) => void;
   /**
    * Triggered when the component is loaded
    */
@@ -365,7 +372,10 @@ export function ProductSelection({
 
       const selectedProducts = Array.from(newProduct);
 
-      onChange?.(selectedProducts);
+      onChange?.({
+        previousProducts: urlProducts as ProductSolution[],
+        products: selectedProducts,
+      });
       setParams({product: selectedProducts});
     },
     [products, setParams, urlProducts, onChange]

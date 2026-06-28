@@ -12,6 +12,7 @@ import withDomainRequired from 'sentry/utils/withDomainRequired';
 import App from 'sentry/views/app';
 import {AppBodyContent} from 'sentry/views/app/appBodyContent';
 import AuthLayout from 'sentry/views/auth/layout';
+import {authV2Routes} from 'sentry/views/authV2/routes';
 import {automationRoutes} from 'sentry/views/automations/routes';
 import {detectorRoutes} from 'sentry/views/detectors/routes';
 import {MODULE_BASE_URLS} from 'sentry/views/insights/common/utils/useModuleURL';
@@ -41,7 +42,9 @@ import {makeLazyloadComponent as make} from './makeLazyloadComponent';
 
 const hook = (name: HookName) => HookStore.get(name).map(cb => cb());
 
-function buildRoutes() {
+function buildRoutes(
+  SentryHooksProvider: React.ComponentType<React.PropsWithChildren> = Fragment
+) {
   // Read this to understand where to add new routes, how / why the routing
   // tree is structured the way it is, and how the lazy-loading /
   // code-splitting works for pages.
@@ -269,7 +272,7 @@ function buildRoutes() {
         <IndexRoute component={make(() => import('sentry/views/onboarding'))} />
       </Route>
       <Route
-        path="/stories/"
+        path="/stories/:storyType?/:storySlug?/"
         component={make(() => import('sentry/stories/view/index'))}
         withOrgPath
       />
@@ -997,6 +1000,14 @@ function buildRoutes() {
           />
         </Route>
       </Route>
+      <Route path="seer/" name={t('Seer Automation')}>
+        <IndexRoute component={make(() => import('getsentry/views/seerAutomation'))} />
+        <Route
+          path="onboarding/"
+          name={t('Configure Seer for All Projects')}
+          component={make(() => import('getsentry/views/seerAutomation/onboarding'))}
+        />
+      </Route>
       <Route path="stats/" name={t('Stats')}>
         {statsChildRoutes}
       </Route>
@@ -1566,13 +1577,6 @@ function buildRoutes() {
           () => import('sentry/views/performance/transactionSummary/transactionProfiles')
         )}
       />
-      <Route
-        path="aggregateWaterfall/"
-        component={make(
-          () =>
-            import('sentry/views/performance/transactionSummary/aggregateSpanWaterfall')
-        )}
-      />
       <Route path="spans/">
         <IndexRoute
           component={make(
@@ -1702,11 +1706,24 @@ function buildRoutes() {
           component={make(() => import('sentry/views/insights/sessions/views/overview'))}
         />
       </Route>
+      <Route path={`${MODULE_BASE_URLS[ModuleName.AGENTS]}/`}>
+        <IndexRoute
+          component={make(
+            () => import('sentry/views/insights/agentMonitoring/views/agentsOverviewPage')
+          )}
+        />
+      </Route>
+      <Route path={`${MODULE_BASE_URLS[ModuleName.MCP]}/`}>
+        <IndexRoute
+          component={make(() => import('sentry/views/insights/mcp/views/overview'))}
+        />
+      </Route>
     </Fragment>
   );
 
   const domainViewRoutes = (
     <Route path={`/${DOMAIN_VIEW_BASE_URL}/`} withOrgPath>
+      <IndexRoute component={make(() => import('sentry/views/insights/index'))} />
       {transactionSummaryRoutes}
       <Route path={`${FRONTEND_LANDING_SUB_PATH}/`}>
         <IndexRoute
@@ -1744,9 +1761,7 @@ function buildRoutes() {
       </Route>
       <Route path={`${AGENTS_LANDING_SUB_PATH}/`}>
         <IndexRoute
-          component={make(
-            () => import('sentry/views/insights/agentMonitoring/views/agentsOverviewPage')
-          )}
+          component={make(() => import('sentry/views/insights/pages/agents/redirect'))}
         />
         {transactionSummaryRoutes}
         {traceViewRoute}
@@ -1817,7 +1832,7 @@ function buildRoutes() {
 
   const logsChildRoutes = (
     <Fragment>
-      <IndexRoute component={make(() => import('sentry/views/explore/logs'))} />
+      <IndexRoute component={make(() => import('sentry/views/explore/logs/content'))} />
       {traceViewRoute}
     </Fragment>
   );
@@ -1890,7 +1905,9 @@ function buildRoutes() {
       >
         {releasesChildRoutes}
       </Route>
-      <Route path="logs/">{logsChildRoutes}</Route>
+      <Route path="logs/" component={make(() => import('sentry/views/explore/logs'))}>
+        {logsChildRoutes}
+      </Route>
       <Route
         path="saved-queries/"
         component={make(() => import('sentry/views/explore/savedQueries'))}
@@ -2007,8 +2024,12 @@ function buildRoutes() {
   );
 
   const preprodRoutes = (
-    <Route path="/preprod/" component={make(() => import('sentry/views/preprod/index'))}>
-      <IndexRoute component={make(() => import('sentry/views/preprod/sizeAnalysis'))} />
+    <Route
+      path="/preprod/:projectId/:artifactId/"
+      component={make(() => import('sentry/views/preprod/index'))}
+      withOrgPath
+    >
+      <IndexRoute component={make(() => import('sentry/views/preprod/buildDetails'))} />
     </Route>
   );
 
@@ -2563,17 +2584,24 @@ function buildRoutes() {
   );
 
   const appRoutes = (
-    <ProvideAriaRouter>
-      <Route>
-        {experimentalSpaRoutes}
-        <Route path="/" component={errorHandler(App)}>
-          {rootRoutes}
-          {organizationRoutes}
-          {legacyRedirectRoutes}
-          <Route path="*" component={errorHandler(RouteNotFound)} />
-        </Route>
+    <Route
+      component={({children}: {children: React.ReactNode}) => {
+        return (
+          <ProvideAriaRouter>
+            <SentryHooksProvider>{children}</SentryHooksProvider>
+          </ProvideAriaRouter>
+        );
+      }}
+    >
+      {experimentalSpaRoutes}
+      <Route path="/" component={errorHandler(App)}>
+        {rootRoutes}
+        {authV2Routes}
+        {organizationRoutes}
+        {legacyRedirectRoutes}
+        <Route path="*" component={errorHandler(RouteNotFound)} />
       </Route>
-    </ProvideAriaRouter>
+    </Route>
   );
 
   return appRoutes;
