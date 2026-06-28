@@ -3,11 +3,7 @@ import type {Location} from 'history';
 import {Expression} from 'sentry/components/arithmeticBuilder/expression';
 import type {Organization} from 'sentry/types/organization';
 import {defined} from 'sentry/utils';
-import {
-  isEquation,
-  parseFunction,
-  stripEquationPrefix,
-} from 'sentry/utils/discover/fields';
+import {isEquation, parseFunction} from 'sentry/utils/discover/fields';
 import {
   AggregationKey,
   ALLOWED_EXPLORE_VISUALIZE_AGGREGATES,
@@ -16,7 +12,7 @@ import {
 } from 'sentry/utils/fields';
 import {decodeList} from 'sentry/utils/queryString';
 import {ChartType} from 'sentry/views/insights/common/components/chart';
-import {SpanFields} from 'sentry/views/insights/types';
+import {SpanIndexedField} from 'sentry/views/insights/types';
 
 export const MAX_VISUALIZES = 4;
 
@@ -25,11 +21,12 @@ export const DEFAULT_VISUALIZATION_FIELD = ALLOWED_EXPLORE_VISUALIZE_FIELDS[0]!;
 export const DEFAULT_VISUALIZATION = `${DEFAULT_VISUALIZATION_AGGREGATE}(${DEFAULT_VISUALIZATION_FIELD})`;
 
 export function defaultVisualizes(): Visualize[] {
-  return [new Visualize(DEFAULT_VISUALIZATION)];
+  return [new Visualize(DEFAULT_VISUALIZATION, {label: 'A'})];
 }
 
 type VisualizeOptions = {
   chartType?: ChartType;
+  label?: string;
 };
 
 export interface BaseVisualize {
@@ -40,34 +37,30 @@ export interface BaseVisualize {
 export class Visualize {
   isEquation: boolean;
   chartType: ChartType;
+  label: string;
   yAxis: string;
   stack?: string;
   private selectedChartType?: ChartType;
 
   constructor(yAxis: string, options?: VisualizeOptions) {
     this.yAxis = yAxis;
+    this.label = options?.label || '';
     this.selectedChartType = options?.chartType;
     this.isEquation = isEquation(yAxis);
     this.chartType = this.selectedChartType ?? determineDefaultChartType([yAxis]);
     this.stack = 'all';
   }
 
-  isValid(): boolean {
-    if (this.isEquation) {
-      const expression = new Expression(stripEquationPrefix(this.yAxis));
-      return expression.isValid;
-    }
-    return defined(parseFunction(this.yAxis));
-  }
-
   clone(): Visualize {
     return new Visualize(this.yAxis, {
+      label: this.label,
       chartType: this.selectedChartType,
     });
   }
 
   replace({chartType, yAxis}: {chartType?: ChartType; yAxis?: string}): Visualize {
     return new Visualize(yAxis ?? this.yAxis, {
+      label: this.label,
       chartType: chartType ?? this.selectedChartType,
     });
   }
@@ -85,7 +78,9 @@ export class Visualize {
   }
 
   static fromJSON(json: BaseVisualize): Visualize[] {
-    return json.yAxes.map(yAxis => new Visualize(yAxis, {chartType: json.chartType}));
+    return json.yAxes.map(
+      yAxis => new Visualize(yAxis, {label: '', chartType: json.chartType})
+    );
   }
 }
 
@@ -101,13 +96,16 @@ export function getVisualizesFromLocation(
     .map(raw => parseBaseVisualize(raw, organization))
     .filter(defined);
 
+  let i = 0;
   for (const visualize of baseVisualizes) {
     for (const yAxis of visualize.yAxes) {
       visualizes.push(
         new Visualize(yAxis, {
+          label: String.fromCharCode(65 + i), // starts from 'A',
           chartType: visualize.chartType,
         })
       );
+      i++;
     }
   }
 
@@ -124,13 +122,12 @@ export function parseBaseVisualize(
       return null;
     }
 
-    const allowEquations = organization.features.includes('visibility-explore-equations');
-    const yAxes = parsed.yAxes.filter((yAxis: string) => {
-      if (isEquation(yAxis)) {
-        return allowEquations;
-      }
-      return defined(parseFunction(yAxis));
-    });
+    const yAxes = organization.features.includes('visibility-explore-equations')
+      ? parsed.yAxes.filter((yAxis: string) => {
+          const expression = new Expression(yAxis);
+          return expression.isValid;
+        })
+      : parsed.yAxes.filter(parseFunction);
     if (yAxes.length <= 0) {
       return null;
     }
@@ -168,7 +165,7 @@ export function updateVisualizeAggregate({
     // and carry the argument if it's the same type, reset to a default
     // if it's not the same type. Just hard coding it for now for simplicity
     // as `count_unique` is the only aggregate that takes a string.
-    return `${newAggregate}(${SpanFields.SPAN_OP})`;
+    return `${newAggregate}(${SpanIndexedField.SPAN_OP})`;
   }
 
   if (NO_ARGUMENT_SPAN_AGGREGATES.includes(newAggregate as AggregationKey)) {

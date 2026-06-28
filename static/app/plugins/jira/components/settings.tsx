@@ -1,12 +1,8 @@
-import styled from '@emotion/styled';
 import isEqual from 'lodash/isEqual';
 
-import {Alert} from 'sentry/components/core/alert';
-import {Button} from 'sentry/components/core/button';
 import Form from 'sentry/components/deprecatedforms/form';
 import FormState from 'sentry/components/forms/state';
 import LoadingIndicator from 'sentry/components/loadingIndicator';
-import {t} from 'sentry/locale';
 import DefaultSettings from 'sentry/plugins/components/settings';
 
 type Field = Parameters<typeof DefaultSettings.prototype.renderField>[0]['config'];
@@ -148,12 +144,10 @@ class Settings extends DefaultSettings<Props, State> {
 
     if (this.state.state === FormState.ERROR && !this.state.fieldList) {
       return (
-        <Alert.Container>
-          <Alert type="error" showIcon={false}>
-            An unknown error occurred. Need help with this?{' '}
-            <a href="https://sentry.io/support/">Contact support</a>
-          </Alert>
-        </Alert.Container>
+        <div className="alert alert-error m-b-1">
+          An unknown error occurred. Need help with this?{' '}
+          <a href="https://sentry.io/support/">Contact support</a>
+        </div>
       );
     }
 
@@ -181,18 +175,22 @@ class Settings extends DefaultSettings<Props, State> {
         submitLabel={submitLabel}
         extraButton={
           this.state.page === 0 ? null : (
-            <FloatLeftButton onClick={this.back} busy={isSaving}>
-              {t('Back')}
-            </FloatLeftButton>
+            <a
+              href="#"
+              className={'btn btn-default pull-left' + (isSaving ? ' disabled' : '')}
+              onClick={this.back}
+            >
+              Back
+            </a>
           )
         }
       >
         {this.state.errors.__all__ && (
-          <Alert type="error" showIcon={false}>
+          <div className="alert alert-block alert-error">
             <ul>
               <li>{this.state.errors.__all__}</li>
             </ul>
-          </Alert>
+          </div>
         )}
         {fields?.map(f =>
           this.renderField({
@@ -206,9 +204,5 @@ class Settings extends DefaultSettings<Props, State> {
     );
   }
 }
-
-const FloatLeftButton = styled(Button)`
-  float: left;
-`;
 
 export default Settings;

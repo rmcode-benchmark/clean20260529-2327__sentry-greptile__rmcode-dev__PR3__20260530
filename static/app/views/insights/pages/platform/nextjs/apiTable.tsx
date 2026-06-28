@@ -4,7 +4,7 @@ import {
   COL_WIDTH_UNDEFINED,
   type GridColumnHeader,
   type GridColumnOrder,
-} from 'sentry/components/tables/gridEditable';
+} from 'sentry/components/gridEditable';
 import {t} from 'sentry/locale';
 import {HeadSortCell} from 'sentry/views/insights/agentMonitoring/components/headSortCell';
 import {TimeSpentCell} from 'sentry/views/insights/common/components/tableCells/timeSpentCell';
@@ -17,8 +17,7 @@ import {
 } from 'sentry/views/insights/pages/platform/shared/table/ErrorRateCell';
 import {NumberCell} from 'sentry/views/insights/pages/platform/shared/table/NumberCell';
 import {TransactionCell} from 'sentry/views/insights/pages/platform/shared/table/TransactionCell';
-import {useSpanTableData} from 'sentry/views/insights/pages/platform/shared/table/useTableData';
-import {useTransactionNameQuery} from 'sentry/views/insights/pages/platform/shared/useTransactionNameQuery';
+import {useTableData} from 'sentry/views/insights/pages/platform/shared/table/useTableData';
 
 const getP95Threshold = (avg: number) => {
   return {
@@ -45,9 +44,8 @@ const rightAlignColumns = new Set([
 ]);
 
 export function ApiTable() {
-  const {query} = useTransactionNameQuery();
-  const tableDataRequest = useSpanTableData({
-    query: `transaction.op:http.server is_transaction:True ${query ?? ''}`.trim(),
+  const tableDataRequest = useTableData({
+    query: 'transaction.op:http.server is_transaction:True',
     fields: [
       'project.id',
       'transaction',

@@ -7,27 +7,19 @@ import type {Node} from '@react-types/shared';
 import {shiftFocusToChild} from 'sentry/components/tokenizedInput/token/utils';
 
 interface UseGridListItemOptions<T> {
-  focusable: boolean;
   item: Node<T>;
   ref: RefObject<HTMLDivElement | null>;
   state: ListState<T>;
 }
 
-export function useGridListItem<T>({
-  focusable,
-  item,
-  ref,
-  state,
-}: UseGridListItemOptions<T>) {
+export function useGridListItem<T>({item, ref, state}: UseGridListItemOptions<T>) {
   const {rowProps, gridCellProps} = useGridListItemAria({node: item}, state, ref);
 
   const onFocus = useCallback(
     (evt: FocusEvent<HTMLDivElement>) => {
-      if (focusable) {
-        shiftFocusToChild(evt.currentTarget, item, state);
-      }
+      shiftFocusToChild(evt.currentTarget, item, state);
     },
-    [focusable, item, state]
+    [item, state]
   );
 
   return useMemo(() => {

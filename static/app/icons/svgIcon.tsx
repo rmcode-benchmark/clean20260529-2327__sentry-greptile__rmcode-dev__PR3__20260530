@@ -1,12 +1,12 @@
 import {useTheme} from '@emotion/react';
 
-import type {ColorOrAlias, IconSize} from 'sentry/utils/theme';
+import type {Aliases, Color, IconSize} from 'sentry/utils/theme';
 
 import {useIconDefaults} from './useIconDefaults';
 
 export interface SVGIconProps extends React.SVGAttributes<SVGSVGElement> {
   className?: string;
-  color?: ColorOrAlias | 'currentColor';
+  color?: Color | keyof Aliases | 'currentColor';
   /**
    * DO NOT USE THIS! Please use the `size` prop
    *

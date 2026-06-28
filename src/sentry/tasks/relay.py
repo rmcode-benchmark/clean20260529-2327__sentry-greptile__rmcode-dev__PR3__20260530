@@ -211,12 +211,7 @@ def compute_projectkey_config(key):
     ),
 )
 def invalidate_project_config(
-    organization_id=None,
-    project_id=None,
-    public_key=None,
-    trigger="invalidated",
-    trigger_details=None,
-    **kwargs,
+    organization_id=None, project_id=None, public_key=None, trigger="invalidated", **kwargs
 ):
     """Task which re-computes an invalidated project config.
 
@@ -252,7 +247,6 @@ def invalidate_project_config(
     if public_key:
         sentry_sdk.set_tag("public_key", public_key)
     sentry_sdk.set_tag("trigger", trigger)
-    sentry_sdk.set_tag("trigger_details", trigger_details)
     sentry_sdk.set_context("kwargs", kwargs)
 
     updated_configs = compute_configs(
@@ -265,7 +259,6 @@ def invalidate_project_config(
 def schedule_invalidate_project_config(
     *,
     trigger,
-    trigger_details=None,
     organization_id=None,
     project_id=None,
     public_key=None,
@@ -298,8 +291,6 @@ def schedule_invalidate_project_config(
     the project config task is executed immediately.
 
     :param trigger: The reason for the invalidation.  This is used to tag metrics.
-    :param trigger_details: Additional information about what triggered the invalidation.
-        This is used to tag metrics.
     :param organization_id: Invalidates all project keys for all projects in an organization.
     :param project_id: Invalidates all project keys for a project.
     :param public_key: Invalidate a single public key.
@@ -326,7 +317,6 @@ def schedule_invalidate_project_config(
         transaction.on_commit(
             lambda: _schedule_invalidate_project_config(
                 trigger=trigger,
-                trigger_details=trigger_details,
                 organization_id=organization_id,
                 project_id=project_id,
                 public_key=public_key,
@@ -339,7 +329,6 @@ def schedule_invalidate_project_config(
 def _schedule_invalidate_project_config(
     *,
     trigger,
-    trigger_details=None,
     organization_id=None,
     project_id=None,
     public_key=None,
@@ -388,11 +377,7 @@ def _schedule_invalidate_project_config(
 
     metrics.incr(
         "relay.projectconfig_cache.scheduled",
-        tags={
-            "update_reason": trigger,
-            "update_reason_details": trigger_details,
-            "task": "invalidation",
-        },
+        tags={"update_reason": trigger, "task": "invalidation"},
     )
 
     invalidate_project_config.apply_async(
@@ -402,7 +387,6 @@ def _schedule_invalidate_project_config(
             "organization_id": organization_id,
             "public_key": public_key,
             "trigger": trigger,
-            "trigger_details": trigger_details,
         },
     )
 

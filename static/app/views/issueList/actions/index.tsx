@@ -183,7 +183,9 @@ function IssueListActions({
   const theme = useTheme();
 
   const disableActions = useMedia(
-    `(max-width: ${isSavedSearchesOpen ? theme.breakpoints.xl : theme.breakpoints.md})`
+    `(max-width: ${
+      isSavedSearchesOpen ? theme.breakpoints.xlarge : theme.breakpoints.medium
+    })`
   );
 
   const numIssues = selectedIdsSet.size;
@@ -373,8 +375,8 @@ function IssueListActions({
         onSelectStatsPeriod={onSelectStatsPeriod}
       />
       {!allResultsVisible && pageSelected && (
-        <Alert system type="warning" showIcon={false}>
-          <Flex justify="center" wrap="wrap" gap="md">
+        <Alert system type="warning">
+          <Flex justify="center" wrap="wrap" gap={space(1)}>
             {allInQuerySelected ? (
               queryCount >= BULK_LIMIT ? (
                 tct(
@@ -507,7 +509,7 @@ const ActionsCheckbox = styled('div')<{isReprocessingQuery: boolean}>`
 `;
 
 const HeaderButtonsWrapper = styled(motion.div)`
-  @media (min-width: ${p => p.theme.breakpoints.lg}) {
+  @media (min-width: ${p => p.theme.breakpoints.large}) {
     width: 50%;
   }
   flex: 1;
@@ -520,7 +522,7 @@ const HeaderButtonsWrapper = styled(motion.div)`
 `;
 
 const NarrowHeaderButtonsWrapper = styled(motion.div)`
-  @media (min-width: ${p => p.theme.breakpoints.lg}) {
+  @media (min-width: ${p => p.theme.breakpoints.large}) {
     width: 50%;
   }
   flex: 1;

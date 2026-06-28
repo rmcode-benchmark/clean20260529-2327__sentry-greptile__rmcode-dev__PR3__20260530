@@ -86,7 +86,7 @@ describe('useExploreTimeseries', () => {
       expect.objectContaining({
         query: expect.objectContaining({
           sampling: SAMPLING_MODE.NORMAL,
-          query: 'test value',
+          query: 'test value !transaction.span_id:00',
         }),
       })
     );
@@ -99,7 +99,7 @@ describe('useExploreTimeseries', () => {
       expect.objectContaining({
         query: expect.objectContaining({
           sampling: SAMPLING_MODE.HIGH_ACCURACY,
-          query: 'test value',
+          query: 'test value !transaction.span_id:00',
         }),
       })
     );

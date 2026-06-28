@@ -36,15 +36,15 @@ const Wrapper = styled('div')`
   text-align: center;
   color: ${p => p.theme.subText};
 
-  @media (max-width: ${p => p.theme.breakpoints.sm}) {
+  @media (max-width: ${p => p.theme.breakpoints.small}) {
     font-size: ${p => p.theme.fontSize.md};
   }
 `;
 
 const EmptyMessage = styled('div')`
-  font-weight: ${p => p.theme.fontWeight.bold};
+  font-weight: ${p => p.theme.fontWeightBold};
 
-  @media (min-width: ${p => p.theme.breakpoints.sm}) {
+  @media (min-width: ${p => p.theme.breakpoints.small}) {
     font-size: ${p => p.theme.fontSize.xl};
   }
 `;

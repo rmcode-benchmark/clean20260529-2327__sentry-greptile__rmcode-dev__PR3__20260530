@@ -19,7 +19,7 @@ from sentry.integrations.base import (
     IntegrationMetadata,
     IntegrationProvider,
 )
-from sentry.integrations.pipeline import IntegrationPipeline
+from sentry.integrations.pipeline_types import IntegrationPipelineT, IntegrationPipelineViewT
 from sentry.integrations.referrer_ids import GITLAB_OPEN_PR_BOT_REFERRER, GITLAB_PR_BOT_REFERRER
 from sentry.integrations.services.repository.model import RpcRepository
 from sentry.integrations.source_code_management.commit_context import (
@@ -42,7 +42,6 @@ from sentry.models.group import Group
 from sentry.models.organization import Organization
 from sentry.models.pullrequest import PullRequest
 from sentry.models.repository import Repository
-from sentry.pipeline.views.base import PipelineView
 from sentry.pipeline.views.nested import NestedPipelineView
 from sentry.shared_integrations.exceptions import (
     ApiError,
@@ -312,10 +311,33 @@ class GitlabOpenPRCommentWorkflow(OpenPRCommentWorkflow):
         try:
             diffs = client.get_pr_diffs(repo=repo, pr=pr)
         except ApiError as e:
+            logger.info(
+                _open_pr_comment_log(
+                    integration_name=self.integration.integration_name, suffix="api_error"
+                )
+            )
             if e.code == 404:
-                return []
+                metrics.incr(
+                    OPEN_PR_METRICS_BASE.format(
+                        integration=self.integration.integration_name, key="api_error"
+                    ),
+                    tags={"type": "missing_pr", "code": e.code},
+                )
             else:
-                raise
+                metrics.incr(
+                    OPEN_PR_METRICS_BASE.format(
+                        integration=self.integration.integration_name, key="api_error"
+                    ),
+                    tags={"type": "unknown_api_error", "code": e.code},
+                )
+                logger.exception(
+                    _open_pr_comment_log(
+                        integration_name=self.integration.integration_name,
+                        suffix="unknown_api_error",
+                    ),
+                    extra={"error": str(e)},
+                )
+            return []
 
         changed_file_count = 0
         changed_lines_count = 0
@@ -378,11 +400,32 @@ class GitlabOpenPRCommentWorkflow(OpenPRCommentWorkflow):
         pr_diffs = self.safe_for_comment(repo=repo, pr=pr)
 
         if len(pr_diffs) == 0:
+            logger.info(
+                _open_pr_comment_log(
+                    integration_name=self.integration.integration_name,
+                    suffix="not_safe_for_comment",
+                ),
+                extra={"file_count": len(pr_diffs)},
+            )
+            metrics.incr(
+                OPEN_PR_METRICS_BASE.format(
+                    integration=self.integration.integration_name, key="error"
+                ),
+                tags={"type": "unsafe_for_comment"},
+            )
             return []
 
         pr_files = [
             PullRequestFile(filename=diff["new_path"], patch=diff["diff"]) for diff in pr_diffs
         ]
+
+        logger.info(
+            _open_pr_comment_log(
+                integration_name=self.integration.integration_name,
+                suffix="pr_filenames",
+            ),
+            extra={"count": len(pr_files)},
+        )
 
         return pr_files
 
@@ -511,8 +554,8 @@ class InstallationForm(forms.Form):
         return self.cleaned_data["url"].rstrip("/")
 
 
-class InstallationConfigView:
-    def dispatch(self, request: HttpRequest, pipeline: IntegrationPipeline) -> HttpResponseBase:
+class InstallationConfigView(IntegrationPipelineViewT):
+    def dispatch(self, request: HttpRequest, pipeline: IntegrationPipelineT) -> HttpResponseBase:
         if "goback" in request.GET:
             pipeline.state.step_index = 0
             return pipeline.current_step()
@@ -553,8 +596,8 @@ class InstallationConfigView:
         )
 
 
-class InstallationGuideView:
-    def dispatch(self, request: HttpRequest, pipeline: IntegrationPipeline) -> HttpResponseBase:
+class InstallationGuideView(IntegrationPipelineViewT):
+    def dispatch(self, request: HttpRequest, pipeline: IntegrationPipelineT) -> HttpResponseBase:
         if "completed_installation_guide" in request.GET:
             return pipeline.next_step()
         return render_to_response(
@@ -590,7 +633,7 @@ class GitlabIntegrationProvider(IntegrationProvider):
 
     setup_dialog_config = {"width": 1030, "height": 1000}
 
-    def _make_identity_pipeline_view(self) -> PipelineView[IntegrationPipeline]:
+    def _make_identity_pipeline_view(self) -> IntegrationPipelineViewT:
         """
         Make the nested identity provider view. It is important that this view is
         not constructed until we reach this step and the
@@ -645,9 +688,7 @@ class GitlabIntegrationProvider(IntegrationProvider):
 
     def get_pipeline_views(
         self,
-    ) -> Sequence[
-        PipelineView[IntegrationPipeline] | Callable[[], PipelineView[IntegrationPipeline]]
-    ]:
+    ) -> Sequence[IntegrationPipelineViewT | Callable[[], IntegrationPipelineViewT]]:
         return (
             InstallationGuideView(),
             InstallationConfigView(),

@@ -7,7 +7,7 @@ import type {ModalRenderProps} from 'sentry/actionCreators/modal';
 import {updateOrganization} from 'sentry/actionCreators/organizations';
 import {Button} from 'sentry/components/core/button';
 import {LinkButton} from 'sentry/components/core/button/linkButton';
-import {ExternalLink} from 'sentry/components/core/link';
+import ExternalLink from 'sentry/components/links/externalLink';
 import {IconClose, IconFix, IconLock} from 'sentry/icons';
 import {IconGraphBar} from 'sentry/icons/iconGraphBar';
 import {t} from 'sentry/locale';
@@ -243,7 +243,7 @@ const ImageHeader = styled('div')`
   height: 200px;
   clip-path: polygon(100% 0%, 0% 0%, 0% 85%, 15% 75%, 80% 95%, 90% 85%, 100% 85%);
 
-  @media (max-width: ${p => p.theme.breakpoints.md}) {
+  @media (max-width: ${p => p.theme.breakpoints.medium}) {
     margin: -${space(4)} -${space(3)} 0 -${space(3)};
   }
 `;

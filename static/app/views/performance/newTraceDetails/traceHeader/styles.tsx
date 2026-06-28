@@ -1,11 +1,15 @@
 import styled from '@emotion/styled';
+import type {Location} from 'history';
 
+import Feature from 'sentry/components/acl/feature';
 import {Button} from 'sentry/components/core/button';
 import Placeholder from 'sentry/components/placeholder';
 import {IconMegaphone} from 'sentry/icons';
 import {t} from 'sentry/locale';
 import {space} from 'sentry/styles/space';
+import type {Organization} from 'sentry/types/organization';
 import {useFeedbackForm} from 'sentry/utils/useFeedbackForm';
+import {useSyncedLocalStorageState} from 'sentry/utils/useSyncedLocalStorageState';
 
 function FeedbackButton() {
   const openForm = useFeedbackForm();
@@ -30,6 +34,39 @@ function FeedbackButton() {
   ) : null;
 }
 
+export const TRACE_FORMAT_PREFERENCE_KEY = 'trace_format_preference';
+
+function ToggleTraceFormatButton({
+  organization,
+}: {
+  location: Location;
+  organization: Organization;
+}) {
+  const [storedTraceFormat, setStoredTraceFormat] = useSyncedLocalStorageState(
+    TRACE_FORMAT_PREFERENCE_KEY,
+    'non-eap'
+  );
+
+  return (
+    <Feature
+      organization={organization}
+      features={['trace-spans-format', 'trace-view-admin-ui']}
+    >
+      <Button
+        size="xs"
+        aria-label="toggle-trace-format-btn"
+        onClick={() => {
+          setStoredTraceFormat(storedTraceFormat === 'eap' ? 'non-eap' : 'eap');
+        }}
+      >
+        {storedTraceFormat === 'eap'
+          ? t('Switch to Non-EAP Trace')
+          : t('Switch to EAP Trace')}
+      </Button>
+    </Feature>
+  );
+}
+
 const HeaderLayout = styled('div')`
   background-color: ${p => p.theme.background};
   padding: ${space(1)} ${space(3)} ${space(1)} ${space(3)};
@@ -42,7 +79,7 @@ const HeaderRow = styled('div')`
   gap: ${space(2)};
   align-items: center;
 
-  @media (max-width: ${p => p.theme.breakpoints.sm}) {
+  @media (max-width: ${p => p.theme.breakpoints.small}) {
     gap: ${space(1)};
     flex-direction: column;
   }
@@ -69,6 +106,7 @@ const TraceHeaderComponents = {
   HeaderRow,
   HeaderContent,
   StyledBreak,
+  ToggleTraceFormatButton,
   FeedbackButton,
   StyledPlaceholder,
 };

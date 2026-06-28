@@ -1,11 +1,17 @@
 import {useCallback} from 'react';
+import omit from 'lodash/omit';
 
 import useDrawer from 'sentry/components/globalDrawer';
 import {decodeScalar} from 'sentry/utils/queryString';
-import {useLocationSyncedState} from 'sentry/views/insights/agentMonitoring/hooks/useLocationSyncedState';
-import {DrawerUrlParams} from 'sentry/views/insights/agentMonitoring/utils/urlParams';
+import useLocationQuery from 'sentry/utils/url/useLocationQuery';
+import {useLocation} from 'sentry/utils/useLocation';
+import {useNavigate} from 'sentry/utils/useNavigate';
+
+const DRAWER_TRACE_SLUG = 'trace';
 
 export function useUrlTraceDrawer() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const {
     openDrawer: baseOpenDrawer,
     closeDrawer: baseCloseDrawer,
@@ -13,14 +19,21 @@ export function useUrlTraceDrawer() {
     panelRef,
   } = useDrawer();
 
-  const [selectedTrace, setSelectedTrace, removeTraceParam] = useLocationSyncedState(
-    DrawerUrlParams.SELECTED_TRACE,
-    decodeScalar
-  );
+  const {trace} = useLocationQuery({
+    fields: {
+      [DRAWER_TRACE_SLUG]: decodeScalar,
+    },
+  });
 
   const removeQueryParams = useCallback(() => {
-    removeTraceParam();
-  }, [removeTraceParam]);
+    navigate(
+      {
+        pathname: location.pathname,
+        query: omit(location.query, DRAWER_TRACE_SLUG),
+      },
+      {replace: true}
+    );
+  }, [navigate, location.pathname, location.query]);
 
   const closeDrawer = useCallback(() => {
     removeQueryParams();
@@ -35,14 +48,23 @@ export function useUrlTraceDrawer() {
       const {traceSlug: optionsTraceSlug, onClose, ariaLabel, ...rest} = options || {};
 
       if (optionsTraceSlug) {
-        setSelectedTrace(optionsTraceSlug);
+        navigate(
+          {
+            pathname: location.pathname,
+            query: {
+              ...location.query,
+              [DRAWER_TRACE_SLUG]: optionsTraceSlug,
+            },
+          },
+          {replace: true}
+        );
       }
 
       return baseOpenDrawer(renderer, {
         ...rest,
         ariaLabel: ariaLabel || 'Trace Drawer',
         shouldCloseOnLocationChange: nextLocation => {
-          return !nextLocation.query[DrawerUrlParams.SELECTED_TRACE];
+          return !nextLocation.query[DRAWER_TRACE_SLUG];
         },
         onClose: () => {
           removeQueryParams();
@@ -50,7 +72,7 @@ export function useUrlTraceDrawer() {
         },
       });
     },
-    [baseOpenDrawer, setSelectedTrace, removeQueryParams]
+    [baseOpenDrawer, removeQueryParams, navigate, location.pathname, location.query]
   );
 
   return {
@@ -58,6 +80,6 @@ export function useUrlTraceDrawer() {
     closeDrawer,
     isDrawerOpen,
     panelRef,
-    drawerUrlState: {trace: selectedTrace},
+    drawerUrlState: {trace},
   };
 }

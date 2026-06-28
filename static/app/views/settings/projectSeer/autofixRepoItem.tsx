@@ -169,7 +169,7 @@ export function AutofixRepoItem({repo, onRemove, settings, onSettingsChange}: Pr
                 </Button>
               </Confirm>
               {isDirty && (
-                <ButtonBar gap="xs">
+                <ButtonBar gap={0.5}>
                   <Button size="sm" onClick={cancelChanges}>
                     {t('Cancel')}
                   </Button>

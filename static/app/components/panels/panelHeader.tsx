@@ -34,7 +34,7 @@ const PanelHeader = styled('div')<Props>`
   &:not(:has(> *)) {
     color: ${p => (p.lightText ? p.theme.subText : p.theme.textColor)};
     font-size: ${p => p.theme.fontSize.sm};
-    font-weight: ${p => p.theme.fontWeight.bold};
+    font-weight: ${p => p.theme.fontWeightBold};
     text-transform: uppercase;
     line-height: 1;
   }

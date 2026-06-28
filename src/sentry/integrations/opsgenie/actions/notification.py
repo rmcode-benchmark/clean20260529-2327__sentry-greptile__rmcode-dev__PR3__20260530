@@ -13,7 +13,6 @@ from sentry.integrations.opsgenie.client import (
 )
 from sentry.integrations.opsgenie.utils import get_team
 from sentry.integrations.services.integration import integration_service
-from sentry.integrations.types import IntegrationProviderSlug
 from sentry.rules.actions import IntegrationEventAction
 from sentry.shared_integrations.exceptions import ApiError
 
@@ -26,7 +25,7 @@ class OpsgenieNotifyTeamAction(IntegrationEventAction):
         "Send a notification to Opsgenie account {account} and team {team} with {priority} priority"
     )
     prompt = "Send an Opsgenie notification"
-    provider = IntegrationProviderSlug.OPSGENIE.value
+    provider = "opsgenie"
     integration_key = "account"
 
     def __init__(self, *args, **kwargs):

@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 from typing import Any
 
-from sentry.issues.grouptype import QueryInjectionVulnerabilityGroupType
+from sentry.issues.grouptype import DBQueryInjectionVulnerabilityGroupType
 from sentry.issues.issue_occurrence import IssueEvidence
 from sentry.models.organization import Organization
 from sentry.models.project import Project
@@ -66,29 +66,19 @@ class QueryInjectionDetector(PerformanceDetector):
 
             input_dict = {input_key: input_value}
             if json.dumps(input_dict) in description:
-                description = description.replace(json.dumps(input_value), "[UNTRUSTED_INPUT]")
+                description = description.replace(json.dumps(input_value), "?")
                 unsafe_inputs.append((input_key, original_input_value))
 
         if len(unsafe_inputs) == 0:
             return
 
-        parameterized_description = span.get("sentry_tags", {}).get("description")
-        # If the query description is not parameterized, use the original description with replacements
-        if not parameterized_description:
-            parameterized_description = description
-        vulnerable_keys = [key for key, _ in unsafe_inputs]
-        fingerprint_description = f"{'-'.join(vulnerable_keys)}-{parameterized_description}"
-        fingerprint = self._fingerprint(fingerprint_description)
-
-        issue_description = (
-            f"Untrusted Inputs [{', '.join(vulnerable_keys)}] in `{parameterized_description}`"
-        )
+        fingerprint = self._fingerprint(description)
 
         self.stored_problems[fingerprint] = PerformanceProblem(
-            type=QueryInjectionVulnerabilityGroupType,
+            type=DBQueryInjectionVulnerabilityGroupType,
             fingerprint=fingerprint,
             op=op,
-            desc=issue_description[:MAX_EVIDENCE_VALUE_LENGTH],
+            desc=description[:MAX_EVIDENCE_VALUE_LENGTH],
             cause_span_ids=[],
             parent_span_ids=[],
             offender_span_ids=spans_involved,
@@ -138,4 +128,4 @@ class QueryInjectionDetector(PerformanceDetector):
     def _fingerprint(self, description: str) -> str:
         signature = description.encode("utf-8")
         full_fingerprint = hashlib.sha1(signature).hexdigest()
-        return f"1-{QueryInjectionVulnerabilityGroupType.type_id}-{full_fingerprint}"
+        return f"1-{DBQueryInjectionVulnerabilityGroupType.type_id}-{full_fingerprint}"

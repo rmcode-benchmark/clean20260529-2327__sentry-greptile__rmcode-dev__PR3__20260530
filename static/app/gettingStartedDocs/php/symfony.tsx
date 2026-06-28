@@ -1,11 +1,11 @@
 import {Alert} from 'sentry/components/core/alert';
-import {ExternalLink} from 'sentry/components/core/link';
+import ExternalLink from 'sentry/components/links/externalLink';
+import {StepType} from 'sentry/components/onboarding/gettingStartedDoc/step';
 import type {
   Docs,
   DocsParams,
   OnboardingConfig,
 } from 'sentry/components/onboarding/gettingStartedDoc/types';
-import {StepType} from 'sentry/components/onboarding/gettingStartedDoc/types';
 import {
   getCrashReportModalConfigDescription,
   getCrashReportModalIntroduction,
@@ -108,7 +108,7 @@ SENTRY_DSN="${params.dsn.public}"
         {
           description: (
             <Alert.Container>
-              <Alert type="warning" showIcon={false}>
+              <Alert type="warning">
                 {tct(
                   'In order to receive stack trace arguments in your errors, make sure to set [code:zend.exception_ignore_args: Off] in your php.ini',
                   {

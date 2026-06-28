@@ -7,7 +7,6 @@ import {render, screen, userEvent} from 'sentry-test/reactTestingLibrary';
 import {textWithMarkupMatcher} from 'sentry-test/utils';
 
 import PageFiltersStore from 'sentry/stores/pageFiltersStore';
-import {testableWindowLocation} from 'sentry/utils/testableWindowLocation';
 import {Tab} from 'sentry/views/explore/hooks/useTab';
 
 import {LegacyOnboarding, Onboarding} from './onboarding';
@@ -243,7 +242,7 @@ describe('Testing new onboarding ui', function () {
     render(<Onboarding organization={organization} project={projectMock} />, {
       initialRouterConfig: {
         location: {
-          pathname: `/onboarding/`,
+          pathname: RouterFixture().location.pathname,
           query: {
             guidedStep: '4',
           },
@@ -257,7 +256,7 @@ describe('Testing new onboarding ui', function () {
       })
     ).toHaveAttribute('aria-busy', 'false');
 
-    expect(testableWindowLocation.assign).not.toHaveBeenCalled();
+    expect(window.location.href).not.toContain(traceHref);
 
     await userEvent.click(
       await screen.findByRole('button', {
@@ -265,6 +264,6 @@ describe('Testing new onboarding ui', function () {
       })
     );
 
-    expect(testableWindowLocation.assign).toHaveBeenCalledWith(traceHref);
+    expect(window.location.href).toContain(traceHref);
   });
 });

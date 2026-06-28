@@ -57,7 +57,7 @@ function SettingsNavItem({badge, label, id, to, index, ...props}: Props) {
 }
 
 const StyledBadge = styled(Badge)`
-  font-weight: ${p => p.theme.fontWeight.normal};
+  font-weight: ${p => p.theme.fontWeightNormal};
   height: auto;
   line-height: 1;
   font-size: ${p => p.theme.fontSize.xs};

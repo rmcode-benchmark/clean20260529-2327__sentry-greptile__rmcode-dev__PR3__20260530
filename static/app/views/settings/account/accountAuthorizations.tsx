@@ -2,8 +2,9 @@ import styled from '@emotion/styled';
 
 import {addErrorMessage, addSuccessMessage} from 'sentry/actionCreators/indicator';
 import {Button} from 'sentry/components/core/button';
-import {ExternalLink, Link} from 'sentry/components/core/link';
 import EmptyMessage from 'sentry/components/emptyMessage';
+import ExternalLink from 'sentry/components/links/externalLink';
+import Link from 'sentry/components/links/link';
 import LoadingError from 'sentry/components/loadingError';
 import LoadingIndicator from 'sentry/components/loadingIndicator';
 import Panel from 'sentry/components/panels/panel';
@@ -138,7 +139,7 @@ const ApplicationDetails = styled('div')`
 `;
 
 const ApplicationName = styled('div')`
-  font-weight: ${p => p.theme.fontWeight.bold};
+  font-weight: ${p => p.theme.fontWeightBold};
   margin-bottom: ${space(0.5)};
 `;
 

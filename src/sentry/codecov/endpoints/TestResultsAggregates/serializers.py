@@ -11,8 +11,6 @@ class TestResultAggregatesSerializer(serializers.Serializer):
     Serializer for test results aggregates response
     """
 
-    __test__ = False
-
     totalDuration = serializers.FloatField()
     totalDurationPercentChange = serializers.FloatField()
     slowestTestsDuration = serializers.FloatField()

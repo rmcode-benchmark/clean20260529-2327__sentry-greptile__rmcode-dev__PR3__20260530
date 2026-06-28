@@ -11,7 +11,7 @@ export const DataSection = styled('div')`
   /* Padding aligns with Layout.Body */
   padding: ${space(1)} ${space(2)};
 
-  @media (min-width: ${p => p.theme.breakpoints.md}) {
+  @media (min-width: ${p => p.theme.breakpoints.medium}) {
     padding: ${space(1.5)} ${space(4)};
   }
 `;
@@ -57,7 +57,7 @@ export const BannerSummary = styled('p')`
   margin-bottom: 0;
   padding: ${space(2)} ${space(2)};
 
-  @media (min-width: ${p => p.theme.breakpoints.lg}) {
+  @media (min-width: ${p => p.theme.breakpoints.large}) {
     padding: ${space(2)} ${space(4)};
   }
 
@@ -89,7 +89,7 @@ export const SuspectCommitHeader = styled('div')`
   & h3 {
     color: ${p => p.theme.subText};
     font-size: ${p => p.theme.fontSize.md};
-    font-weight: ${p => p.theme.fontWeight.bold};
+    font-weight: ${p => p.theme.fontWeightBold};
   }
 
   & h3 {

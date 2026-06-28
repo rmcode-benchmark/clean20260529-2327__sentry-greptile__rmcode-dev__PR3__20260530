@@ -9,6 +9,7 @@ from sentry.issues.grouptype import (
     GroupCategory,
     GroupType,
     GroupTypeRegistry,
+    MetricIssuePOC,
     NoiseConfig,
     PerformanceGroupTypeDefaults,
     PerformanceNPlusOneGroupType,
@@ -17,6 +18,7 @@ from sentry.issues.grouptype import (
     get_group_types_by_category,
 )
 from sentry.testutils.cases import TestCase
+from sentry.uptime.grouptype import UptimeDomainCheckFailure
 
 
 class BaseGroupTypeTest(TestCase):
@@ -169,23 +171,16 @@ class GroupTypeReleasedTest(BaseGroupTypeTest):
 
 class GroupRegistryTest(BaseGroupTypeTest):
     def test_get_visible(self) -> None:
-        class UnreleasedGroupType(GroupType):
-            type_id = 9999
-            slug = "unreleased_group_type"
-            description = "Mock unreleased issue group"
-            released = False
-            category = GroupCategory.ERROR.value
-            category_v2 = GroupCategory.ERROR.value
-
         registry = GroupTypeRegistry()
-        registry.add(UnreleasedGroupType)
+        registry.add(UptimeDomainCheckFailure)
+        registry.add(MetricIssuePOC)
         assert registry.get_visible(self.organization) == []
-        with self.feature(UnreleasedGroupType.build_visible_feature_name()):
-            assert registry.get_visible(self.organization) == [UnreleasedGroupType]
+        with self.feature(UptimeDomainCheckFailure.build_visible_feature_name()):
+            assert registry.get_visible(self.organization) == [UptimeDomainCheckFailure]
         registry.add(ErrorGroupType)
-        with self.feature(UnreleasedGroupType.build_visible_feature_name()):
+        with self.feature(UptimeDomainCheckFailure.build_visible_feature_name()):
             assert set(registry.get_visible(self.organization)) == {
-                UnreleasedGroupType,
+                UptimeDomainCheckFailure,
                 ErrorGroupType,
             }
 

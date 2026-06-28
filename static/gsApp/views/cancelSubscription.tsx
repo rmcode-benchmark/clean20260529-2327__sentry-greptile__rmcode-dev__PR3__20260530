@@ -6,10 +6,10 @@ import {addErrorMessage, addSuccessMessage} from 'sentry/actionCreators/indicato
 import {Alert} from 'sentry/components/core/alert';
 import {Button} from 'sentry/components/core/button';
 import {Checkbox} from 'sentry/components/core/checkbox';
-import {ExternalLink} from 'sentry/components/core/link';
 import RadioGroupField from 'sentry/components/forms/fields/radioField';
 import TextareaField from 'sentry/components/forms/fields/textareaField';
 import Form from 'sentry/components/forms/form';
+import ExternalLink from 'sentry/components/links/externalLink';
 import LoadingIndicator from 'sentry/components/loadingIndicator';
 import Panel from 'sentry/components/panels/panel';
 import PanelBody from 'sentry/components/panels/panelBody';
@@ -151,7 +151,9 @@ function CancelSubscriptionForm() {
   if (!canCancelPlan) {
     return (
       <Alert.Container>
-        <Alert type="error">{t('Your plan is not eligible to be cancelled.')}</Alert>
+        <Alert type="error" showIcon>
+          {t('Your plan is not eligible to be cancelled.')}
+        </Alert>
       </Alert.Container>
     );
   }
@@ -160,7 +162,7 @@ function CancelSubscriptionForm() {
     return (
       <Fragment>
         <Alert.Container>
-          <Alert type="error">
+          <Alert type="error" showIcon>
             {tct(
               `Upon cancellation your account will be downgraded to a free plan which is limited to a single user.
             Your account currently has [count] [teamMembers: other team member(s)] using Sentry that would lose
@@ -189,7 +191,7 @@ function CancelSubscriptionForm() {
   return (
     <Fragment>
       <Alert.Container>
-        <Alert type="warning">
+        <Alert type="warning" showIcon>
           {tct(
             `Your organization is currently subscribed to the [planName] plan on a [interval] contract.
              Cancelling your subscription will downgrade your account to a free plan at the end

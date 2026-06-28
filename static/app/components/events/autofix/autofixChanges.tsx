@@ -290,7 +290,7 @@ export function AutofixChanges({
                 </ChatButton>
               </HeaderText>
               {!prsMade && (
-                <ButtonBar>
+                <ButtonBar gap={1}>
                   {branchesMade ? (
                     step.changes.length === 1 && step.changes[0] ? (
                       <BranchButton change={step.changes[0]} />
@@ -420,7 +420,7 @@ const Content = styled('div')`
 `;
 
 const Title = styled('div')`
-  font-weight: ${p => p.theme.fontWeight.bold};
+  font-weight: ${p => p.theme.fontWeightBold};
   margin-top: ${space(1)};
   margin-bottom: ${space(1)};
 `;

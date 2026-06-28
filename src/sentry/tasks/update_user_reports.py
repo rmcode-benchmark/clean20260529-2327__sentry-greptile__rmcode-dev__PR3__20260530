@@ -5,8 +5,11 @@ import sentry_sdk
 from django.utils import timezone
 
 from sentry import eventstore, quotas
-from sentry.feedback.lib.utils import FeedbackCreationSource, is_in_feedback_denylist
-from sentry.feedback.usecases.ingest.shim_to_feedback import shim_to_feedback
+from sentry.feedback.usecases.create_feedback import (
+    FeedbackCreationSource,
+    is_in_feedback_denylist,
+    shim_to_feedback,
+)
 from sentry.models.project import Project
 from sentry.models.userreport import UserReport
 from sentry.silo.base import SiloMode
@@ -25,7 +28,6 @@ logger = logging.getLogger(__name__)
     silo_mode=SiloMode.REGION,
     taskworker_config=TaskworkerConfig(
         namespace=issues_tasks,
-        processing_deadline_duration=30,
     ),
 )
 def update_user_reports(

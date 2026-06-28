@@ -17,7 +17,7 @@ import {
   getPlanCategoryName,
   getReservedBudgetDisplayName,
   hasCategoryFeature,
-  isByteCategory,
+  isSeer,
   listDisplayNames,
   sortCategories,
   sortCategoriesWithKeys,
@@ -402,11 +402,13 @@ describe('listDisplayNames', function () {
   });
 });
 
-describe('isByteCategory', function () {
-  it('verifies isByteCategory function handles both ATTACHMENTS and LOG_BYTE', function () {
-    expect(isByteCategory(DataCategory.ATTACHMENTS)).toBe(true);
-    expect(isByteCategory(DataCategory.LOG_BYTE)).toBe(true);
-    expect(isByteCategory(DataCategory.ERRORS)).toBe(false);
-    expect(isByteCategory(DataCategory.TRANSACTIONS)).toBe(false);
+describe('isSeer', () => {
+  it.each([
+    [DataCategory.SEER_AUTOFIX, true],
+    [DataCategory.SEER_SCANNER, true],
+    [DataCategory.ERRORS, false],
+    [DataCategory.TRANSACTIONS, false],
+  ])('returns %s for category %s', (category, expected) => {
+    expect(isSeer(category)).toBe(expected);
   });
 });

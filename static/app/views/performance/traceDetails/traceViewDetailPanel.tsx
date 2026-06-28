@@ -6,7 +6,6 @@ import omit from 'lodash/omit';
 import {CopyToClipboardButton} from 'sentry/components/copyToClipboardButton';
 import {Alert} from 'sentry/components/core/alert';
 import {LinkButton} from 'sentry/components/core/button/linkButton';
-import {Link} from 'sentry/components/core/link';
 import {Tooltip} from 'sentry/components/core/tooltip';
 import {DateTime} from 'sentry/components/dateTime';
 import {EventAttachments} from 'sentry/components/events/eventAttachments';
@@ -35,6 +34,7 @@ import {EventRRWebIntegration} from 'sentry/components/events/rrwebIntegration';
 import {DataSection} from 'sentry/components/events/styles';
 import FileSize from 'sentry/components/fileSize';
 import ProjectBadge from 'sentry/components/idBadge/projectBadge';
+import Link from 'sentry/components/links/link';
 import LoadingIndicator from 'sentry/components/loadingIndicator';
 import {
   ErrorDot,
@@ -572,7 +572,7 @@ const Title = styled(FlexBox)`
 
 const TransactionOp = styled('div')`
   font-size: 25px;
-  font-weight: ${p => p.theme.fontWeight.bold};
+  font-weight: ${p => p.theme.fontWeightBold};
   max-width: 600px;
   ${p => p.theme.overflowEllipsis}
 `;

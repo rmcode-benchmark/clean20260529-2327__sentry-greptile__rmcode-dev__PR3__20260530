@@ -5,12 +5,13 @@ import omit from 'lodash/omit';
 import GuideAnchor from 'sentry/components/assistant/guideAnchor';
 import {Alert} from 'sentry/components/core/alert';
 import {ButtonBar} from 'sentry/components/core/button/buttonBar';
-import {ExternalLink, Link} from 'sentry/components/core/link';
 import {Tooltip} from 'sentry/components/core/tooltip';
 import DiscoverButton from 'sentry/components/discoverButton';
 import EventVitals from 'sentry/components/events/eventVitals';
 import type {SpanDetailProps} from 'sentry/components/events/interfaces/spans/newTraceDetailsSpanDetails';
 import * as Layout from 'sentry/components/layouts/thirds';
+import ExternalLink from 'sentry/components/links/externalLink';
+import Link from 'sentry/components/links/link';
 import LoadingError from 'sentry/components/loadingError';
 import LoadingIndicator from 'sentry/components/loadingIndicator';
 import {IconPlay} from 'sentry/icons';
@@ -250,7 +251,7 @@ function NewTraceDetailsContent(props: Props) {
       case TraceShape.NO_ROOT:
         warning = (
           <Alert.Container>
-            <Alert type="info">
+            <Alert type="info" showIcon>
               <ExternalLink href="https://docs.sentry.io/concepts/key-terms/tracing/trace-view/#orphan-traces-and-broken-subtraces">
                 {t(
                   'A root transaction is missing. Transactions linked by a dashed line have been orphaned and cannot be directly linked to the root.'
@@ -263,7 +264,7 @@ function NewTraceDetailsContent(props: Props) {
       case TraceShape.BROKEN_SUBTRACES:
         warning = (
           <Alert.Container>
-            <Alert type="info">
+            <Alert type="info" showIcon>
               <ExternalLink href="https://docs.sentry.io/concepts/key-terms/tracing/trace-view/#orphan-traces-and-broken-subtraces">
                 {t(
                   'This trace has broken subtraces. Transactions linked by a dashed line have been orphaned and cannot be directly linked to the root.'
@@ -276,7 +277,7 @@ function NewTraceDetailsContent(props: Props) {
       case TraceShape.MULTIPLE_ROOTS:
         warning = (
           <Alert.Container>
-            <Alert type="info">
+            <Alert type="info" showIcon>
               <ExternalLink href="https://docs.sentry.io/concepts/key-terms/tracing/trace-view/#multiple-roots">
                 {t('Multiple root transactions have been found with this trace ID.')}
               </ExternalLink>
@@ -287,7 +288,7 @@ function NewTraceDetailsContent(props: Props) {
       case TraceShape.ONLY_ERRORS:
         warning = (
           <Alert.Container>
-            <Alert type="info">
+            <Alert type="info" showIcon>
               {tct(
                 "The good news: we know all these errors are related. The bad news: we can't tell you more than that. If you haven't already, [tracingLink:configure tracing for your SDKs] to get a connected view of your software systems and services.",
                 {
@@ -443,7 +444,7 @@ function NewTraceDetailsContent(props: Props) {
           </Layout.Title>
         </Layout.HeaderContent>
         <Layout.HeaderActions>
-          <ButtonBar>
+          <ButtonBar gap={1}>
             <DiscoverButton
               size="sm"
               to={traceEventView.getResultsViewUrlTarget(organization)}

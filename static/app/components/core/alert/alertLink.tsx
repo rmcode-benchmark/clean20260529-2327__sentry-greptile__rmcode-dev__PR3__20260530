@@ -3,7 +3,8 @@ import {css, type Theme} from '@emotion/react';
 import styled from '@emotion/styled';
 
 import {Alert, type AlertProps} from 'sentry/components/core/alert';
-import {ExternalLink, Link} from 'sentry/components/core/link';
+import ExternalLink from 'sentry/components/links/externalLink';
+import Link from 'sentry/components/links/link';
 import {IconChevron} from 'sentry/icons';
 import {space} from 'sentry/styles/space';
 
@@ -36,7 +37,7 @@ interface ManualAlertLinkProps extends BaseAlertLinkProps {
   to?: never;
 }
 
-type AlertLinkProps =
+export type AlertLinkProps =
   | ExternalAlertLinkProps
   | InternalAlertLinkProps
   | ManualAlertLinkProps;

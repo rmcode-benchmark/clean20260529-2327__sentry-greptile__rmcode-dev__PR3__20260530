@@ -1,8 +1,8 @@
 import * as qs from 'query-string';
 
 import {getInterval} from 'sentry/components/charts/utils';
-import {Link} from 'sentry/components/core/link';
 import Duration from 'sentry/components/duration';
+import Link from 'sentry/components/links/link';
 import {t} from 'sentry/locale';
 import type {NewQuery} from 'sentry/types/organization';
 import EventView from 'sentry/utils/discover/eventView';
@@ -17,7 +17,7 @@ import {
   SECONDARY_RELEASE_ALIAS,
 } from 'sentry/views/insights/common/components/releaseSelector';
 import {OverflowEllipsisTextContainer} from 'sentry/views/insights/common/components/textAlign';
-import {useSpans} from 'sentry/views/insights/common/queries/useDiscover';
+import {useSpanMetrics} from 'sentry/views/insights/common/queries/useDiscover';
 import {STARFISH_CHART_INTERVAL_FIDELITY} from 'sentry/views/insights/common/utils/constants';
 import {appendReleaseFilters} from 'sentry/views/insights/common/utils/releaseComparison';
 import {useModuleURL} from 'sentry/views/insights/common/utils/useModuleURL';
@@ -26,9 +26,13 @@ import type {SpanOperationTableProps} from 'sentry/views/insights/mobile/common/
 import {ScreensTable} from 'sentry/views/insights/mobile/common/components/tables/screensTable';
 import {MobileCursors} from 'sentry/views/insights/mobile/screenload/constants';
 import {Referrer} from 'sentry/views/insights/mobile/ui/referrers';
-import {ModuleName, SpanFields, type SubregionCode} from 'sentry/views/insights/types';
+import {
+  ModuleName,
+  SpanMetricsField,
+  type SubregionCode,
+} from 'sentry/views/insights/types';
 
-const {SPAN_DESCRIPTION, SPAN_GROUP, SPAN_OP, PROJECT_ID} = SpanFields;
+const {SPAN_DESCRIPTION, SPAN_GROUP, SPAN_OP, PROJECT_ID} = SpanMetricsField;
 
 const VALID_SPAN_OPS = APP_START_SPANS;
 
@@ -42,10 +46,10 @@ export function SpanOperationTable({
   const {selection} = usePageFilters();
   const cursor = decodeScalar(location.query?.[MobileCursors.SPANS_TABLE]);
 
-  const spanOp = decodeScalar(location.query[SpanFields.SPAN_OP]) ?? '';
-  const deviceClass = decodeScalar(location.query[SpanFields.DEVICE_CLASS]) ?? '';
+  const spanOp = decodeScalar(location.query[SpanMetricsField.SPAN_OP]) ?? '';
+  const deviceClass = decodeScalar(location.query[SpanMetricsField.DEVICE_CLASS]) ?? '';
   const subregions = decodeList(
-    location.query[SpanFields.USER_GEO_SUBREGION]
+    location.query[SpanMetricsField.USER_GEO_SUBREGION]
   ) as SubregionCode[];
 
   // TODO: These filters seem to be too aggressive, check that they are ingesting properly
@@ -53,11 +57,11 @@ export function SpanOperationTable({
     // 'has:span.description',
     // 'transaction.op:ui.load',
     `transaction:${transaction}`,
-    `${SpanFields.SPAN_OP}:${spanOp ? spanOp : `[${VALID_SPAN_OPS.join(',')}]`}`,
-    ...(spanOp ? [`${SpanFields.SPAN_OP}:${spanOp}`] : []),
-    ...(deviceClass ? [`${SpanFields.DEVICE_CLASS}:${deviceClass}`] : []),
+    `${SpanMetricsField.SPAN_OP}:${spanOp ? spanOp : `[${VALID_SPAN_OPS.join(',')}]`}`,
+    ...(spanOp ? [`${SpanMetricsField.SPAN_OP}:${spanOp}`] : []),
+    ...(deviceClass ? [`${SpanMetricsField.DEVICE_CLASS}:${deviceClass}`] : []),
     ...(subregions.length
-      ? [`${SpanFields.USER_GEO_SUBREGION}:[${subregions.join(',')}]`]
+      ? [`${SpanMetricsField.USER_GEO_SUBREGION}:[${subregions.join(',')}]`]
       : []),
   ]);
   const queryStringPrimary = appendReleaseFilters(
@@ -85,7 +89,7 @@ export function SpanOperationTable({
     ],
     query: queryStringPrimary,
     orderby,
-    dataset: DiscoverDatasets.SPANS_EAP_RPC,
+    dataset: DiscoverDatasets.SPANS_METRICS,
     version: 2,
     projects: selection.projects,
     interval: getInterval(selection.datetime, STARFISH_CHART_INTERVAL_FIDELITY),
@@ -93,7 +97,7 @@ export function SpanOperationTable({
 
   const eventView = EventView.fromNewQueryWithLocation(newQuery, location);
 
-  const {data, meta, isPending, pageLinks} = useSpans(
+  const {data, meta, isPending, pageLinks} = useSpanMetrics(
     {
       cursor,
       search: queryStringPrimary,
@@ -164,16 +168,16 @@ export function SpanOperationTable({
 
   function renderBodyCell(column: any, row: any) {
     if (column.key === SPAN_DESCRIPTION) {
-      const label = row[SpanFields.SPAN_DESCRIPTION];
+      const label = row[SpanMetricsField.SPAN_DESCRIPTION];
 
       const pathname = `${moduleURL}/spans/`;
 
       const query = {
         ...location.query,
         transaction,
-        spanOp: row[SpanFields.SPAN_OP],
-        spanGroup: row[SpanFields.SPAN_GROUP],
-        spanDescription: row[SpanFields.SPAN_DESCRIPTION],
+        spanOp: row[SpanMetricsField.SPAN_OP],
+        spanGroup: row[SpanMetricsField.SPAN_GROUP],
+        spanDescription: row[SpanMetricsField.SPAN_DESCRIPTION],
       };
 
       return (

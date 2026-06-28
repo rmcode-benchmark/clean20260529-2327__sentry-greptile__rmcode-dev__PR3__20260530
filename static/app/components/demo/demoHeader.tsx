@@ -100,7 +100,7 @@ const Wrapper = styled('div')`
   border-bottom: 1px solid ${p => p.theme.border};
   z-index: ${p => p.theme.zIndex.settingsSidebarNav};
 
-  @media (max-width: ${p => p.theme.breakpoints.md}) {
+  @media (max-width: ${p => p.theme.breakpoints.medium}) {
     height: ${SIDEBAR_MOBILE_HEIGHT};
     margin-left: 0;
   }
@@ -126,14 +126,14 @@ const FreeTrialTextLong = styled('span')``;
 
 const NewRequestDemoBtn = styled(LinkButton)`
   text-transform: uppercase;
-  @media (max-width: ${p => p.theme.breakpoints.sm}) {
+  @media (max-width: ${p => p.theme.breakpoints.small}) {
     display: none;
   }
 `;
 
 const DocsButton = styled(LinkButton)`
   text-transform: uppercase;
-  @media (max-width: ${p => p.theme.breakpoints.xs}) {
+  @media (max-width: ${p => p.theme.breakpoints.xsmall}) {
     display: none;
   }
 `;
@@ -144,7 +144,7 @@ const FreeTrialButton = styled(Button)`
   .short-text {
     display: none;
   }
-  @media (max-width: ${p => p.theme.breakpoints.sm}) {
+  @media (max-width: ${p => p.theme.breakpoints.small}) {
     ${FreeTrialTextLong} {
       display: none;
     }

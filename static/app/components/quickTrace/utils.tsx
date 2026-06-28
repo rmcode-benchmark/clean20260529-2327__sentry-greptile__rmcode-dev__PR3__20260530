@@ -1,6 +1,5 @@
 import type {Location, LocationDescriptor} from 'history';
 
-import {getEventTimestampInSeconds} from 'sentry/components/events/interfaces/utils';
 import {normalizeDateTimeParams} from 'sentry/components/organizations/pageFilters/parse';
 import {ALL_ACCESS_PROJECTS} from 'sentry/constants/pageFilters';
 import type {Event} from 'sentry/types/event';
@@ -31,6 +30,8 @@ export function isQuickTraceEvent(
 }
 
 export type ErrorDestination = 'discover' | 'issue';
+
+export type TransactionDestination = 'discover' | 'performance';
 
 export function generateIssueEventTarget(
   event: TraceError | TracePerformanceIssue | TraceTree.EAPError,
@@ -83,6 +84,28 @@ export function generateSingleErrorTarget(
   }
 }
 
+const timestampsFieldCandidates = [
+  'dateCreated',
+  'startTimestamp',
+  'timestamp',
+  'endTimestamp',
+];
+
+export function getEventTimestamp(event: Event): string | number | undefined {
+  for (const key of timestampsFieldCandidates) {
+    if (
+      key in event &&
+      // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+      (typeof event[key] === 'string' || typeof event[key] === 'number')
+    ) {
+      // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+      return event[key];
+    }
+  }
+
+  return undefined;
+}
+
 export function generateTraceTarget(
   event: Event,
   organization: Organization,
@@ -99,7 +122,7 @@ export function generateTraceTarget(
       organization,
       traceSlug: traceId,
       dateSelection,
-      timestamp: getEventTimestampInSeconds(event),
+      timestamp: getEventTimestamp(event),
       eventId: event.eventID,
       location,
       source,

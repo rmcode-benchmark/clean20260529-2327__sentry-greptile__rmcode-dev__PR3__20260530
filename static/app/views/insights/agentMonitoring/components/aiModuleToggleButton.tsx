@@ -1,27 +1,35 @@
+import type {Key} from 'react';
 import styled from '@emotion/styled';
 
 import DropdownButton from 'sentry/components/dropdownButton';
 import {DropdownMenu} from 'sentry/components/dropdownMenu';
 import {IconLab} from 'sentry/icons';
-import {trackAnalytics} from 'sentry/utils/analytics';
+import useMutateUserOptions from 'sentry/utils/useMutateUserOptions';
 import useOrganization from 'sentry/utils/useOrganization';
 import {
   hasAgentInsightsFeature,
-  useTogglePreferedAiModule,
+  usePreferedAiModule,
 } from 'sentry/views/insights/agentMonitoring/utils/features';
 
 export function AiModuleToggleButton() {
-  const [preferedAiModule, togglePreferedModule] = useTogglePreferedAiModule();
+  const {mutate: mutateUserOptions} = useMutateUserOptions();
+  const preferedAiModule = usePreferedAiModule();
   const organization = useOrganization();
 
-  const handleAction = () => {
-    const isEnabled = preferedAiModule !== 'agents-insights';
-
-    trackAnalytics('agent-monitoring.ui-toggle', {
-      organization,
-      isEnabled,
+  const togglePreferedModule = () => {
+    const prefersAgentsInsightsModule = preferedAiModule === 'agents-insights';
+    const newPrefersAgentsInsightsModule = !prefersAgentsInsightsModule;
+    mutateUserOptions({
+      ['prefersAgentsInsightsModule']: newPrefersAgentsInsightsModule,
     });
-    togglePreferedModule();
+
+    return newPrefersAgentsInsightsModule;
+  };
+
+  const handleExperimentDropdownAction = (key: Key) => {
+    if (key === 'ai-module') {
+      togglePreferedModule();
+    }
   };
 
   if (!hasAgentInsightsFeature(organization)) {
@@ -36,12 +44,12 @@ export function AiModuleToggleButton() {
           <IconLab isSolid />
         </StyledDropdownButton>
       )}
+      onAction={handleExperimentDropdownAction}
       items={[
         {
           key: 'ai-module',
           leadingItems:
             preferedAiModule === 'agents-insights' ? null : <IconLab isSolid />,
-          onAction: handleAction,
           label:
             preferedAiModule === 'agents-insights'
               ? 'Switch to Old Experience'

@@ -42,9 +42,7 @@ import {
 import {
   getChunkCategoryFromDuration,
   getPlanCategoryName,
-  isByteCategory,
   isContinuousProfiling,
-  isPartOfReservedBudget,
 } from 'getsentry/utils/dataCategory';
 import formatCurrency from 'getsentry/utils/formatCurrency';
 import {roundUpToNearestDollar} from 'getsentry/utils/roundUpToNearestDollar';
@@ -202,14 +200,14 @@ export function calculateCategoryPrepaidUsage(
     subscription.categories[category];
   const usage = accepted ?? categoryInfo?.usage ?? 0;
 
-  // If reservedCpe or reservedSpend aren't provided but category is part of a reserved budget,
+  // If reservedCpe or reservedSpend aren't provided but category is in reservedBudgetCategories,
   // try to extract them from subscription.reservedBudgets
   let effectiveReservedCpe = reservedCpe ?? undefined;
   let effectiveReservedSpend = reservedSpend ?? undefined;
 
   if (
     (effectiveReservedCpe === undefined || effectiveReservedSpend === undefined) &&
-    isPartOfReservedBudget(category, subscription.reservedBudgets ?? [])
+    subscription.reservedBudgetCategories?.includes(category)
   ) {
     // Look for the category in reservedBudgets
     for (const budget of subscription.reservedBudgets || []) {
@@ -236,9 +234,10 @@ export function calculateCategoryPrepaidUsage(
     // Convert prepaid limits to the appropriate unit based on category
     prepaidTotal =
       prepaid *
-      (isByteCategory(category)
+      (category === DataCategory.ATTACHMENTS
         ? GIGABYTE
-        : isContinuousProfiling(category)
+        : category === DataCategory.PROFILE_DURATION ||
+            category === DataCategory.PROFILE_DURATION_UI
           ? MILLISECONDS_IN_HOUR
           : 1);
   }
@@ -1296,7 +1295,7 @@ const UsageSummaryTitle = styled('h4')`
   margin-bottom: 0px;
   font-weight: 400;
 
-  @media (min-width: ${p => p.theme.breakpoints.sm}) {
+  @media (min-width: ${p => p.theme.breakpoints.small}) {
     font-size: ${p => p.theme.fontSize.xl};
   }
 `;

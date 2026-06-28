@@ -15,33 +15,7 @@ from sentry.uptime.subscriptions.regions import get_region_config
 from sentry.uptime.types import EapCheckEntry, IncidentStatus
 
 
-class UptimeSubscriptionSerializerResponse(TypedDict):
-    url: str
-    method: str
-    body: str | None
-    headers: Sequence[tuple[str, str]]
-    intervalSeconds: int
-    timeoutMs: int
-    traceSampling: bool
-
-
-@register(UptimeSubscription)
-class UptimeSubscriptionSerializer(Serializer):
-
-    @override
-    def serialize(self, obj: UptimeSubscription, attrs, user, **kwargs) -> dict[str, Any]:
-        return {
-            "url": obj.url,
-            "method": obj.method,
-            "body": obj.body,
-            "headers": obj.headers,
-            "intervalSeconds": obj.interval_seconds,
-            "timeoutMs": obj.timeout_ms,
-            "traceSampling": obj.trace_sampling,
-        }
-
-
-class ProjectUptimeSubscriptionSerializerResponse(UptimeSubscriptionSerializerResponse):
+class ProjectUptimeSubscriptionSerializerResponse(TypedDict):
     id: str
     projectSlug: str
     environment: str | None
@@ -49,7 +23,14 @@ class ProjectUptimeSubscriptionSerializerResponse(UptimeSubscriptionSerializerRe
     status: str
     uptimeStatus: int
     mode: int
+    url: str
+    method: str
+    body: str | None
+    headers: Sequence[tuple[str, str]]
+    intervalSeconds: int
+    timeoutMs: int
     owner: ActorSerializerResponse
+    traceSampling: bool
 
 
 @register(ProjectUptimeSubscription)
@@ -77,10 +58,6 @@ class ProjectUptimeSubscriptionSerializer(Serializer):
     def serialize(
         self, obj: ProjectUptimeSubscription, attrs, user, **kwargs
     ) -> ProjectUptimeSubscriptionSerializerResponse:
-        serialized_subscription: UptimeSubscriptionSerializerResponse = serialize(
-            obj.uptime_subscription
-        )
-
         return {
             "id": str(obj.id),
             "projectSlug": obj.project.slug,
@@ -89,8 +66,14 @@ class ProjectUptimeSubscriptionSerializer(Serializer):
             "status": obj.get_status_display(),
             "uptimeStatus": obj.uptime_subscription.uptime_status,
             "mode": obj.mode,
+            "url": obj.uptime_subscription.url,
+            "headers": obj.uptime_subscription.headers,
+            "body": obj.uptime_subscription.body,
+            "method": obj.uptime_subscription.method,
+            "intervalSeconds": obj.uptime_subscription.interval_seconds,
+            "timeoutMs": obj.uptime_subscription.timeout_ms,
             "owner": attrs["owner"],
-            **serialized_subscription,
+            "traceSampling": obj.uptime_subscription.trace_sampling,
         }
 
 
@@ -150,4 +133,34 @@ class EapCheckEntrySerializer(Serializer):
             "environment": obj.environment,
             "region": obj.region,
             "regionName": region_name,
+        }
+
+
+class UptimeSubscriptionSerializerResponse(TypedDict):
+    timeoutMs: int
+    intervalSeconds: int
+    method: str
+    url: str
+    urlDomain: str
+    urlDomainSuffix: str
+    traceSampling: bool
+    hostProviderId: str
+    hostProviderName: str
+
+
+@register(UptimeSubscription)
+class UptimeSubscriptionSerializer(Serializer):
+
+    @override
+    def serialize(self, obj: UptimeSubscription, attrs, user, **kwargs) -> dict[str, Any]:
+        return {
+            "timeoutMs": obj.timeout_ms,
+            "intervalSeconds": obj.interval_seconds,
+            "method": obj.method,
+            "url": obj.url,
+            "urlDomain": obj.url_domain,
+            "urlDomainSuffix": obj.url_domain_suffix,
+            "traceSampling": obj.trace_sampling,
+            "hostProviderId": obj.host_provider_id,
+            "hostProviderName": obj.host_provider_name,
         }

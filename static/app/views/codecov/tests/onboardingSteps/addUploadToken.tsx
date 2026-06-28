@@ -4,9 +4,10 @@ import {CodeSnippet} from 'sentry/components/codeSnippet';
 import {Alert} from 'sentry/components/core/alert';
 import {Button} from 'sentry/components/core/button';
 import {Flex} from 'sentry/components/core/layout';
-import {Link} from 'sentry/components/core/link';
+import Link from 'sentry/components/links/link';
 import {IconClose} from 'sentry/icons';
 import {t, tct} from 'sentry/locale';
+import {space} from 'sentry/styles/space';
 import {OnboardingStep} from 'sentry/views/codecov/tests/onboardingSteps/onboardingStep';
 
 interface AddUploadTokenProps {
@@ -64,6 +65,7 @@ export function AddUploadToken({step}: AddUploadTokenProps) {
                   <Alert
                     type="warning"
                     data-test-id="page-error-alert"
+                    showIcon
                     trailingItems={<IconClose size="sm" onClick={handleDismiss} />}
                   >
                     {t(
@@ -72,8 +74,8 @@ export function AddUploadToken({step}: AddUploadTokenProps) {
                   </Alert>
                 </Alert.Container>
               )}
-              <Flex justify="space-between" gap="md">
-                <Flex justify="space-between" gap="md">
+              <Flex justify="space-between" gap={space(1)}>
+                <Flex justify="space-between" gap={space(1)}>
                   <CodeSnippet dark>SENTRY_PREVENT_TOKEN</CodeSnippet>
                   <CodeSnippet dark>{FULL_TOKEN}</CodeSnippet>
                 </Flex>
@@ -83,8 +85,8 @@ export function AddUploadToken({step}: AddUploadTokenProps) {
               </Flex>
             </Fragment>
           ) : (
-            <Flex justify="space-between" gap="md">
-              <Flex justify="space-between" gap="md">
+            <Flex justify="space-between" gap={space(1)}>
+              <Flex justify="space-between" gap={space(1)}>
                 <CodeSnippet dark>SENTRY_PREVENT_TOKEN</CodeSnippet>
                 <CodeSnippet dark>{TRUNCATED_TOKEN}</CodeSnippet>
               </Flex>

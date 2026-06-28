@@ -19,7 +19,6 @@ import type {
 } from 'sentry/utils/profiling/renderers/UIFramesRenderer';
 import type {SpanChartNode} from 'sentry/utils/profiling/spanChart';
 import {Rect} from 'sentry/utils/profiling/speedscope';
-import type {TrimTextCenter} from 'sentry/utils/string/trimTextCenter';
 
 export function initializeFlamegraphRenderer(
   renderers: FlamegraphRendererConstructor[],
@@ -315,6 +314,7 @@ export function safeGetContext(
   return ctx;
 }
 
+export const ELLIPSIS = '\u2026';
 export function measureText(string: string, ctx?: CanvasRenderingContext2D): Rect {
   if (!string) {
     return Rect.Empty();
@@ -472,6 +472,13 @@ export function formatColorForFrame(
   }
 
   return `rgba(${color.map(n => n * 255).join(',')}, 1.0)`;
+}
+
+export interface TrimTextCenter {
+  end: number;
+  length: number;
+  start: number;
+  text: string;
 }
 
 export function hexToColorChannels(color: string, alpha: number): ColorChannels {

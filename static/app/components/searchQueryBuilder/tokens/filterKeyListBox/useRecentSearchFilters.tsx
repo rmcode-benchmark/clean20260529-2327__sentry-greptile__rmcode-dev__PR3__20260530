@@ -32,17 +32,17 @@ function getTokensFromQuery({
   query,
   getFieldDefinition,
   filterKeys,
-  filterKeyAliases,
 }: {
   filterKeys: TagCollection;
   getFieldDefinition: FieldDefinitionGetter;
   query: string;
-  filterKeyAliases?: TagCollection;
 }): Array<TokenResult<Token.FILTER>> {
   const parsed = parseQueryBuilderValue(
     query.slice(0, MAX_QUERY_PARSE_LENGTH),
     getFieldDefinition,
-    {filterKeys, filterKeyAliases}
+    {
+      filterKeys,
+    }
   );
 
   return getFiltersFromParsedQuery(parsed);
@@ -61,13 +61,11 @@ function getFiltersFromRecentSearches(
   {
     parsedCurrentQuery,
     filterKeys,
-    filterKeyAliases,
     getFieldDefinition,
   }: {
     filterKeys: TagCollection;
     getFieldDefinition: FieldDefinitionGetter;
     parsedCurrentQuery: ParseResult | null;
-    filterKeyAliases?: TagCollection;
   }
 ): Array<TokenResult<Token.FILTER>> {
   if (!recentSearchesData?.length) {
@@ -79,12 +77,7 @@ function getFiltersFromRecentSearches(
 
   const filterCounts: FilterCounter = recentSearchesData
     .flatMap(search =>
-      getTokensFromQuery({
-        query: search.query,
-        getFieldDefinition,
-        filterKeys,
-        filterKeyAliases,
-      })
+      getTokensFromQuery({query: search.query, getFieldDefinition, filterKeys})
     )
     .filter(token => {
       const filter = getKeyName(token.key);
@@ -117,8 +110,7 @@ function getFiltersFromRecentSearches(
  * Orders by highest count of filter key occurrences.
  */
 export function useRecentSearchFilters() {
-  const {parsedQuery, filterKeys, getFieldDefinition, filterKeyAliases} =
-    useSearchQueryBuilder();
+  const {parsedQuery, filterKeys, getFieldDefinition} = useSearchQueryBuilder();
   const {data: recentSearchesData} = useRecentSearches();
 
   const filters = useMemo(
@@ -127,9 +119,8 @@ export function useRecentSearchFilters() {
         parsedCurrentQuery: parsedQuery,
         filterKeys,
         getFieldDefinition,
-        filterKeyAliases,
       }),
-    [filterKeys, getFieldDefinition, parsedQuery, recentSearchesData, filterKeyAliases]
+    [filterKeys, getFieldDefinition, parsedQuery, recentSearchesData]
   );
 
   return filters;

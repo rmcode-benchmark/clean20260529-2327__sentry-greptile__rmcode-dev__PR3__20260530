@@ -11,8 +11,6 @@ import {
   sentryReplayerCss,
 } from 'sentry/components/replays/player/styles';
 import {useReplayContext} from 'sentry/components/replays/replayContext';
-import {useReplayPlayerSize} from 'sentry/utils/replays/playback/providers/replayPlayerSizeContext';
-import {useReplayReader} from 'sentry/utils/replays/playback/providers/replayReaderProvider';
 
 import UnmaskAlert from './unmaskAlert';
 
@@ -47,7 +45,6 @@ function BasePlayerRoot({
   isPreview = false,
   inspectable,
 }: Props) {
-  const replay = useReplayReader();
   const {
     dimensions: videoDimensions,
     fastForwardSpeed,
@@ -57,6 +54,7 @@ function BasePlayerRoot({
     isFetching,
     isFinished,
     isVideoReplay,
+    replay,
   } = useReplayContext();
 
   const sdkOptions = replay?.getSDKOptions();
@@ -115,8 +113,6 @@ function BasePlayerRoot({
     updateWindowDimensions();
   }, [updateWindowDimensions]);
 
-  const [, setViewSize] = useReplayPlayerSize();
-
   // Update the scale of the view whenever dimensions have changed.
   useEffect(() => {
     if (viewEl.current) {
@@ -128,11 +124,6 @@ function BasePlayerRoot({
         1.5
       );
       if (scale) {
-        setViewSize({
-          width: windowDimensions.width,
-          height: windowDimensions.height,
-          scale,
-        });
         // @ts-expect-error TS(7015): Element implicitly has an 'any' type because index... Remove this comment to see the full error message
         viewEl.current.style['transform-origin'] = 'top left';
         viewEl.current.style.transform = `scale(${scale})`;
@@ -140,7 +131,7 @@ function BasePlayerRoot({
         viewEl.current.style.height = `${videoDimensions.height * scale}px`;
       }
     }
-  }, [windowDimensions, videoDimensions, setViewSize]);
+  }, [windowDimensions, videoDimensions]);
 
   return (
     <Fragment>

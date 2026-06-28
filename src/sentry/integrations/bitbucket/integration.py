@@ -18,11 +18,10 @@ from sentry.integrations.base import (
     IntegrationProvider,
 )
 from sentry.integrations.models.integration import Integration
-from sentry.integrations.pipeline import IntegrationPipeline
+from sentry.integrations.pipeline_types import IntegrationPipelineT, IntegrationPipelineViewT
 from sentry.integrations.services.repository import RpcRepository, repository_service
 from sentry.integrations.source_code_management.repository import RepositoryIntegration
 from sentry.integrations.tasks.migrate_repo import migrate_repo
-from sentry.integrations.types import IntegrationProviderSlug
 from sentry.integrations.utils.atlassian_connect import (
     AtlassianConnectValidationError,
     get_integration_from_request,
@@ -34,7 +33,6 @@ from sentry.integrations.utils.metrics import (
 from sentry.models.apitoken import generate_token
 from sentry.models.repository import Repository
 from sentry.organizations.services.organization.model import RpcOrganization
-from sentry.pipeline.views.base import PipelineView
 from sentry.pipeline.views.nested import NestedPipelineView
 from sentry.shared_integrations.exceptions import ApiError
 from sentry.utils.http import absolute_uri
@@ -107,7 +105,7 @@ class BitbucketIntegration(RepositoryIntegration, BitbucketIssuesSpec):
 
     @property
     def integration_name(self) -> str:
-        return IntegrationProviderSlug.BITBUCKET.value
+        return "bitbucket"
 
     def get_client(self):
         return BitbucketApiClient(integration=self.model)
@@ -153,8 +151,7 @@ class BitbucketIntegration(RepositoryIntegration, BitbucketIssuesSpec):
 
     def get_unmigratable_repositories(self) -> list[RpcRepository]:
         repos = repository_service.get_repositories(
-            organization_id=self.organization_id,
-            providers=[IntegrationProviderSlug.BITBUCKET.value],
+            organization_id=self.organization_id, providers=["bitbucket"]
         )
 
         accessible_repos = [r["identifier"] for r in self.get_repositories()]
@@ -187,7 +184,7 @@ class BitbucketIntegration(RepositoryIntegration, BitbucketIssuesSpec):
 
 
 class BitbucketIntegrationProvider(IntegrationProvider):
-    key = IntegrationProviderSlug.BITBUCKET.value
+    key = "bitbucket"
     name = "Bitbucket"
     metadata = metadata
     scopes = scopes
@@ -201,11 +198,11 @@ class BitbucketIntegrationProvider(IntegrationProvider):
         ]
     )
 
-    def get_pipeline_views(self) -> Sequence[PipelineView[IntegrationPipeline]]:
+    def get_pipeline_views(self) -> Sequence[IntegrationPipelineViewT]:
         return [
             NestedPipelineView(
                 bind_key="identity",
-                provider_key=IntegrationProviderSlug.BITBUCKET.value,
+                provider_key="bitbucket",
                 pipeline_cls=IdentityPipeline,
                 config={"redirect_url": absolute_uri("/extensions/bitbucket/setup/")},
             ),
@@ -221,7 +218,7 @@ class BitbucketIntegrationProvider(IntegrationProvider):
     ) -> None:
         repos = repository_service.get_repositories(
             organization_id=organization.id,
-            providers=[IntegrationProviderSlug.BITBUCKET.value, "integrations:bitbucket"],
+            providers=["bitbucket", "integrations:bitbucket"],
             has_integration=False,
         )
 
@@ -277,8 +274,8 @@ class BitbucketIntegrationProvider(IntegrationProvider):
         )
 
 
-class VerifyInstallation:
-    def dispatch(self, request: HttpRequest, pipeline: IntegrationPipeline) -> HttpResponseBase:
+class VerifyInstallation(IntegrationPipelineViewT):
+    def dispatch(self, request: HttpRequest, pipeline: IntegrationPipelineT) -> HttpResponseBase:
         with IntegrationPipelineViewEvent(
             IntegrationPipelineViewType.VERIFY_INSTALLATION,
             IntegrationDomain.SOURCE_CODE_MANAGEMENT,

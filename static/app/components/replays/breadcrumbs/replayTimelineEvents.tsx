@@ -105,7 +105,7 @@ function Event({
     max-width: 291px !important;
     width: 291px;
 
-    @media screen and (max-width: ${theme.breakpoints.sm}) {
+    @media screen and (max-width: ${theme.breakpoints.small}) {
       max-width: 220px !important;
     }
   `;

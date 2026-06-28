@@ -79,7 +79,7 @@ const DescriptionWrapper = styled('div')<Pick<KeyDescriptionProps, 'size'>>`
 `;
 
 const DescriptionKeyLabel = styled('p')`
-  font-weight: ${p => p.theme.fontWeight.bold};
+  font-weight: ${p => p.theme.fontWeightBold};
   word-break: break-all;
 `;
 
@@ -97,7 +97,7 @@ const DescriptionList = styled('dl')`
 
 const Term = styled('dt')`
   color: ${p => p.theme.subText};
-  font-weight: ${p => p.theme.fontWeight.normal};
+  font-weight: ${p => p.theme.fontWeightNormal};
 `;
 
 const Details = styled('dd')``;

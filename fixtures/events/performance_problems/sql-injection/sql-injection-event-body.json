@@ -142,9 +142,6 @@
       "status": "ok",
       "description": "SELECT * FROM users WHERE username = 'hello'",
       "origin": "auto.db.otel.mysql2",
-      "sentry_tags": {
-        "description": "SELECT * FROM users WHERE username = %s"
-      },
       "data": {
         "db.system": "mysql",
         "db.connection_string": "jdbc:mysql://localhost:3306/injection_test",

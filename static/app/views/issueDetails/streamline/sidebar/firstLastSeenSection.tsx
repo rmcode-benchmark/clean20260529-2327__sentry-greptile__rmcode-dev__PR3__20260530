@@ -5,6 +5,7 @@ import SeenInfo from 'sentry/components/group/seenInfo';
 import Version from 'sentry/components/version';
 import VersionHoverCard from 'sentry/components/versionHoverCard';
 import {t, tct} from 'sentry/locale';
+import {space} from 'sentry/styles/space';
 import type {Group} from 'sentry/types/group';
 import type {Project} from 'sentry/types/project';
 import type {Release} from 'sentry/types/release';
@@ -50,9 +51,9 @@ export default function FirstLastSeenSection({group}: {group: Group}) {
     : (allEnvironments?.lastSeen ?? lastSeen);
 
   return (
-    <Flex direction="column" gap="sm">
+    <Flex direction="column" gap={space(0.75)}>
       <div>
-        <Flex gap="xs">
+        <Flex gap={space(0.5)}>
           <Title>{t('Last seen')}</Title>
           <SeenInfo
             date={lastSeen}
@@ -68,7 +69,7 @@ export default function FirstLastSeenSection({group}: {group: Group}) {
         )}
       </div>
       <div>
-        <Flex gap="xs">
+        <Flex gap={space(0.5)}>
           <Title>{t('First seen')}</Title>
           <SeenInfo
             date={group.firstSeen}
@@ -122,7 +123,7 @@ const ReleaseWrapper = styled('span')`
 `;
 
 const Title = styled('div')`
-  font-weight: ${p => p.theme.fontWeight.bold};
+  font-weight: ${p => p.theme.fontWeightBold};
 `;
 
 const Subtitle = styled('div')`

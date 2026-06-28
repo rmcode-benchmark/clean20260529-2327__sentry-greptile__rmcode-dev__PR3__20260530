@@ -10,24 +10,21 @@ type IconCircledNumberProps = {
 
 export function IconCircledNumber({number, size = 'md'}: IconCircledNumberProps) {
   const theme = useTheme();
+  const numericSize = theme.iconNumberSizes[size];
 
   return (
-    <Circle
-      role="img"
-      size={theme.iconSizes[size]}
-      aria-label={`circled number ${number}`}
-    >
-      <Number size={theme.iconSizes[size]}>{number}</Number>
+    <Circle size={numericSize} role="img" aria-label={`circled number ${number}`}>
+      <Number size={numericSize}>{number}</Number>
     </Circle>
   );
 }
 
-const Circle = styled('div')<{size: string}>`
+const Circle = styled('div')<{size: number}>`
   display: flex;
   justify-content: center;
   align-items: center;
-  width: ${p => p.size};
-  height: ${p => p.size};
+  width: ${p => p.size}px;
+  height: ${p => p.size}px;
   border-radius: 50%;
   border: 2px solid;
   font-weight: bold;
@@ -36,7 +33,7 @@ const Circle = styled('div')<{size: string}>`
   box-sizing: border-box;
 `;
 
-const Number = styled('span')<{size: string}>`
+const Number = styled('span')<{size: number}>`
   display: block;
-  font-size: calc(${p => p.size} / 2);
+  font-size: ${p => p.size / 2}px;
 `;

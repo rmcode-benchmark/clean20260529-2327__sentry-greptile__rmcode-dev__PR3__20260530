@@ -1,22 +1,8 @@
-from datetime import datetime
-from typing import TypedDict
-
 from sentry.api.serializers import Serializer, register, serialize
-from sentry.api.serializers.models.release import Author, get_users_for_authors
-from sentry.api.serializers.models.repository import RepositorySerializerResponse
+from sentry.api.serializers.models.release import get_users_for_authors
 from sentry.models.commitauthor import CommitAuthor
 from sentry.models.pullrequest import PullRequest
 from sentry.models.repository import Repository
-
-
-class PullRequestSerializerResponse(TypedDict):
-    id: str
-    title: str | None
-    message: str | None
-    dateCreated: datetime
-    repository: RepositorySerializerResponse
-    author: Author
-    externalUrl: str
 
 
 def get_users_for_pull_requests(item_list, user=None):
@@ -53,7 +39,7 @@ class PullRequestSerializer(Serializer):
 
         return result
 
-    def serialize(self, obj: PullRequest, attrs, user, **kwargs) -> PullRequestSerializerResponse:
+    def serialize(self, obj, attrs, user, **kwargs):
         return {
             "id": obj.key,
             "title": obj.title,

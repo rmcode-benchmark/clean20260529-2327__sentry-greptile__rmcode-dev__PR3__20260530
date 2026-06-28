@@ -21,7 +21,8 @@ export function APIReference(props: APIReferenceProps) {
 
   return (
     <Storybook.Section>
-      {props.types?.description && <p>{props.types.description}</p>}
+      <Storybook.Title>API Reference</Storybook.Title>
+      <p>{props.types?.description}</p>
       <StoryTypesSearchContainer>
         <InputGroup>
           <InputGroup.LeadingItems disablePointerEvents>
@@ -407,7 +408,7 @@ const StoryTypesTableDefinitionCell = styled('td')`
 
   > span {
     font-size: ${p => p.theme.fontSizeRelativeSmall};
-    font-weight: ${p => p.theme.fontWeight.bold};
+    font-weight: ${p => p.theme.fontWeightBold};
     margin-right: ${space(0.5)};
   }
 `;

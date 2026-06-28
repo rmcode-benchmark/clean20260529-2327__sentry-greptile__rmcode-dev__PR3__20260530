@@ -1,11 +1,13 @@
 from sentry import analytics
-from sentry.analytics import Event, eventclass
 
 
-@eventclass("org_auth_token.deleted")
-class OrgAuthTokenDeleted(Event):
-    user_id: int | None = None
-    organization_id: int
+class OrgAuthTokenDeleted(analytics.Event):
+    type = "org_auth_token.deleted"
+
+    attributes = (
+        analytics.Attribute("user_id"),
+        analytics.Attribute("organization_id"),
+    )
 
 
 analytics.register(OrgAuthTokenDeleted)

@@ -15,7 +15,6 @@ from sentry.integrations.base import IntegrationDomain
 from sentry.integrations.client import ApiClient
 from sentry.integrations.models.integration import Integration
 from sentry.integrations.services.integration.model import RpcIntegration
-from sentry.integrations.types import IntegrationProviderSlug
 from sentry.integrations.utils.metrics import (
     IntegrationPipelineViewEvent,
     IntegrationPipelineViewType,
@@ -52,7 +51,7 @@ class JiraServerClient(ApiClient):
     AUTOCOMPLETE_URL = "/rest/api/2/jql/autocompletedata/suggestions"
     PROPERTIES_URL = "/rest/api/3/issue/%s/properties/%s"
 
-    integration_name = IntegrationProviderSlug.JIRA_SERVER.value
+    integration_name = "jira_server"
 
     # This timeout is completely arbitrary. Jira doesn't give us any
     # caching headers to work with. Ideally we want a duration that

@@ -217,7 +217,7 @@ function Dashboard() {
           </Layout.Title>
         </Layout.HeaderContent>
         <Layout.HeaderActions>
-          <ButtonBar>
+          <ButtonBar gap={1}>
             <LinkButton
               size="sm"
               icon={<IconUser />}
@@ -296,11 +296,11 @@ const SearchAndSelectorWrapper = styled('div')`
   align-items: flex-end;
   margin-bottom: ${space(2)};
 
-  @media (max-width: ${p => p.theme.breakpoints.sm}) {
+  @media (max-width: ${p => p.theme.breakpoints.small}) {
     display: block;
   }
 
-  @media (min-width: ${p => p.theme.breakpoints.xl}) {
+  @media (min-width: ${p => p.theme.breakpoints.xlarge}) {
     display: flex;
   }
 `;
@@ -308,7 +308,7 @@ const SearchAndSelectorWrapper = styled('div')`
 const StyledSearchBar = styled(SearchBar)`
   flex-grow: 1;
 
-  @media (max-width: ${p => p.theme.breakpoints.sm}) {
+  @media (max-width: ${p => p.theme.breakpoints.small}) {
     margin-top: ${space(1)};
   }
 `;
@@ -318,11 +318,11 @@ const ProjectCards = styled('div')`
   gap: ${space(3)};
   grid-template-columns: repeat(auto-fill, minmax(1fr, 400px));
 
-  @media (min-width: ${p => p.theme.breakpoints.sm}) {
+  @media (min-width: ${p => p.theme.breakpoints.small}) {
     grid-template-columns: repeat(auto-fill, minmax(470px, 1fr));
   }
 
-  @media (min-width: ${p => p.theme.breakpoints.md}) {
+  @media (min-width: ${p => p.theme.breakpoints.medium}) {
     grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
   }
 `;

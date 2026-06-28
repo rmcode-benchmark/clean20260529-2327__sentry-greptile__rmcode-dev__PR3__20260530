@@ -1,5 +1,5 @@
 import {useContext, useEffect, useMemo, useRef, useState} from 'react';
-import {css, useTheme} from '@emotion/react';
+import {css} from '@emotion/react';
 import styled from '@emotion/styled';
 import type {AriaTabListOptions} from '@react-aria/tabs';
 import {useTabList} from '@react-aria/tabs';
@@ -15,7 +15,7 @@ import DropdownButton from 'sentry/components/dropdownButton';
 import {IconEllipsis} from 'sentry/icons';
 import {t} from 'sentry/locale';
 import {space} from 'sentry/styles/space';
-import {isChonkTheme, withChonk} from 'sentry/utils/theme/withChonk';
+import {withChonk} from 'sentry/utils/theme/withChonk';
 import {useNavigate} from 'sentry/utils/useNavigate';
 
 import {TabsContext} from './index';
@@ -45,7 +45,6 @@ function useOverflowTabs({
   tabListRef: React.RefObject<HTMLUListElement | null>;
 }) {
   const [overflowTabs, setOverflowTabs] = useState<Array<string | number>>([]);
-  const theme = useTheme();
 
   useEffect(() => {
     if (disabled) {
@@ -83,11 +82,8 @@ function useOverflowTabs({
       element => element && observer.observe(element)
     );
 
-    return () => {
-      observer.disconnect();
-      setOverflowTabs([]);
-    };
-  }, [tabListRef, tabItemsRef, disabled, theme]);
+    return () => observer.disconnect();
+  }, [tabListRef, tabItemsRef, disabled]);
 
   const tabItemKeyToHiddenMap = tabItems.reduce<Record<string | number, boolean>>(
     (acc, next) => ({
@@ -132,7 +128,7 @@ export interface TabListProps {
   children: TabListStateOptions<TabListItemProps>['children'];
   /**
    * @deprecated
-   * With chonk, tabs never have a border.
+   * With chonk, `flat` variants always have a border and `floating` variants never do.
    * Whether to hide the bottom border of the tab list.
    * Defaults to `false`.
    */
@@ -221,7 +217,6 @@ function BaseTabList({
         value: key,
         label: item.props.children,
         disabled: item.props.disabled,
-        tooltip: item.props.tooltip,
         textValue: item.textValue,
       };
     });
@@ -244,7 +239,6 @@ function BaseTabList({
             orientation={orientation}
             size={size}
             overflowing={orientation === 'horizontal' && overflowTabs.includes(item.key)}
-            tooltipProps={item.props.tooltip}
             ref={element => {
               tabItemsRef.current[item.key] = element;
             }}
@@ -350,6 +344,4 @@ const TabListOverflowWrap = styled('div')`
 const OverflowMenuTrigger = styled(DropdownButton)`
   padding-left: ${space(1)};
   padding-right: ${space(1)};
-  color: ${p =>
-    isChonkTheme(p.theme) ? p.theme.tokens.component.link.muted.default : undefined};
 `;

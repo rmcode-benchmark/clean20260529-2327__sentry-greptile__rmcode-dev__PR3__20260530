@@ -238,9 +238,7 @@ export function TraceEventDataSection({
       platform === 'objc' ||
       platform === 'native' ||
       platform === 'cocoa' ||
-      platform === 'nintendo-switch' ||
-      platform === 'playstation' ||
-      platform === 'xbox'
+      platform === 'nintendo-switch'
     ) {
       return [
         {
@@ -354,7 +352,7 @@ export function TraceEventDataSection({
       disableCollapsePersistence
       actions={
         !stackTraceNotFound && (
-          <ButtonBar>
+          <ButtonBar gap={1}>
             {!displayOptions.includes('raw-stack-trace') && (
               <Tooltip
                 title={t('Only full version available')}
@@ -457,7 +455,7 @@ const Wrapper = styled('div')``;
 const ThreadHeading = styled('h3')`
   color: ${p => p.theme.subText};
   font-size: ${p => p.theme.fontSize.md};
-  font-weight: ${p => p.theme.fontWeight.bold};
+  font-weight: ${p => p.theme.fontWeightBold};
   margin-bottom: ${space(1)};
 `;
 

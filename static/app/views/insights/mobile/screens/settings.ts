@@ -14,7 +14,6 @@ export const MODULE_FEATURE = t('insights-addon-modules');
 export const DATA_TYPE = t('Mobile Vitals');
 export const DATA_TYPE_PLURAL = t('Mobile Vitals');
 
-export const MODULE_DOC_LINK =
-  'https://docs.sentry.io/product/insights/mobile/mobile-vitals/';
+export const MODULE_DOC_LINK = 'https://docs.sentry.io/product/insights/mobile/';
 
 export const DEFAULT_SORT: Sort = {field: 'count()', kind: 'desc'};

@@ -154,7 +154,7 @@ function AccountSecurityDetails({deleteDisabled, onRegenerateBackupCodes}: Props
           />
         }
         action={
-          <ButtonBar>
+          <ButtonBar gap={1}>
             {authenticator.isEnrolled && authenticator.allowRotationInPlace && (
               <LinkButton
                 to={`/settings/account/security/mfa/${authenticator.id}/enroll/`}
@@ -222,7 +222,7 @@ const AuthenticatorDates = styled('div')`
 `;
 
 const DateLabel = styled('span')`
-  font-weight: ${p => p.theme.fontWeight.bold};
+  font-weight: ${p => p.theme.fontWeightBold};
 `;
 
 const PhoneWrapper = styled('div')`
@@ -230,6 +230,6 @@ const PhoneWrapper = styled('div')`
 `;
 
 const Phone = styled('span')`
-  font-weight: ${p => p.theme.fontWeight.bold};
+  font-weight: ${p => p.theme.fontWeightBold};
   margin-left: ${space(1)};
 `;

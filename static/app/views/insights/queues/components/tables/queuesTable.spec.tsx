@@ -3,7 +3,7 @@ import {OrganizationFixture} from 'sentry-fixture/organization';
 import {render, screen} from 'sentry-test/reactTestingLibrary';
 
 import {QueuesTable} from 'sentry/views/insights/queues/components/tables/queuesTable';
-import {SpanFields} from 'sentry/views/insights/types';
+import {SpanIndexedField} from 'sentry/views/insights/types';
 
 describe('queuesTable', () => {
   const organization = OrganizationFixture();
@@ -82,7 +82,7 @@ describe('queuesTable', () => {
             'avg(messaging.message.receive.latency)',
             'trace_status_rate(ok)',
           ],
-          dataset: 'spans',
+          dataset: 'spansMetrics',
         }),
       })
     );
@@ -98,7 +98,7 @@ describe('queuesTable', () => {
     render(
       <QueuesTable
         destination="*events*"
-        sort={{field: SpanFields.MESSAGING_MESSAGE_DESTINATION_NAME, kind: 'desc'}}
+        sort={{field: SpanIndexedField.MESSAGING_MESSAGE_DESTINATION_NAME, kind: 'desc'}}
       />,
       {organization}
     );
@@ -118,7 +118,7 @@ describe('queuesTable', () => {
             'avg(messaging.message.receive.latency)',
             'trace_status_rate(ok)',
           ],
-          dataset: 'spans',
+          dataset: 'spansMetrics',
           sort: '-messaging.destination.name',
           query:
             'span.op:[queue.process,queue.publish] messaging.destination.name:*events*',

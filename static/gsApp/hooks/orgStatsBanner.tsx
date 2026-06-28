@@ -72,21 +72,16 @@ function OrgStatsBanner({organization, subscription, referrer}: Props) {
           ),
         ];
       case 'send_to_checkout':
+      default:
         return [
           t('Upgrade to Business'),
           t(
             'Advanced integrations, deep insights, custom dashboards, and more. Upgrade to Sentry’s Business plan today.'
           ),
         ];
-      default:
-        return ['', ''];
     }
   };
   const [headerText, subText] = getTextContent();
-  if (!headerText && !subText) {
-    return null;
-  }
-
   return (
     <Panel>
       <SubscriptionBody withPadding>
@@ -99,7 +94,7 @@ function OrgStatsBanner({organization, subscription, referrer}: Props) {
           </HeaderWrapper>
           <SubText>{subText}</SubText>
         </TextWrapper>
-        <ButtonWrapper>
+        <ButtonWrapper gap={1}>
           {!isPaidPlan && (
             <Button
               size="sm"

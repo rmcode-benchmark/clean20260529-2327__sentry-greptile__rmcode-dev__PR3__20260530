@@ -76,11 +76,11 @@ const Wrapper = styled('div')`
   width: 100%;
   justify-content: flex-end;
 
-  @media (min-width: ${p => p.theme.breakpoints.md}) {
+  @media (min-width: ${p => p.theme.breakpoints.medium}) {
     width: 350px;
   }
 
-  @media (min-width: ${p => p.theme.breakpoints.xl}) {
+  @media (min-width: ${p => p.theme.breakpoints.xlarge}) {
     width: 500px;
   }
 `;

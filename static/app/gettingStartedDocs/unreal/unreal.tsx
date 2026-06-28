@@ -2,16 +2,16 @@ import {Fragment} from 'react';
 import {css} from '@emotion/react';
 
 import {Alert} from 'sentry/components/core/alert';
-import {ExternalLink} from 'sentry/components/core/link';
+import ExternalLink from 'sentry/components/links/externalLink';
 import List from 'sentry/components/list';
 import ListItem from 'sentry/components/list/listItem';
+import {StepType} from 'sentry/components/onboarding/gettingStartedDoc/step';
 import {StoreCrashReportsConfig} from 'sentry/components/onboarding/gettingStartedDoc/storeCrashReportsConfig';
 import type {
   Docs,
   DocsParams,
   OnboardingConfig,
 } from 'sentry/components/onboarding/gettingStartedDoc/types';
-import {StepType} from 'sentry/components/onboarding/gettingStartedDoc/types';
 import {
   getCrashReportApiIntroduction,
   getCrashReportInstallDescription,
@@ -187,7 +187,7 @@ const onboarding: OnboardingConfig = {
                   }
                 )}
               </p>
-              <Alert type="info" showIcon={false}>
+              <Alert type="info">
                 engine-dir\Engine\Programs\CrashReportClient\Config\DefaultEngine.ini
               </Alert>
             </Fragment>

@@ -8,30 +8,6 @@ import ProjectsStore from 'sentry/stores/projectsStore';
 import SeerAutomationRoot from './index';
 
 describe('SeerAutomation', function () {
-  beforeEach(() => {
-    MockApiClient.addMockResponse({
-      url: '/organizations/org-slug/seer/setup-check/',
-      method: 'GET',
-      body: {
-        setupAcknowledgement: {
-          orgHasAcknowledged: true,
-          userHasAcknowledged: true,
-        },
-        billing: {
-          hasAutofixQuota: true,
-          hasScannerQuota: true,
-        },
-      },
-    });
-    MockApiClient.addMockResponse({
-      url: '/projects/org-slug/project-slug/seer/preferences/',
-      method: 'GET',
-      body: {
-        repositories: [],
-      },
-    });
-  });
-
   afterEach(() => {
     MockApiClient.clearMockResponses();
     jest.resetAllMocks();
@@ -65,17 +41,13 @@ describe('SeerAutomation', function () {
     render(<SeerAutomationRoot />, {organization});
 
     // Project details populate the project list
-    const projectItem = await screen.findByText(project.slug);
+    const projectItem = await screen.findByRole('link', {name: project.slug});
     expect(projectItem).toBeInTheDocument();
-
-    // Find the panel item containing the project
-    const panelItem = projectItem.closest('[class*="PanelItem"]');
-    expect(panelItem).toBeInTheDocument();
-    expect(panelItem).toHaveTextContent('Off');
+    expect(projectItem.parentElement!.parentElement).toHaveTextContent('Off');
 
     // Find the select menu
     const select = await screen.findByRole('textbox', {
-      name: /Default for Auto-Triggered Fixes/i,
+      name: /Default for Automatic Issue Fixes/i,
     });
 
     act(() => {
@@ -128,9 +100,9 @@ describe('SeerAutomation', function () {
 
     render(<SeerAutomationRoot />, {organization});
 
-    // Find the toggle for Default for Issue Scans
+    // Find the toggle for Default for Automatic Issue Scans
     const toggle = await screen.findByRole('checkbox', {
-      name: /Default for Issue Scans/i,
+      name: /Default for Automatic Issue Scans/i,
     });
     expect(toggle).toBeInTheDocument();
     expect(toggle).not.toBeChecked();

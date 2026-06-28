@@ -19,13 +19,13 @@ function Onboarding({actions}: Props) {
           'Not every error is worth an email. Set your own rules for alerts you need, with information that helps.'
         )}
       </p>
-      <ButtonList>{actions}</ButtonList>
+      <ButtonList gap={1}>{actions}</ButtonList>
     </OnboardingPanel>
   );
 }
 
 const AlertsImage = styled('img')`
-  @media (min-width: ${p => p.theme.breakpoints.sm}) {
+  @media (min-width: ${p => p.theme.breakpoints.small}) {
     user-select: none;
     position: absolute;
     top: 0;
@@ -37,12 +37,12 @@ const AlertsImage = styled('img')`
     left: 50%;
   }
 
-  @media (min-width: ${p => p.theme.breakpoints.lg}) {
+  @media (min-width: ${p => p.theme.breakpoints.large}) {
     transform: translateX(-50%);
     width: 300px;
   }
 
-  @media (min-width: ${p => p.theme.breakpoints.xl}) {
+  @media (min-width: ${p => p.theme.breakpoints.xlarge}) {
     transform: translateX(-65%);
     width: 420px;
   }

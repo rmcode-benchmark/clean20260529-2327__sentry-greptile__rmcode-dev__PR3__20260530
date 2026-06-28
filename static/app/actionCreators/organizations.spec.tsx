@@ -2,7 +2,6 @@ import {OrganizationFixture} from 'sentry-fixture/organization';
 
 import {fetchOrganizations} from 'sentry/actionCreators/organizations';
 import ConfigStore from 'sentry/stores/configStore';
-import {testableWindowLocation} from 'sentry/utils/testableWindowLocation';
 
 describe('fetchOrganizations', function () {
   const api = new MockApiClient();
@@ -75,6 +74,6 @@ describe('fetchOrganizations', function () {
     expect(organizations[0].slug).toEqual(usorg.slug);
     expect(usMock).toHaveBeenCalledTimes(1);
     expect(deMock).toHaveBeenCalledTimes(1);
-    expect(testableWindowLocation.reload).not.toHaveBeenCalled();
+    expect(window.location.reload).not.toHaveBeenCalled();
   });
 });

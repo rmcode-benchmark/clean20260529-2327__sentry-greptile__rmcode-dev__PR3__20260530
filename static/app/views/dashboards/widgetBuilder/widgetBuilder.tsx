@@ -1426,11 +1426,11 @@ const Body = styled(Layout.Body)`
 
   grid-template-rows: 1fr;
 
-  @media (min-width: ${p => p.theme.breakpoints.lg}) {
+  @media (min-width: ${p => p.theme.breakpoints.large}) {
     grid-template-columns: minmax(100px, auto) 400px;
   }
 
-  @media (min-width: ${p => p.theme.breakpoints.xl}) {
+  @media (min-width: ${p => p.theme.breakpoints.xlarge}) {
     grid-template-columns: 1fr;
   }
 `;
@@ -1445,11 +1445,11 @@ const Main = styled(Layout.Main)`
 
   padding: ${space(4)} ${space(2)};
 
-  @media (min-width: ${p => p.theme.breakpoints.md}) {
+  @media (min-width: ${p => p.theme.breakpoints.medium}) {
     padding: ${space(4)};
   }
 
-  @media (max-width: calc(${p => p.theme.breakpoints.lg} + ${space(4)})) {
+  @media (max-width: calc(${p => p.theme.breakpoints.large} + ${space(4)})) {
     ${ListItem} {
       width: calc(100% - ${space(4)});
     }
@@ -1459,14 +1459,14 @@ const Main = styled(Layout.Main)`
 const Side = styled(Layout.Side)`
   padding: ${space(4)} ${space(2)};
 
-  @media (max-width: ${p => p.theme.breakpoints.lg}) {
+  @media (max-width: ${p => p.theme.breakpoints.large}) {
     border-top: 1px solid ${p => p.theme.gray200};
     grid-row: 2/2;
     grid-column: 1/-1;
     max-width: 100%;
   }
 
-  @media (min-width: ${p => p.theme.breakpoints.lg}) {
+  @media (min-width: ${p => p.theme.breakpoints.large}) {
     border-left: 1px solid ${p => p.theme.gray200};
 
     /* to be consistent with Layout.Body in other verticals */
@@ -1479,7 +1479,7 @@ const MainWrapper = styled('div')`
   display: flex;
   flex-direction: column;
 
-  @media (max-width: ${p => p.theme.breakpoints.lg}) {
+  @media (max-width: ${p => p.theme.breakpoints.large}) {
     grid-column: 1/-1;
   }
 `;

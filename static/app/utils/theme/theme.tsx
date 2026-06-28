@@ -415,6 +415,12 @@ const generateThemeAliases = (colors: Colors) => ({
   progressBackground: colors.gray100,
 
   /**
+   * Tag progress bars
+   */
+  tagBarHover: colors.purple200,
+  tagBar: colors.gray200,
+
+  /**
    * Search filter "token" background
    */
   searchTokenBackground: {
@@ -445,6 +451,7 @@ const generateThemeAliases = (colors: Colors) => ({
 });
 
 type Alert = 'muted' | 'info' | 'warning' | 'success' | 'error';
+
 type AlertColors = Record<
   Alert,
   {
@@ -955,19 +962,59 @@ type ButtonColors = Record<
   }
 >;
 
-type Breakpoint = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+type ButtonSize = 'md' | 'sm' | 'xs';
+type ButtonPaddingSizes = Record<
+  ButtonSize,
+  {
+    paddingBottom: number;
+    paddingLeft: number;
+    paddingRight: number;
+    paddingTop: number;
+  }
+>;
+const buttonPaddingSizes: ButtonPaddingSizes = {
+  md: {
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingTop: 10,
+    paddingBottom: 10,
+  },
+  sm: {
+    paddingLeft: 12,
+    paddingRight: 12,
+    paddingTop: 8,
+    paddingBottom: 8,
+  },
+  xs: {
+    paddingLeft: 8,
+    paddingRight: 8,
+    paddingTop: 6,
+    paddingBottom: 6,
+  },
+};
+
+type Breakpoint = 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge' | 'xxlarge';
 type Breakpoints = Record<Breakpoint, string>;
 
 const breakpoints = {
-  xs: '500px',
-  sm: '800px',
-  md: '992px',
-  lg: '1200px',
-  xl: '1440px',
-  '2xl': '2560px',
+  xsmall: '500px',
+  small: '800px',
+  medium: '992px',
+  large: '1200px',
+  xlarge: '1440px',
+  xxlarge: '2560px',
 } as const satisfies Breakpoints;
 
-type Size = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+type Size = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
+type Sizes = Record<Size, string>;
+const iconNumberSizes: Record<Size, number> = {
+  xs: 12,
+  sm: 14,
+  md: 18,
+  lg: 24,
+  xl: 32,
+  xxl: 72,
+} as const;
 
 // @TODO: this needs to directly reference the icon direction
 type IconDirection = 'up' | 'right' | 'down' | 'left';
@@ -978,14 +1025,7 @@ const iconDirectionToAngle: Record<IconDirection, number> = {
   left: 270,
 } as const;
 
-/**
- * Unless you are implementing a new component in the `sentry/components/core`
- * directory, use `ComponentProps['size']` instead.
- * @internal
- */
 export type FormSize = 'xs' | 'sm' | 'md';
-
-export type Space = keyof Theme['space'];
 
 export type FormTheme = {
   form: Record<
@@ -1083,49 +1123,13 @@ const formTheme: FormTheme = {
   },
 };
 
-const iconSizes: Record<Size, string> = {
-  xs: '12px',
-  sm: '14px',
-  md: '18px',
-  lg: '24px',
-  xl: '32px',
-  '2xl': '72px',
-} as const;
-
-const space = {
-  none: '0px',
-  /**
-   * Equivalent to deprecated `space(0.25)`
-   */
-  '2xs': '2px',
-  /**
-   * Equivalent to deprecated `space(0.5)`
-   */
-  xs: '4px',
-  /**
-   * Equivalent to deprecated `space(0.75)`
-   */
-  sm: '6px',
-  /**
-   * Equivalent to deprecated `space(1)`
-   */
-  md: '8px',
-  /**
-   * Equivalent to deprecated `space(1.5)`
-   */
-  lg: '12px',
-  /**
-   * Equivalent to deprecated `space(2)`
-   */
-  xl: '16px',
-  /**
-   * Equivalent to deprecated `space(3)` (was `20px`)
-   */
-  '2xl': '24px',
-  /**
-   * Equivalent to deprecated `space(4)` (was `30px`)
-   */
-  '3xl': '32px',
+const iconSizes: Sizes = {
+  xs: `${iconNumberSizes.xs}px`,
+  sm: `${iconNumberSizes.sm}px`,
+  md: `${iconNumberSizes.md}px`,
+  lg: `${iconNumberSizes.lg}px`,
+  xl: `${iconNumberSizes.xl}px`,
+  xxl: `${iconNumberSizes.xxl}px`,
 } as const;
 
 /**
@@ -1137,10 +1141,9 @@ const commonTheme = {
   ...lightColors,
   ...lightShadows,
 
-  space,
-
   // Icons
   iconSizes,
+  iconNumberSizes,
   iconDirections: iconDirectionToAngle,
 
   // Try to keep these ordered plz
@@ -1221,18 +1224,17 @@ const commonTheme = {
     xl: '18px' as const,
   },
 
-  fontWeight: {
-    normal: 400 as const,
-    bold: 600 as const,
-  },
-
   /**
    * @TODO(jonasbadalic) remove relative font sizes
    * @deprecated use fontSize instead
    */
   fontSizeRelativeSmall: '0.9em' as const,
+
   codeFontSize: '13px' as const,
   headerFontSize: '22px' as const,
+
+  fontWeightNormal: 400,
+  fontWeightBold: 600,
 
   text: {
     family: "'Rubik', 'Avenir Next', sans-serif",
@@ -1240,6 +1242,12 @@ const commonTheme = {
     lineHeightHeading: 1.2,
     lineHeightBody: 1.4,
   },
+
+  /**
+   * Padding for buttons
+   * @TODO(jonasbadalic) This should exist on button component
+   */
+  buttonPadding: buttonPaddingSizes,
 
   tag: generateTagTheme(lightColors),
   level: generateLevelTheme(lightColors),
@@ -1256,7 +1264,6 @@ const darkAliases = generateThemeAliases(darkColors);
  * @deprecated use useTheme hook instead of directly importing the theme. If you require a theme for your tests, use ThemeFixture.
  */
 export const lightTheme = {
-  type: 'light' as 'light' | 'dark',
   isChonk: false,
   ...commonTheme,
   ...formTheme,
@@ -1276,8 +1283,15 @@ export const lightTheme = {
   level: generateLevelTheme(lightColors),
   stacktraceActiveBackground: lightColors.gray500,
   stacktraceActiveText: lightColors.white,
+  tour: {
+    background: darkColors.surface400,
+    header: darkColors.white,
+    text: darkAliases.textColor,
+    next: lightAliases.textColor,
+    previous: darkColors.white,
+    close: lightColors.white,
+  },
   chart: {
-    neutral: lightColors.gray200,
     colors: CHART_PALETTE,
     getColorPalette: makeChartColorPalette(CHART_PALETTE),
   },
@@ -1304,7 +1318,6 @@ export const lightTheme = {
  * @deprecated use useTheme hook instead of directly importing the theme. If you require a theme for your tests, use ThemeFixture.
  */
 export const darkTheme: typeof lightTheme = {
-  type: 'dark',
   isChonk: false,
   ...commonTheme,
   ...formTheme,
@@ -1329,8 +1342,15 @@ export const darkTheme: typeof lightTheme = {
   ),
   stacktraceActiveBackground: darkColors.gray200,
   stacktraceActiveText: darkColors.white,
+  tour: {
+    background: darkColors.purple300,
+    header: darkColors.white,
+    text: darkAliases.textColor,
+    next: lightAliases.textColor,
+    previous: darkColors.white,
+    close: lightColors.white,
+  },
   chart: {
-    neutral: darkColors.gray200,
     colors: CHART_PALETTE,
     getColorPalette: makeChartColorPalette(CHART_PALETTE),
   },
@@ -1348,7 +1368,7 @@ export const darkTheme: typeof lightTheme = {
 export type ColorMapping = typeof lightColors;
 export type Color = keyof typeof lightColors;
 export type IconSize = Size;
-type Aliases = typeof lightAliases;
+export type Aliases = typeof lightAliases;
 export type ColorOrAlias = keyof Aliases | Color;
 export type Theme = typeof lightTheme;
 

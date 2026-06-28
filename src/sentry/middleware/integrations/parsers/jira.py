@@ -18,7 +18,6 @@ from sentry.integrations.jira.webhooks import (
 )
 from sentry.integrations.middleware.hybrid_cloud.parser import BaseRequestParser
 from sentry.integrations.models.integration import Integration
-from sentry.integrations.types import IntegrationProviderSlug
 from sentry.integrations.utils.atlassian_connect import (
     AtlassianConnectValidationError,
     parse_integration_from_request,
@@ -29,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 
 class JiraRequestParser(BaseRequestParser):
-    provider = IntegrationProviderSlug.JIRA.value
+    provider = "jira"
     webhook_identifier = WebhookProviderIdentifier.JIRA
 
     control_classes = [

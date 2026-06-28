@@ -1,11 +1,10 @@
 from typing import NoReturn
 
 from sentry.identity.oauth2 import OAuth2Provider
-from sentry.integrations.types import IntegrationProviderSlug
 
 
 class GitHubEnterpriseIdentityProvider(OAuth2Provider):
-    key = IntegrationProviderSlug.GITHUB_ENTERPRISE.value
+    key = "github_enterprise"
     name = "GitHub Enterprise"
 
     oauth_scopes = ()

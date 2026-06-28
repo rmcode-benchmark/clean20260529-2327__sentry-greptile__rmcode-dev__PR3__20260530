@@ -135,7 +135,7 @@ const EmailForm = styled('form')`
     margin: 0;
   }
 
-  @media (max-width: ${p => p.theme.breakpoints.sm}) {
+  @media (max-width: ${p => p.theme.breakpoints.small}) {
     grid-auto-flow: row;
     width: 100%;
   }

@@ -74,7 +74,7 @@ describe('WebVitalsLandingPage', function () {
       expect.anything(),
       expect.objectContaining({
         query: expect.objectContaining({
-          dataset: 'spans',
+          dataset: 'metrics',
           field: [
             'project.id',
             'project',
@@ -93,9 +93,10 @@ describe('WebVitalsLandingPage', function () {
             'count_scores(measurements.score.inp)',
             'count_scores(measurements.score.ttfb)',
             'count_scores(measurements.score.total)',
+            'total_opportunity_score()',
           ],
           query:
-            'span.op:[ui.interaction.click,ui.interaction.hover,ui.interaction.drag,ui.interaction.press,ui.webvital.cls,ui.webvital.lcp,pageload,""] !transaction:"<< unparameterized >>" avg(measurements.score.total):>=0',
+            'transaction.op:[pageload,""] span.op:[ui.interaction.click,ui.interaction.hover,ui.interaction.drag,ui.interaction.press,ui.webvital.cls,""] !transaction:"<< unparameterized >>" avg(measurements.score.total):>=0',
         }),
       })
     );
@@ -105,7 +106,7 @@ describe('WebVitalsLandingPage', function () {
       expect.anything(),
       expect.objectContaining({
         query: expect.objectContaining({
-          dataset: 'spans',
+          dataset: 'metrics',
           field: [
             'p75(measurements.lcp)',
             'p75(measurements.fcp)',
@@ -115,7 +116,7 @@ describe('WebVitalsLandingPage', function () {
             'count()',
           ],
           query:
-            'span.op:[ui.interaction.click,ui.interaction.hover,ui.interaction.drag,ui.interaction.press,ui.webvital.cls,ui.webvital.lcp,pageload,""] !transaction:"<< unparameterized >>"',
+            'transaction.op:[pageload,""] span.op:[ui.interaction.click,ui.interaction.hover,ui.interaction.drag,ui.interaction.press,ui.webvital.cls,""] !transaction:"<< unparameterized >>"',
         }),
       })
     );
@@ -125,7 +126,7 @@ describe('WebVitalsLandingPage', function () {
       expect.anything(),
       expect.objectContaining({
         query: expect.objectContaining({
-          dataset: 'spans',
+          dataset: 'metrics',
           field: [
             'performance_score(measurements.score.lcp)',
             'performance_score(measurements.score.fcp)',
@@ -147,7 +148,7 @@ describe('WebVitalsLandingPage', function () {
             `count_scores(measurements.score.inp)`,
           ],
           query:
-            'span.op:[ui.interaction.click,ui.interaction.hover,ui.interaction.drag,ui.interaction.press,ui.webvital.cls,ui.webvital.lcp,pageload,""] !transaction:"<< unparameterized >>"',
+            'transaction.op:[pageload,""] span.op:[ui.interaction.click,ui.interaction.hover,ui.interaction.drag,ui.interaction.press,ui.webvital.cls,""] !transaction:"<< unparameterized >>"',
         }),
       })
     );

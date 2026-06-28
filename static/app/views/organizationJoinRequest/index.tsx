@@ -10,7 +10,6 @@ import {t, tct} from 'sentry/locale';
 import {space} from 'sentry/styles/space';
 import type {RouteComponentProps} from 'sentry/types/legacyReactRouter';
 import {trackAnalytics} from 'sentry/utils/analytics';
-import {testableWindowLocation} from 'sentry/utils/testableWindowLocation';
 
 type Props = RouteComponentProps<{orgId: string}>;
 
@@ -40,7 +39,7 @@ class OrganizationJoinRequest extends Component<Props, State> {
     e.preventDefault();
     const {params} = this.props;
 
-    testableWindowLocation.assign(`/auth/login/${params.orgId}/`);
+    window.location.assign(`/auth/login/${params.orgId}/`);
   };
 
   render() {
@@ -51,7 +50,7 @@ class OrganizationJoinRequest extends Component<Props, State> {
       return (
         <NarrowLayout maxWidth="550px">
           <SuccessModal>
-            <StyledIconMegaphone size="2xl" />
+            <StyledIconMegaphone size="xxl" />
             <StyledHeader>{t('Request Sent')}</StyledHeader>
             <StyledText>{t('Your request to join has been sent.')}</StyledText>
             <ReceiveEmailMessage>
@@ -64,7 +63,7 @@ class OrganizationJoinRequest extends Component<Props, State> {
 
     return (
       <NarrowLayout maxWidth="650px">
-        <StyledIconMegaphone size="2xl" />
+        <StyledIconMegaphone size="xxl" />
         <StyledHeader data-test-id="join-request">{t('Request to Join')}</StyledHeader>
         <StyledText>
           {tct('Ask the admins if you can join the [orgId] organization.', {

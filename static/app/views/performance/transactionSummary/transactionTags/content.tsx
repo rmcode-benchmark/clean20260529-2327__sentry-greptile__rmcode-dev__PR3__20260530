@@ -296,7 +296,7 @@ function TagsSideBar(props: {
 const RadioLabel = styled('label')`
   cursor: pointer;
   margin-bottom: ${space(1)};
-  font-weight: ${p => p.theme.fontWeight.normal};
+  font-weight: ${p => p.theme.fontWeightNormal};
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: max-content 1fr;
@@ -318,14 +318,14 @@ const ReversedLayoutBody = styled('div')`
   background-color: ${p => p.theme.background};
   flex-grow: 1;
 
-  @media (min-width: ${p => p.theme.breakpoints.md}) {
+  @media (min-width: ${p => p.theme.breakpoints.medium}) {
     display: grid;
     grid-template-columns: auto 66%;
     align-content: start;
     gap: ${space(3)};
   }
 
-  @media (min-width: ${p => p.theme.breakpoints.lg}) {
+  @media (min-width: ${p => p.theme.breakpoints.large}) {
     grid-template-columns: 225px minmax(100px, auto);
   }
 `;
@@ -340,12 +340,12 @@ const StyledMain = styled('div')`
 `;
 
 const StyledSearchBarWrapper = styled('div')`
-  @media (min-width: ${p => p.theme.breakpoints.sm}) {
+  @media (min-width: ${p => p.theme.breakpoints.small}) {
     order: 1;
     grid-column: 1/6;
   }
 
-  @media (min-width: ${p => p.theme.breakpoints.xl}) {
+  @media (min-width: ${p => p.theme.breakpoints.xlarge}) {
     order: initial;
     grid-column: auto;
   }
@@ -356,7 +356,7 @@ const FilterActions = styled('div')`
   gap: ${space(2)};
   margin-bottom: ${space(2)};
 
-  @media (min-width: ${p => p.theme.breakpoints.sm}) {
+  @media (min-width: ${p => p.theme.breakpoints.small}) {
     grid-template-columns: auto 1fr auto;
   }
 `;

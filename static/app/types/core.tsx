@@ -93,7 +93,6 @@ export enum DataCategory {
   LOG_BYTE = 'logBytes',
   SEER_AUTOFIX = 'seerAutofix',
   SEER_SCANNER = 'seerScanner',
-  USER_REPORT_V2 = 'feedback',
 }
 
 /**
@@ -106,33 +105,33 @@ export enum DataCategoryExact {
   TRANSACTION = 'transaction',
   ATTACHMENT = 'attachment',
   PROFILE = 'profile',
-  PROFILE_INDEXED = 'profile_indexed',
+  PROFILE_INDEXED = 'profileIndexed',
   REPLAY = 'replay',
+  // TODO: Update processed and indexed transactions to camel case"
   TRANSACTION_PROCESSED = 'transaction_processed',
   TRANSACTION_INDEXED = 'transaction_indexed',
   MONITOR = 'monitor',
-  MONITOR_SEAT = 'monitor_seat',
-  PROFILE_DURATION = 'profile_duration',
-  PROFILE_DURATION_UI = 'profile_duration_ui',
-  PROFILE_CHUNK = 'profile_chunk',
-  PROFILE_CHUNK_UI = 'profile_chunk_ui',
+  MONITOR_SEAT = 'monitorSeat',
+  PROFILE_DURATION = 'profileDuration',
+  PROFILE_DURATION_UI = 'profileDurationUI',
+  PROFILE_CHUNK = 'profileChunk',
+  PROFILE_CHUNK_UI = 'profileChunkUI',
   SPAN = 'span',
-  SPAN_INDEXED = 'span_indexed',
+  SPAN_INDEXED = 'spanIndexed',
   UPTIME = 'uptime',
-  LOG_ITEM = 'log_item',
-  LOG_BYTE = 'log_byte',
-  SEER_AUTOFIX = 'seer_autofix',
-  SEER_SCANNER = 'seer_scanner',
-  USER_REPORT_V2 = 'feedback',
+  LOG_ITEM = 'logItem',
+  LOG_BYTE = 'logByte',
+  SEER_AUTOFIX = 'seerAutofix',
+  SEER_SCANNER = 'seerScanner',
 }
 
 export interface DataCategoryInfo {
+  apiName: string;
   displayName: string;
   isBilledCategory: boolean;
   name: DataCategoryExact;
   plural: DataCategory;
   productName: string;
-  singular: string; // singular form of `plural`
   statsInfo: {
     showExternalStats: boolean;
     showInternalStats: boolean;

@@ -71,6 +71,7 @@ export function IssueViewQueryCount({view, isActive}: IssueViewQueryCountProps) 
 
   return (
     <QueryCountBubble
+      layout="preserve-aspect"
       animate={{
         backgroundColor: isFetching
           ? [theme.surface400, theme.surface100, theme.surface400]
@@ -110,5 +111,5 @@ const QueryCountBubble = styled(motion.span)`
   border: 1px solid ${p => p.theme.border};
   color: ${p => p.theme.subText};
   margin-left: 0;
-  font-weight: ${p => p.theme.fontWeight.bold};
+  font-weight: ${p => p.theme.fontWeightBold};
 `;

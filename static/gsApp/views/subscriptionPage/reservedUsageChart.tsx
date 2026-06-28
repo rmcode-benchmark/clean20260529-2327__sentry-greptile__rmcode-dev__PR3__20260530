@@ -51,12 +51,7 @@ import {
   formatReservedWithUnits,
   isUnlimitedReserved,
 } from 'getsentry/utils/billing';
-import {
-  getPlanCategoryName,
-  hasCategoryFeature,
-  isByteCategory,
-  isPartOfReservedBudget,
-} from 'getsentry/utils/dataCategory';
+import {getPlanCategoryName, hasCategoryFeature} from 'getsentry/utils/dataCategory';
 import formatCurrency from 'getsentry/utils/formatCurrency';
 import {
   calculateCategoryOnDemandUsage,
@@ -66,8 +61,8 @@ import {
 const USAGE_CHART_OPTIONS_DATACATEGORY = [
   ...CHART_OPTIONS_DATACATEGORY,
   {
-    label: DATA_CATEGORY_INFO.span_indexed.titleName,
-    value: DATA_CATEGORY_INFO.span_indexed.plural,
+    label: DATA_CATEGORY_INFO.spanIndexed.titleName,
+    value: DATA_CATEGORY_INFO.spanIndexed.plural,
     yAxisMinInterval: 100,
   },
 ];
@@ -189,7 +184,7 @@ function mapReservedToChart(reserved: number | null, category: DataCategory) {
     return 0;
   }
 
-  if (isByteCategory(category)) {
+  if (category === DataCategory.ATTACHMENTS) {
     return typeof reserved === 'number' ? reserved * GIGABYTE : 0;
   }
   return reserved || 0;
@@ -456,14 +451,12 @@ function ReservedUsageChart({
   const currentHistory: BillingMetricHistory | undefined =
     subscription.categories[category];
   const categoryStats = usageStats[category];
-  const shouldDisplayBudgetStats = isPartOfReservedBudget(
-    category,
-    subscription.reservedBudgets ?? []
-  );
+  const isReservedBudgetCategory =
+    subscription.reservedBudgetCategories?.includes(category) ?? false;
 
   // For sales-led customers (canSelfServe: false), force cost view for reserved budget categories
   // since they don't have access to the usage/cost toggle
-  if (shouldDisplayBudgetStats && !subscription.canSelfServe) {
+  if (isReservedBudgetCategory && !subscription.canSelfServe) {
     displayMode = 'cost';
   }
 
@@ -487,7 +480,7 @@ function ReservedUsageChart({
     };
 
     if (categoryStats) {
-      if (shouldDisplayBudgetStats && displayMode === 'cost') {
+      if (isReservedBudgetCategory && displayMode === 'cost') {
         const budgetType = reservedBudgetCategoryInfo[category]?.apiName;
         if (
           budgetType !== ReservedBudgetCategoryType.DYNAMIC_SAMPLING ||

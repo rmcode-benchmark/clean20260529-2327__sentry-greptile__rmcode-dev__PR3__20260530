@@ -7,7 +7,7 @@ import {useQueryClient} from 'sentry/utils/queryClient';
 import type {Flatten} from 'sentry/utils/types/flatten';
 import useProjects from 'sentry/utils/useProjects';
 import {useStarredSegment} from 'sentry/views/insights/common/utils/useStarredSegment';
-import type {SpanResponse} from 'sentry/views/insights/types';
+import type {EAPSpanResponse} from 'sentry/views/insights/types';
 
 interface Props {
   isStarred: boolean;
@@ -16,7 +16,8 @@ interface Props {
 }
 
 type TableRow = Flatten<
-  Partial<SpanResponse> & Pick<SpanResponse, 'is_starred_transaction' | 'transaction'>
+  Partial<EAPSpanResponse> &
+    Pick<EAPSpanResponse, 'is_starred_transaction' | 'transaction'>
 >;
 
 type TableResponse = [{confidence: any; data: TableRow[]; meta: EventsMetaType}];

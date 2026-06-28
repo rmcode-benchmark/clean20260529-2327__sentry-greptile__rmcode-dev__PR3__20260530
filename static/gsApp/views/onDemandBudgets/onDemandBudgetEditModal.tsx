@@ -91,21 +91,21 @@ class OnDemandBudgetEditModal extends Component<Props, State> {
 
       if (listOfErrors.length === 0) {
         return (
-          <Alert system type="error">
+          <Alert system type="error" showIcon>
             {ONDEMAND_BUDGET_SAVE_ERROR}
           </Alert>
         );
       }
 
       return (
-        <Alert system type="error">
+        <Alert system type="error" showIcon>
           <ul>{listOfErrors}</ul>
         </Alert>
       );
     }
 
     return (
-      <Alert system type="error">
+      <Alert system type="error" showIcon>
         {/* TODO(TS): Type says error might be an object */}
         {error as React.ReactNode}
       </Alert>
@@ -340,7 +340,7 @@ class OnDemandBudgetEditModal extends Component<Props, State> {
           />
         </OffsetBody>
         <Footer>
-          <ButtonBar>
+          <ButtonBar gap={1}>
             <Button
               onClick={() => {
                 this.props.closeModal();
@@ -393,7 +393,7 @@ const DetailTitle = styled('div')`
 const OffsetBody = styled('div')`
   margin: -${space(3)} -${space(4)};
 
-  @media (max-width: ${p => p.theme.breakpoints.md}) {
+  @media (max-width: ${p => p.theme.breakpoints.medium}) {
     margin: -${space(3)};
   }
 `;

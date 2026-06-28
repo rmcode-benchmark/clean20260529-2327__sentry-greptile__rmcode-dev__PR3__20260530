@@ -235,7 +235,7 @@ const Ghost = styled('div')`
     cursor: grabbing;
   }
 
-  @media (min-width: ${p => p.theme.breakpoints.sm}) {
+  @media (min-width: ${p => p.theme.breakpoints.small}) {
     width: 710px;
   }
 `;

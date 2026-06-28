@@ -126,7 +126,7 @@ function SaveQueryModal({
       </Body>
 
       <Footer>
-        <StyledButtonBar gap="lg">
+        <StyledButtonBar gap={1.5}>
           <Button onClick={closeModal} disabled={isSaving}>
             {t('Cancel')}
           </Button>
@@ -157,7 +157,7 @@ const StarredWrapper = styled('div')`
 `;
 
 const StyledButtonBar = styled(ButtonBar)`
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+  @media (max-width: ${props => props.theme.breakpoints.small}) {
     grid-template-rows: repeat(2, 1fr);
     gap: ${space(1.5)};
     width: 100%;

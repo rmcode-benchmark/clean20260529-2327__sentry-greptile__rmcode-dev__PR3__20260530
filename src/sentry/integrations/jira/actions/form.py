@@ -6,12 +6,11 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from sentry.integrations.services.integration.service import integration_service
-from sentry.integrations.types import IntegrationProviderSlug
 from sentry.rules.actions import IntegrationNotifyServiceForm
 
 
 class JiraNotifyServiceForm(IntegrationNotifyServiceForm):
-    provider = IntegrationProviderSlug.JIRA.value
+    provider = "jira"
 
     def clean(self) -> dict[str, Any] | None:
         cleaned_data = super().clean()

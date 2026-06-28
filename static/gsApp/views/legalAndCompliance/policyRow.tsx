@@ -147,7 +147,7 @@ export function PolicyRow({
                   })}
                 </small>
 
-                <ButtonBar>
+                <ButtonBar gap={1}>
                   <Button size="sm" onClick={closeModal}>
                     {t('Cancel')}
                   </Button>
@@ -250,7 +250,7 @@ const PolicySubtext = styled('div')`
 `;
 
 const PolicyTitle = styled('h6')`
-  @media (max-width: ${p => p.theme.breakpoints.sm}) {
+  @media (max-width: ${p => p.theme.breakpoints.small}) {
     font-size: ${p => p.theme.fontSize.lg};
   }
 `;
@@ -269,7 +269,7 @@ const PolicyActions = styled('div')`
 `;
 
 const modalCss = (theme: Theme) => css`
-  @media (min-width: ${theme.breakpoints.sm}) {
+  @media (min-width: ${theme.breakpoints.small}) {
     width: 80%;
     max-width: 1200px;
   }

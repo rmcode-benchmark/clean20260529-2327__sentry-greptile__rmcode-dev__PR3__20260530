@@ -14,11 +14,11 @@ class TimeSeriesPoint(TypedDict):
 
 
 class DataSourceType(IntEnum):
-    SNUBA_QUERY_SUBSCRIPTION = 1
+    SNUBA_QUERY_SUBSCRIPTION = 0
 
 
 class AlertInSeer(TypedDict):
-    id: int | None
+    id: NotRequired[int]
     source_id: NotRequired[
         int
     ]  # during our dual processing rollout, some requests will be sending ID and some will send source_id/source_type

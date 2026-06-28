@@ -4,7 +4,6 @@ import ConfigStore from 'sentry/stores/configStore';
 import type {UserIdentityConfig} from 'sentry/types/auth';
 import type {User} from 'sentry/types/user';
 import {isDemoModeActive} from 'sentry/utils/demoMode';
-import {testableWindowLocation} from 'sentry/utils/testableWindowLocation';
 import type {ChangeAvatarUser} from 'sentry/views/settings/account/accountDetails';
 
 export async function disconnectIdentity(
@@ -52,7 +51,7 @@ export async function logout(api: Client, redirectUrl?: string) {
   const data = await api.requestPromise('/auth/', {method: 'DELETE'});
 
   // If there's a URL for SAML Single-logout, redirect back to IdP
-  testableWindowLocation.assign(data?.sloUrl || getRedirectUrl(redirectUrl));
+  window.location.assign(data?.sloUrl || getRedirectUrl(redirectUrl));
 }
 
 function getRedirectUrl(redirectUrl = '/auth/login/') {

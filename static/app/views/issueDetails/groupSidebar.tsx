@@ -319,7 +319,7 @@ const StyledAvatarList = styled(AvatarList)`
 `;
 
 const TitleNumber = styled('span')`
-  font-weight: ${p => p.theme.fontWeight.normal};
+  font-weight: ${p => p.theme.fontWeightNormal};
 `;
 
 // Using 22px + space(1) = space(4)

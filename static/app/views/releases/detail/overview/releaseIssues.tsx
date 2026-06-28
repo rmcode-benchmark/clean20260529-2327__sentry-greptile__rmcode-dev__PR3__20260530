@@ -395,7 +395,7 @@ class ReleaseIssues extends Component<Props, State> {
             </SegmentedControl>
           </DemoTourElement>
 
-          <OpenInButtonBar>
+          <OpenInButtonBar gap={1}>
             <LinkButton to={this.getIssuesUrl()} size="xs">
               {t('Open in Issues')}
             </LinkButton>
@@ -427,7 +427,7 @@ const ControlsWrapper = styled('div')`
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  @media (max-width: ${p => p.theme.breakpoints.sm}) {
+  @media (max-width: ${p => p.theme.breakpoints.small}) {
     display: block;
   }
 `;

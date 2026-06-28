@@ -240,7 +240,7 @@ function GroupEventDetails() {
 const StyledLayoutBody = styled(Layout.Body)`
   /* Makes the borders align correctly */
   padding: 0 !important;
-  @media (min-width: ${p => p.theme.breakpoints.lg}) {
+  @media (min-width: ${p => p.theme.breakpoints.large}) {
     align-content: stretch;
   }
 `;
@@ -252,11 +252,11 @@ const GroupStatusBannerWrapper = styled('div')`
 const StyledLayoutMain = styled(Layout.Main)`
   padding-top: ${space(2)};
 
-  @media (max-width: ${p => p.theme.breakpoints.md}) {
+  @media (max-width: ${p => p.theme.breakpoints.medium}) {
     padding-top: ${space(1)};
   }
 
-  @media (min-width: ${p => p.theme.breakpoints.lg}) {
+  @media (min-width: ${p => p.theme.breakpoints.large}) {
     border-right: 1px solid ${p => p.theme.border};
     padding-right: 0;
   }
@@ -265,11 +265,11 @@ const StyledLayoutMain = styled(Layout.Main)`
 const StyledLayoutSide = styled(Layout.Side)`
   padding: ${space(3)} ${space(2)} ${space(3)};
 
-  @media (min-width: ${p => p.theme.breakpoints.lg}) {
+  @media (min-width: ${p => p.theme.breakpoints.large}) {
     padding-right: ${space(4)};
   }
 
-  @media (min-width: ${p => p.theme.breakpoints.lg}) {
+  @media (min-width: ${p => p.theme.breakpoints.large}) {
     padding-left: 0;
   }
 `;

@@ -42,7 +42,7 @@ const StyledHeader = styled('h6')`
 const OptionalHeader = styled('h6')`
   font-size: ${p => p.theme.form.md.fontSize};
   color: ${p => p.theme.subText};
-  font-weight: ${p => p.theme.fontWeight.normal};
+  font-weight: ${p => p.theme.fontWeightNormal};
   margin-bottom: ${space(0.5)};
 `;
 

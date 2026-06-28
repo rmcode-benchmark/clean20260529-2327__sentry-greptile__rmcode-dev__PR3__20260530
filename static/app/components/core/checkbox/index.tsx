@@ -14,7 +14,7 @@ type CheckboxConfig = {
   icon: string;
 };
 
-const checkboxSizeMap: Record<NonNullable<CheckboxProps['size']>, CheckboxConfig> = {
+const checkboxSizeMap: Record<FormSize, CheckboxConfig> = {
   xs: {box: '12px', borderRadius: '2px', icon: '10px'},
   sm: {box: '16px', borderRadius: '4px', icon: '12px'},
   md: {box: '22px', borderRadius: '6px', icon: '18px'},
@@ -83,7 +83,7 @@ export function Checkbox({
 }
 
 const CheckboxWrapper = styled('div')<{
-  size: NonNullable<CheckboxProps['size']>;
+  size: FormSize;
 }>`
   position: relative;
   cursor: pointer;
@@ -144,7 +144,7 @@ const NativeHiddenCheckbox = withChonk(
 );
 
 const FakeCheckbox = styled('div')<{
-  size: NonNullable<CheckboxProps['size']>;
+  size: FormSize;
 }>`
   position: relative;
   display: flex;

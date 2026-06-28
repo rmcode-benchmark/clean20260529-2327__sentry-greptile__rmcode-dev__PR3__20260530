@@ -7,14 +7,13 @@ from typing import Any
 from sentry.hybridcloud.outbox.category import WebhookProviderIdentifier
 from sentry.integrations.github.webhook import get_github_external_id
 from sentry.integrations.github_enterprise.webhook import GitHubEnterpriseWebhookEndpoint, get_host
-from sentry.integrations.types import IntegrationProviderSlug
 from sentry.middleware.integrations.parsers.github import GithubRequestParser
 
 logger = logging.getLogger(__name__)
 
 
 class GithubEnterpriseRequestParser(GithubRequestParser):
-    provider = IntegrationProviderSlug.GITHUB_ENTERPRISE.value
+    provider = "github_enterprise"
     webhook_identifier = WebhookProviderIdentifier.GITHUB_ENTERPRISE
     webhook_endpoint = GitHubEnterpriseWebhookEndpoint
 
