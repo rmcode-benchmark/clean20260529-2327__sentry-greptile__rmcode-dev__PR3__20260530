@@ -36,19 +36,14 @@ export function ExploreSecondaryNav() {
       </SecondaryNav.Header>
       <SecondaryNav.Body>
         <SecondaryNav.Section id="explore-main">
-          <Feature features={['performance-view']}>
-            <Feature
-              features={['performance-trace-explorer', 'visibility-explore-view']}
-              requireAll={false}
+          <Feature features={['performance-trace-explorer', 'performance-view']}>
+            <SecondaryNav.Item
+              to={`${baseUrl}/traces/`}
+              analyticsItemName="explore_traces"
+              isActive={isLinkActive(`${baseUrl}/traces/`, location.pathname)}
             >
-              <SecondaryNav.Item
-                to={`${baseUrl}/traces/`}
-                analyticsItemName="explore_traces"
-                isActive={isLinkActive(`${baseUrl}/traces/`, location.pathname)}
-              >
-                {t('Traces')}
-              </SecondaryNav.Item>
-            </Feature>
+              {t('Traces')}
+            </SecondaryNav.Item>
           </Feature>
           <Feature features="ourlogs-enabled">
             <SecondaryNav.Item

@@ -1,9 +1,9 @@
 import type {Tag} from 'sentry/types/group';
 import {MutableSearch} from 'sentry/utils/tokenizeSearch';
-import {DEFAULT_QUERY_FILTER} from 'sentry/views/insights/browser/webVitals/settings';
 import type {BrowserType} from 'sentry/views/insights/browser/webVitals/utils/queryParameterDecoders/browserType';
-import {useSpans} from 'sentry/views/insights/common/queries/useDiscover';
-import {SpanFields, type SubregionCode} from 'sentry/views/insights/types';
+import {useDefaultWebVitalsQuery} from 'sentry/views/insights/browser/webVitals/utils/useDefaultQuery';
+import {useMetrics} from 'sentry/views/insights/common/queries/useDiscover';
+import {SpanMetricsField, type SubregionCode} from 'sentry/views/insights/types';
 
 type Props = {
   browserTypes?: BrowserType[];
@@ -19,6 +19,7 @@ export const useProjectRawWebVitalsQuery = ({
   subregions,
 }: Props = {}) => {
   const search = new MutableSearch([]);
+  const defaultQuery = useDefaultWebVitalsQuery();
   if (transaction) {
     search.addFilterValue('transaction', transaction);
   }
@@ -26,15 +27,15 @@ export const useProjectRawWebVitalsQuery = ({
     search.addFilterValue(tag.key, tag.name);
   }
   if (subregions) {
-    search.addDisjunctionFilterValues(SpanFields.USER_GEO_SUBREGION, subregions);
+    search.addDisjunctionFilterValues(SpanMetricsField.USER_GEO_SUBREGION, subregions);
   }
   if (browserTypes) {
-    search.addDisjunctionFilterValues(SpanFields.BROWSER_NAME, browserTypes);
+    search.addDisjunctionFilterValues(SpanMetricsField.BROWSER_NAME, browserTypes);
   }
 
-  return useSpans(
+  return useMetrics(
     {
-      search: [DEFAULT_QUERY_FILTER, search.formatString()].join(' ').trim(),
+      search: [defaultQuery, search.formatString()].join(' ').trim(),
       limit: 50,
       fields: [
         'p75(measurements.lcp)',

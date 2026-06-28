@@ -6,7 +6,6 @@ from typing import Any
 from sentry.hybridcloud.outbox.category import WebhookProviderIdentifier
 from sentry.integrations.bitbucket.webhook import BitbucketWebhookEndpoint
 from sentry.integrations.middleware.hybrid_cloud.parser import BaseRequestParser
-from sentry.integrations.types import IntegrationProviderSlug
 from sentry.models.organizationmapping import OrganizationMapping
 from sentry.types.region import RegionResolutionError, get_region_by_name
 
@@ -14,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class BitbucketRequestParser(BaseRequestParser):
-    provider = IntegrationProviderSlug.BITBUCKET.value
+    provider = "bitbucket"
     webhook_identifier = WebhookProviderIdentifier.BITBUCKET
 
     def get_bitbucket_webhook_response(self):

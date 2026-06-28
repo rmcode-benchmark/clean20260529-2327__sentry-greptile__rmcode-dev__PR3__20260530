@@ -30,7 +30,6 @@ class OnCallInteractionType(Enum):
 
     # PagerDuty only
     VALIDATE_SERVICE = "VALIDATE_SERVICE"
-    INSTALLATION_REDIRECT = "INSTALLATION_REDIRECT"
 
     def __str__(self) -> str:
         return self.value.lower()

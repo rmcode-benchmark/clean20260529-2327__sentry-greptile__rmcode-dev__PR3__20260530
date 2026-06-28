@@ -3,7 +3,6 @@ import styled from '@emotion/styled';
 
 import {Button} from 'sentry/components/core/button';
 import LoadingError from 'sentry/components/loadingError';
-import type {CursorHandler} from 'sentry/components/pagination';
 import Pagination from 'sentry/components/pagination';
 import Placeholder from 'sentry/components/placeholder';
 import {SimpleTable} from 'sentry/components/tables/simpleTable';
@@ -12,43 +11,36 @@ import AutomationTitleCell from 'sentry/components/workflowEngine/gridCell/autom
 import {TimeAgoCell} from 'sentry/components/workflowEngine/gridCell/timeAgoCell';
 import {t} from 'sentry/locale';
 import {space} from 'sentry/styles/space';
-import type {Automation} from 'sentry/types/workflowEngine/automations';
 import type {Detector} from 'sentry/types/workflowEngine/detectors';
+import {useLocation} from 'sentry/utils/useLocation';
+import {useNavigate} from 'sentry/utils/useNavigate';
 import {useAutomationsQuery} from 'sentry/views/automations/hooks';
 import {getAutomationActions} from 'sentry/views/automations/hooks/utils';
 
-const DEFAULT_AUTOMATIONS_PER_PAGE = 10;
+const AUTOMATIONS_PER_PAGE = 10;
 
-type Props = React.HTMLAttributes<HTMLDivElement> & {
-  /**
-   * If null, all automations will be fetched.
-   */
-  automationIds: Detector['workflowIds'] | null;
-  cursor: string | undefined;
-  onCursor: CursorHandler;
+type Props = {
+  automationIds: Detector['workflowIds'];
   connectedAutomationIds?: Set<string>;
-  emptyMessage?: string;
-  limit?: number | null;
-  query?: string;
-  toggleConnected?: (params: {automation: Automation}) => void;
+  toggleConnected?: (id: string) => void;
 };
 
-function Skeletons({canEdit, numberOfRows}: {canEdit: boolean; numberOfRows: number}) {
+function Skeletons({canEdit}: {canEdit: boolean}) {
   return (
     <Fragment>
-      {Array.from({length: numberOfRows}).map((_, index) => (
+      {Array.from({length: AUTOMATIONS_PER_PAGE}).map((_, index) => (
         <SimpleTable.Row key={index}>
-          <SimpleTable.RowCell>
+          <SimpleTable.RowCell className="name">
             <Placeholder height="20px" />
           </SimpleTable.RowCell>
-          <SimpleTable.RowCell data-column-name="last-triggered">
+          <SimpleTable.RowCell className="last-triggered">
             <Placeholder height="20px" />
           </SimpleTable.RowCell>
-          <SimpleTable.RowCell data-column-name="action-filters">
+          <SimpleTable.RowCell className="action-filters">
             <Placeholder height="20px" />
           </SimpleTable.RowCell>
           {canEdit && (
-            <SimpleTable.RowCell data-column-name="connected">
+            <SimpleTable.RowCell className="connected">
               <Placeholder height="20px" />
             </SimpleTable.RowCell>
           )}
@@ -62,16 +54,12 @@ export function ConnectedAutomationsList({
   automationIds,
   connectedAutomationIds,
   toggleConnected,
-  emptyMessage = t('No automations connected'),
-  cursor,
-  onCursor,
-  limit = DEFAULT_AUTOMATIONS_PER_PAGE,
-  query,
-  ...props
 }: Props) {
   const canEdit = Boolean(
     connectedAutomationIds && typeof toggleConnected === 'function'
   );
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const {
     data: automations,
@@ -81,43 +69,31 @@ export function ConnectedAutomationsList({
     getResponseHeader,
   } = useAutomationsQuery(
     {
-      ids: automationIds ?? undefined,
-      limit: limit ?? undefined,
-      cursor,
-      query,
+      ids: automationIds,
+      limit: AUTOMATIONS_PER_PAGE,
+      cursor:
+        typeof location.query.cursor === 'string' ? location.query.cursor : undefined,
     },
-    {enabled: automationIds === null || automationIds.length > 0}
+    {enabled: automationIds.length > 0}
   );
 
-  const pageLinks = getResponseHeader?.('Link');
-
   return (
-    <Container {...props}>
+    <Container>
       <SimpleTableWithColumns>
         <SimpleTable.Header>
-          <SimpleTable.HeaderCell>{t('Name')}</SimpleTable.HeaderCell>
-          <SimpleTable.HeaderCell data-column-name="last-triggered">
+          <SimpleTable.HeaderCell className="name">{t('Name')}</SimpleTable.HeaderCell>
+          <SimpleTable.HeaderCell className="last-triggered">
             {t('Last Triggered')}
           </SimpleTable.HeaderCell>
-          <SimpleTable.HeaderCell data-column-name="action-filters">
+          <SimpleTable.HeaderCell className="action-filters">
             {t('Actions')}
           </SimpleTable.HeaderCell>
-          {canEdit && <SimpleTable.HeaderCell data-column-name="connected" />}
+          {canEdit && <SimpleTable.HeaderCell className="connected" />}
         </SimpleTable.Header>
-        {isLoading && (
-          <Skeletons
-            canEdit={canEdit}
-            numberOfRows={
-              automationIds === null
-                ? (limit ?? DEFAULT_AUTOMATIONS_PER_PAGE)
-                : Math.min(automationIds?.length ?? 0, DEFAULT_AUTOMATIONS_PER_PAGE)
-            }
-          />
-        )}
+        {isLoading && <Skeletons canEdit={canEdit} />}
         {isError && <LoadingError />}
-        {((isSuccess && automations.length === 0) ||
-          (automationIds !== null && automationIds.length === 0)) && (
-          <SimpleTable.Empty>{emptyMessage}</SimpleTable.Empty>
+        {automationIds.length === 0 && (
+          <SimpleTable.Empty>{t('No automations connected')}</SimpleTable.Empty>
         )}
         {isSuccess &&
           automations.map(automation => (
@@ -125,18 +101,18 @@ export function ConnectedAutomationsList({
               key={automation.id}
               variant={automation.disabled ? 'faded' : 'default'}
             >
-              <SimpleTable.RowCell>
+              <SimpleTable.RowCell className="name">
                 <AutomationTitleCell automation={automation} />
               </SimpleTable.RowCell>
-              <SimpleTable.RowCell data-column-name="last-triggered">
+              <SimpleTable.RowCell className="last-triggered">
                 <TimeAgoCell date={automation.lastTriggered} />
               </SimpleTable.RowCell>
-              <SimpleTable.RowCell data-column-name="action-filters">
+              <SimpleTable.RowCell className="action-filters">
                 <ActionCell actions={getAutomationActions(automation)} />
               </SimpleTable.RowCell>
               {canEdit && (
-                <SimpleTable.RowCell data-column-name="connected" justify="flex-end">
-                  <Button onClick={() => toggleConnected?.({automation})} size="sm">
+                <SimpleTable.RowCell className="connected" justify="flex-end">
+                  <Button onClick={() => toggleConnected?.(automation.id)} size="sm">
                     {connectedAutomationIds?.has(automation.id)
                       ? t('Disconnect')
                       : t('Connect')}
@@ -146,7 +122,18 @@ export function ConnectedAutomationsList({
             </SimpleTable.Row>
           ))}
       </SimpleTableWithColumns>
-      {limit === null ? null : <Pagination onCursor={onCursor} pageLinks={pageLinks} />}
+      <Pagination
+        onCursor={cursor => {
+          navigate({
+            pathname: location.pathname,
+            query: {
+              ...location.query,
+              cursor,
+            },
+          });
+        }}
+        pageLinks={getResponseHeader?.('Link')}
+      />
     </Container>
   );
 }
@@ -164,14 +151,14 @@ const SimpleTableWithColumns = styled(SimpleTable)`
     The connected column can be added/removed depending on props, so in order to
     have a constant width we have an auto grid column and set the width here.
     */
-  [data-column-name='connected'] {
+  .connected {
     width: 140px;
   }
 
   @container (max-width: ${p => p.theme.breakpoints.sm}) {
     grid-template-columns: 1fr 180px auto;
 
-    [data-column-name='last-triggered'] {
+    .last-triggered {
       display: none;
     }
   }
@@ -179,7 +166,7 @@ const SimpleTableWithColumns = styled(SimpleTable)`
   @container (max-width: ${p => p.theme.breakpoints.xs}) {
     grid-template-columns: 1fr auto;
 
-    [data-column-name='action-filters'] {
+    .action-filters {
       display: none;
     }
   }

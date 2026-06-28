@@ -19,15 +19,15 @@ import {ReadoutRibbon, ToolRibbon} from 'sentry/views/insights/common/components
 import LlmGroupNumberOfPipelinesChartWidget from 'sentry/views/insights/common/components/widgets/llmGroupNumberOfPipelinesChartWidget';
 import LlmGroupPipelineDurationChartWidget from 'sentry/views/insights/common/components/widgets/llmGroupPipelineDurationChartWidget';
 import LlmGroupTotalTokensUsedChartWidget from 'sentry/views/insights/common/components/widgets/llmGroupTotalTokensUsedChartWidget';
-import {useSpans} from 'sentry/views/insights/common/queries/useDiscover';
+import {useSpanMetrics} from 'sentry/views/insights/common/queries/useDiscover';
 import {PipelineSpansTable} from 'sentry/views/insights/llmMonitoring/components/tables/pipelineSpansTable';
 import {RELEASE_LEVEL} from 'sentry/views/insights/llmMonitoring/settings';
 import {AiHeader} from 'sentry/views/insights/pages/ai/aiPageHeader';
 import {
   ModuleName,
-  SpanFields,
   SpanFunction,
-  type SpanQueryFilters,
+  SpanMetricsField,
+  type SpanMetricsQueryFilters,
 } from 'sentry/views/insights/types';
 
 interface Props {
@@ -48,19 +48,19 @@ function LLMMonitoringPage({params}: Props) {
 
   const spanDescription = decodeScalar(location.query?.['span.description']);
 
-  const filters: SpanQueryFilters = {
+  const filters: SpanMetricsQueryFilters = {
     'span.group': groupId,
     'span.category': 'ai.pipeline',
   };
 
-  const {data, isPending: areSpanMetricsLoading} = useSpans(
+  const {data, isPending: areSpanMetricsLoading} = useSpanMetrics(
     {
       search: MutableSearch.fromQueryObject(filters),
       fields: [
-        SpanFields.SPAN_OP,
+        SpanMetricsField.SPAN_OP,
         'count()',
         `${SpanFunction.EPM}()`,
-        `avg(${SpanFields.SPAN_DURATION})`,
+        `avg(${SpanMetricsField.SPAN_DURATION})`,
       ],
       enabled: Boolean(groupId),
     },
@@ -69,7 +69,7 @@ function LLMMonitoringPage({params}: Props) {
 
   const spanMetrics = data[0] ?? {};
 
-  const {data: totalTokenData, isPending: isTotalTokenDataLoading} = useSpans(
+  const {data: totalTokenData, isPending: isTotalTokenDataLoading} = useSpanMetrics(
     {
       search: MutableSearch.fromQueryObject({
         'span.category': 'ai',
@@ -130,7 +130,7 @@ function LLMMonitoringPage({params}: Props) {
                       <MetricReadout
                         title={t('Pipeline Duration')}
                         // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
-                        value={spanMetrics?.[`avg(${SpanFields.SPAN_DURATION})`]}
+                        value={spanMetrics?.[`avg(${SpanMetricsField.SPAN_DURATION})`]}
                         unit={DurationUnit.MILLISECOND}
                         isLoading={areSpanMetricsLoading}
                       />

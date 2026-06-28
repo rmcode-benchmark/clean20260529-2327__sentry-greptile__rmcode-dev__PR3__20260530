@@ -105,7 +105,7 @@ export default function FiltersBar({
         />
       </PageFilterBar>
       <Fragment>
-        <FilterButtons gap="lg">
+        <FilterButtons>
           <ReleasesProvider organization={organization} selection={selection}>
             <ReleasesSelectControl
               handleChangeFilter={activeFilters => {
@@ -121,7 +121,7 @@ export default function FiltersBar({
           </ReleasesProvider>
         </FilterButtons>
         {hasUnsavedChanges && !isEditingDashboard && !isPreview && (
-          <FilterButtons gap="lg">
+          <FilterButtons>
             <Button
               title={
                 !hasEditAccess && t('You do not have permission to edit this dashboard')
@@ -165,9 +165,12 @@ const Wrapper = styled('div')`
 `;
 
 const FilterButtons = styled(ButtonBar)`
+  display: grid;
+  gap: ${space(1.5)};
+
   @media (min-width: ${p => p.theme.breakpoints.sm}) {
     display: flex;
     align-items: flex-start;
-    gap: ${p => p.theme.space[p.gap!]};
+    gap: ${space(1.5)};
   }
 `;

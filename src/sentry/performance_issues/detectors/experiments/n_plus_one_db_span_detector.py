@@ -280,9 +280,7 @@ def get_valid_db_span_description(span: Span) -> str | None:
     # Trigger pathway on `mongodb`, `mongoose`, etc...
     if "mongo" in db_system:
         description = span.get("sentry_tags", {}).get("description")
-        if not description or "{" not in description:
-            return None
-        return description
+        return description if "{" in description else None
     return default_description
 
 

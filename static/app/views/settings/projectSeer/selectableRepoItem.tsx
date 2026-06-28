@@ -15,7 +15,7 @@ interface Props {
 }
 
 export function SelectableRepoItem({repo, isSelected, onToggle}: Props) {
-  const isSupportedProvider = isSupportedAutofixProvider(repo.provider);
+  const isSupportedProvider = isSupportedAutofixProvider(repo.provider?.name || '');
 
   return (
     <RepoListItemContainer

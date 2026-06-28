@@ -4,7 +4,6 @@ import {RouteComponentPropsFixture} from 'sentry-fixture/routeComponentPropsFixt
 import {render, screen, userEvent, waitFor} from 'sentry-test/reactTestingLibrary';
 
 import {addErrorMessage} from 'sentry/actionCreators/indicator';
-import {testableWindowLocation} from 'sentry/utils/testableWindowLocation';
 import OrganizationJoinRequest from 'sentry/views/organizationJoinRequest';
 
 jest.mock('sentry/utils/analytics', () => ({
@@ -99,8 +98,6 @@ describe('OrganizationJoinRequest', function () {
     );
 
     await userEvent.click(screen.getByRole('button', {name: 'Cancel'}));
-    expect(testableWindowLocation.assign).toHaveBeenCalledWith(
-      `/auth/login/${org.slug}/`
-    );
+    expect(window.location.assign).toHaveBeenCalledWith(`/auth/login/${org.slug}/`);
   });
 });

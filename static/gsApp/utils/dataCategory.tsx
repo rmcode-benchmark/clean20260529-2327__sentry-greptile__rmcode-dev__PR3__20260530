@@ -1,7 +1,8 @@
 import upperFirst from 'lodash/upperFirst';
 
 import {DATA_CATEGORY_INFO} from 'sentry/constants';
-import {DataCategory, DataCategoryExact} from 'sentry/types/core';
+import type {DataCategoryExact} from 'sentry/types/core';
+import {DataCategory} from 'sentry/types/core';
 import type {Organization} from 'sentry/types/organization';
 import oxfordizeArray from 'sentry/utils/oxfordizeArray';
 import {toTitleCase} from 'sentry/utils/string/toTitleCase';
@@ -68,13 +69,11 @@ export function getPlanCategoryName({
 }: CategoryNameProps) {
   const displayNames = plan?.categoryDisplayNames?.[category];
   const categoryName =
-    category === DataCategory.LOG_BYTE
-      ? 'log bytes'
-      : category === DataCategory.SPANS && hadCustomDynamicSampling
-        ? 'accepted spans'
-        : displayNames
-          ? displayNames.plural
-          : category;
+    category === DataCategory.SPANS && hadCustomDynamicSampling
+      ? 'accepted spans'
+      : displayNames
+        ? displayNames.plural
+        : category;
   return title
     ? toTitleCase(categoryName, {allowInnerUpperCase: true})
     : capitalize
@@ -278,10 +277,6 @@ export function isContinuousProfiling(category: DataCategory | string) {
   );
 }
 
-export function isByteCategory(category: DataCategory | string) {
-  return category === DataCategory.ATTACHMENTS || category === DataCategory.LOG_BYTE;
-}
-
 export function getChunkCategoryFromDuration(category: DataCategory) {
   if (category === DataCategory.PROFILE_DURATION) {
     return DataCategory.PROFILE_CHUNKS;
@@ -290,4 +285,8 @@ export function getChunkCategoryFromDuration(category: DataCategory) {
     return DataCategory.PROFILE_CHUNKS_UI;
   }
   return '';
+}
+
+export function isSeer(category: DataCategory): boolean {
+  return category === DataCategory.SEER_AUTOFIX || category === DataCategory.SEER_SCANNER;
 }

@@ -108,6 +108,7 @@ export default function ReplayTransactionContext({children, replayRecord}: Optio
           TraceSplitResults<TraceFullDetailed> | TraceFullDetailed[]
         >(api, `/organizations/${orgSlug}/events-trace/${traceId}/`, {
           limit: 10000,
+          useSpans: 1,
           timestamp,
         } as any);
 

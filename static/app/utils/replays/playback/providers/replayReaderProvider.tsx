@@ -5,16 +5,16 @@ import ReplayReader from 'sentry/utils/replays/replayReader';
 
 interface Props {
   children: ReactNode;
-  replay: ReplayReader | null;
+  replay: ReplayReader;
 }
 
-const Context = createContext<ReplayReader | null>(
+const Context = createContext<ReplayReader>(
   ReplayReader.factory({
     attachments: [],
     errors: [],
     fetching: false,
     replayRecord: undefined,
-  })
+  })!
 );
 
 export function ReplayReaderProvider({children, replay}: Props) {

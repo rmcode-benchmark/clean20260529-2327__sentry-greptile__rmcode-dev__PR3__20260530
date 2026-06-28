@@ -5,7 +5,7 @@ from typing import TypedDict
 import sentry_sdk
 from snuba_sdk import Column, Condition, Entity, Function, Limit, Op, Query, Request
 
-from sentry.seer.workflows.compare import KeyedValueCount, keyed_rrf_score_with_filter
+from sentry.seer.workflows.compare import KeyedValueCount, keyed_rrf_score
 from sentry.utils.snuba import raw_snql_query
 
 
@@ -19,7 +19,6 @@ class Score(TypedDict):
     score: float
     baseline_percent: float
     distribution: Distribution
-    is_filtered: bool
 
 
 @sentry_sdk.trace
@@ -43,7 +42,7 @@ def get_suspect_flag_scores(
     outliers_count = query_error_counts(org_id, project_id, start, end, envs, group_id=group_id)
     baseline_count = query_error_counts(org_id, project_id, start, end, envs, group_id=None)
 
-    keyed_scores = keyed_rrf_score_with_filter(
+    keyed_scores = keyed_rrf_score(
         baseline,
         outliers,
         total_baseline=baseline_count,
@@ -68,9 +67,8 @@ def get_suspect_flag_scores(
             "score": score,
             "baseline_percent": baseline_percent_dict[key],
             "distribution": distributions[key],
-            "is_filtered": is_filtered,
         }
-        for key, score, is_filtered in keyed_scores
+        for key, score in keyed_scores
     ]
 
 

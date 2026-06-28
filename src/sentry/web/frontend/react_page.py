@@ -205,10 +205,3 @@ class ReactPageView(ControlSiloOrganizationView, ReactMixin):
 class GenericReactPageView(BaseView, ReactMixin):
     def handle(self, request: HttpRequest, **kwargs) -> HttpResponse:
         return self.handle_react(request, **kwargs)
-
-
-class AuthV2ReactPageView(GenericReactPageView):
-    auth_required = False
-
-    def handle_auth_required(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
-        raise Exception("This should not be called")

@@ -1,5 +1,5 @@
 import {t} from 'sentry/locale';
-import {formatVersion} from 'sentry/utils/versions/formatVersion';
+import {formatSeriesName} from 'sentry/views/dashboards/widgets/timeSeriesWidget/formatters/formatSeriesName';
 import {InsightsAreaChartWidget} from 'sentry/views/insights/common/components/insightsAreaChartWidget';
 import type {LoadableChartWidgetProps} from 'sentry/views/insights/common/components/widgets/types';
 import ChartSelectionTitle from 'sentry/views/insights/sessions/components/chartSelectionTitle';
@@ -15,7 +15,8 @@ export default function ReleaseSessionPercentageChartWidget(
   });
 
   const aliases = Object.fromEntries(
-    releases?.map(release => [`${release}_session_percent`, formatVersion(release)]) ?? []
+    releases?.map(release => [`${release}_session_percent`, formatSeriesName(release)]) ??
+      []
   );
 
   return (

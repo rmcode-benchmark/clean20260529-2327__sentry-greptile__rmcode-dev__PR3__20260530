@@ -29,7 +29,7 @@ from sentry.integrations.base import (
 from sentry.integrations.jira.tasks import migrate_issues
 from sentry.integrations.jira_server.utils.choice import build_user_choice
 from sentry.integrations.mixins import ResolveSyncAction
-from sentry.integrations.mixins.issues import IntegrationSyncTargetNotFound, IssueSyncIntegration
+from sentry.integrations.mixins.issues import IssueSyncIntegration
 from sentry.integrations.models.external_actor import ExternalActor
 from sentry.integrations.models.external_issue import ExternalIssue
 from sentry.integrations.models.integration_external_project import IntegrationExternalProject
@@ -563,11 +563,7 @@ class JiraServerIntegration(IssueSyncIntegration):
 
         default_comment = "Linked Sentry Issue: [{}|{}]".format(
             group.qualified_short_id,
-            absolute_uri(
-                group.get_absolute_url(
-                    params={"referrer": IntegrationProviderSlug.JIRA_SERVER.value}
-                )
-            ),
+            absolute_uri(group.get_absolute_url(params={"referrer": "jira_server"})),
         )
         fields.append(
             {
@@ -1272,32 +1268,30 @@ class JiraServerIntegration(IssueSyncIntegration):
             if jira_user is None:
                 # TODO(jess): do we want to email people about these types of failures?
                 logger.info(
-                    "jira_server.assignee-not-found",
+                    "jira.assignee-not-found",
                     extra=logging_context,
                 )
-                raise IntegrationSyncTargetNotFound("No matching Jira Server user found")
+                raise IntegrationError("Failed to assign user to Jira Server issue")
         try:
             id_field = client.user_id_field()
             client.assign_issue(external_issue.key, jira_user and jira_user.get(id_field))
-        except ApiUnauthorized as e:
+        except ApiUnauthorized:
             logger.info(
-                "jira_server.user-assignment-unauthorized",
+                "jira.user-assignment-unauthorized",
                 extra={
                     **logging_context,
                 },
             )
-            raise IntegrationInstallationConfigurationError(
-                "Insufficient permissions to assign user to Jira Server issue"
-            ) from e
+            raise IntegrationError("Insufficient permissions to assign user to Jira Server issue")
         except ApiError as e:
             logger.info(
-                "jira_server.user-assignment-request-error",
+                "jira.user-assignment-request-error",
                 extra={
                     **logging_context,
                     "error": str(e),
                 },
             )
-            raise IntegrationError("Failed to assign user to Jira Server issue") from e
+            raise IntegrationError("Failed to assign user to Jira Server issue")
 
     def sync_status_outbound(
         self, external_issue: ExternalIssue, is_resolved: bool, project_id: int
@@ -1420,7 +1414,7 @@ class JiraServerIntegrationProvider(IntegrationProvider):
 
         return {
             "name": install["consumer_key"],
-            "provider": IntegrationProviderSlug.JIRA_SERVER.value,
+            "provider": "jira_server",
             "external_id": external_id,
             "metadata": {
                 "base_url": install["url"],
@@ -1429,7 +1423,7 @@ class JiraServerIntegrationProvider(IntegrationProvider):
                 "webhook_secret": webhook_secret,
             },
             "user_identity": {
-                "type": IntegrationProviderSlug.JIRA_SERVER.value,
+                "type": "jira_server",
                 "external_id": external_id,
                 "scopes": [],
                 "data": credentials,

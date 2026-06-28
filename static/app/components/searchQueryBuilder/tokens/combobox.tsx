@@ -10,13 +10,12 @@ import {
 import {usePopper} from 'react-popper';
 import styled from '@emotion/styled';
 import {type AriaComboBoxProps} from '@react-aria/combobox';
-import {type AriaListBoxOptions} from '@react-aria/listbox';
+import type {AriaListBoxOptions} from '@react-aria/listbox';
 import {ariaHideOutside} from '@react-aria/overlays';
 import {mergeRefs} from '@react-aria/utils';
 import {type ComboBoxState, useComboBoxState} from '@react-stately/combobox';
 import type {CollectionChildren, Key, KeyboardEvent} from '@react-types/shared';
 
-import Feature from 'sentry/components/acl/feature';
 import {ListBox} from 'sentry/components/core/compactSelect/listBox';
 import type {
   SelectKey,
@@ -29,11 +28,6 @@ import {
 import {Input} from 'sentry/components/core/input';
 import {useAutosizeInput} from 'sentry/components/core/input/useAutosizeInput';
 import {Overlay} from 'sentry/components/overlay';
-import {
-  ASK_SEER_CONSENT_ITEM_KEY,
-  ASK_SEER_ITEM_KEY,
-  AskSeer,
-} from 'sentry/components/searchQueryBuilder/askSeer';
 import {useSearchQueryBuilder} from 'sentry/components/searchQueryBuilder/context';
 import {useSearchTokenCombobox} from 'sentry/components/searchQueryBuilder/tokens/useSearchTokenCombobox';
 import {
@@ -175,48 +169,20 @@ function useHiddenItems<T extends SelectOptionOrSectionWithKey<string>>({
   filterValue,
   maxOptions,
   shouldFilterResults,
-  showAskSeerOption,
 }: {
   filterValue: string;
   items: T[];
-  showAskSeerOption: boolean;
   maxOptions?: number;
   shouldFilterResults?: boolean;
 }) {
-  const {gaveSeerConsent} = useSearchQueryBuilder();
   const hiddenOptions: Set<SelectKey> = useMemo(() => {
-    const options = getHiddenOptions(
-      items,
-      shouldFilterResults ? filterValue : '',
-      maxOptions
-    );
+    return getHiddenOptions(items, shouldFilterResults ? filterValue : '', maxOptions);
+  }, [items, shouldFilterResults, filterValue, maxOptions]);
 
-    if (showAskSeerOption) {
-      if (gaveSeerConsent) {
-        options.add(ASK_SEER_ITEM_KEY);
-      } else {
-        options.add(ASK_SEER_CONSENT_ITEM_KEY);
-      }
-    }
-
-    return options;
-  }, [
-    filterValue,
-    gaveSeerConsent,
-    items,
-    maxOptions,
-    shouldFilterResults,
-    showAskSeerOption,
-  ]);
-
-  const disabledKeys = useMemo(() => {
-    const baseDisabledKeys = [...getDisabledOptions(items), ...hiddenOptions];
-    return showAskSeerOption
-      ? baseDisabledKeys.filter(
-          key => key !== ASK_SEER_ITEM_KEY && key !== ASK_SEER_CONSENT_ITEM_KEY
-        )
-      : baseDisabledKeys;
-  }, [hiddenOptions, items, showAskSeerOption]);
+  const disabledKeys = useMemo(
+    () => [...getDisabledOptions(items), ...hiddenOptions],
+    [hiddenOptions, items]
+  );
 
   return {
     hiddenOptions,
@@ -295,8 +261,6 @@ function OverlayContent<T extends SelectOptionOrSectionWithKey<string>>({
   customMenu?: CustomComboboxMenu<T>;
   portalTarget?: HTMLElement | null;
 }) {
-  const {enableAISearch} = useSearchQueryBuilder();
-
   if (customMenu) {
     return customMenu({
       popoverRef,
@@ -324,11 +288,6 @@ function OverlayContent<T extends SelectOptionOrSectionWithKey<string>>({
           overlayIsOpen={isOpen}
           size="sm"
         />
-        {enableAISearch ? (
-          <Feature features="organizations:gen-ai-explore-traces">
-            <AskSeer state={state} />
-          </Feature>
-        ) : null}
       </ListBoxOverlay>
     </StyledPositionWrapper>
   );
@@ -370,7 +329,7 @@ export function SearchQueryBuilderCombobox<
   ['data-test-id']: dataTestId,
   ref,
 }: SearchQueryBuilderComboboxProps<T>) {
-  const {disabled, portalTarget, enableAISearch} = useSearchQueryBuilder();
+  const {disabled, portalTarget} = useSearchQueryBuilder();
   const listBoxRef = useRef<HTMLUListElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -381,7 +340,6 @@ export function SearchQueryBuilderCombobox<
     filterValue,
     maxOptions,
     shouldFilterResults,
-    showAskSeerOption: enableAISearch,
   });
 
   const onSelectionChange = useCallback(
@@ -644,7 +602,7 @@ const ListBoxOverlay = styled(Overlay)`
   max-height: 400px;
   min-width: 200px;
   width: 600px;
-  max-width: fit-content;
+  max-width: min-content;
   overflow-y: auto;
 `;
 

@@ -20,6 +20,7 @@ export function UserFixture(params: Partial<User> = {}): User {
       prefersNextjsInsightsOverview: false,
       prefersAgentsInsightsModule: false,
       prefersChonkUI: false,
+      quickStartDisplay: {},
     },
     ip_address: '127.0.0.1',
     hasPasswordAuth: true,

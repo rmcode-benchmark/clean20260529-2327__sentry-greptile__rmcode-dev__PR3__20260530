@@ -6,8 +6,7 @@ import {makeLightFlamegraphTheme} from 'sentry/utils/profiling/flamegraph/flameg
 import {EventedProfile} from 'sentry/utils/profiling/profile/eventedProfile';
 import {createFrameIndex} from 'sentry/utils/profiling/profile/utils';
 import {FlamegraphTextRenderer} from 'sentry/utils/profiling/renderers/flamegraphTextRenderer';
-import {Rect} from 'sentry/utils/profiling/speedscope';
-import {trimTextCenter} from 'sentry/utils/string/trimTextCenter';
+import {Rect, trimTextCenter} from 'sentry/utils/profiling/speedscope';
 
 const theme = makeLightFlamegraphTheme(ThemeFixture());
 

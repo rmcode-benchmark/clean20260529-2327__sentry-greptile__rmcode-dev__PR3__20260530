@@ -113,10 +113,7 @@ class BrowserReportingCollectorEndpoint(Endpoint):
         if not options.get("issues.browser_reporting.collector_endpoint_enabled"):
             return Response(status=HTTP_404_NOT_FOUND)
 
-        logger.info(
-            "browser_report_received",
-            extra={"request_body": request.data, "request_headers": request.headers},
-        )
+        logger.info("browser_report_received", extra={"request_body": request.data})
 
         # Browser Reporting API sends an array of reports
         # request.data could be any type, so we need to validate and cast

@@ -1,3 +1,4 @@
+import {DiscoverDatasets} from 'sentry/utils/discover/types';
 import {MutableSearch} from 'sentry/utils/tokenizeSearch';
 import type {WebVitals} from 'sentry/views/insights/browser/webVitals/types';
 import {
@@ -7,8 +8,15 @@ import {
 import {mapWebVitalToOrderBy} from 'sentry/views/insights/browser/webVitals/utils/mapWebVitalToOrderBy';
 import type {BrowserType} from 'sentry/views/insights/browser/webVitals/utils/queryParameterDecoders/browserType';
 import {useWebVitalsSort} from 'sentry/views/insights/browser/webVitals/utils/useWebVitalsSort';
-import {useSpans} from 'sentry/views/insights/common/queries/useDiscover';
-import {SpanFields, type SubregionCode} from 'sentry/views/insights/types';
+import {useDiscover, useEAPSpans} from 'sentry/views/insights/common/queries/useDiscover';
+import {useInsightsEap} from 'sentry/views/insights/common/utils/useEap';
+import {
+  type DiscoverProperty,
+  type DiscoverResponse,
+  type EAPSpanProperty,
+  SpanIndexedField,
+  type SubregionCode,
+} from 'sentry/views/insights/types';
 
 type Props = {
   transaction: string;
@@ -35,6 +43,8 @@ export const useTransactionSamplesWebVitalsScoresQuery = ({
   browserTypes,
   subregions,
 }: Props) => {
+  const useEap = useInsightsEap();
+
   const filteredSortableFields = SORTABLE_INDEXED_FIELDS;
 
   const sort = useWebVitalsSort({
@@ -51,20 +61,23 @@ export const useTransactionSamplesWebVitalsScoresQuery = ({
     mutableSearch.addStringMultiFilter(query);
   }
   if (browserTypes) {
-    mutableSearch.addDisjunctionFilterValues(SpanFields.BROWSER_NAME, browserTypes);
+    mutableSearch.addDisjunctionFilterValues(SpanIndexedField.BROWSER_NAME, browserTypes);
   }
   if (subregions) {
-    mutableSearch.addDisjunctionFilterValues(SpanFields.USER_GEO_SUBREGION, subregions);
+    mutableSearch.addDisjunctionFilterValues(
+      SpanIndexedField.USER_GEO_SUBREGION,
+      subregions
+    );
   }
 
-  const result = useSpans(
+  const eapResult = useEAPSpans(
     {
       sorts: [sort],
       search: mutableSearch.formatString(),
       orderby:
         (mapWebVitalToOrderBy(orderBy) ?? withProfiles) ? '-profile.id' : undefined,
       limit: limit ?? 50,
-      enabled,
+      enabled: enabled && useEap,
       fields: [
         'id',
         'trace',
@@ -81,16 +94,53 @@ export const useTransactionSamplesWebVitalsScoresQuery = ({
           ? ([
               `measurements.score.${webVital}`,
               `measurements.score.weight.${webVital}`,
-            ] as const)
+            ] as EAPSpanProperty[])
           : []),
       ],
     },
     'api.performance.browser.web-vitals.transaction'
   );
 
-  const finalData = result.data.map(row => ({
+  const result = useDiscover<DiscoverProperty[], DiscoverResponse>(
+    {
+      sorts: [sort],
+      search: mutableSearch.formatString(),
+      limit: limit ?? 50,
+      enabled: enabled && !useEap,
+      orderby:
+        (mapWebVitalToOrderBy(orderBy) ?? withProfiles) ? '-profile.id' : undefined,
+      fields: [
+        'id',
+        'trace',
+        'user.display',
+        'transaction',
+        'measurements.lcp',
+        'measurements.fcp',
+        'measurements.cls',
+        'measurements.ttfb',
+        'transaction.duration',
+        'replayId',
+        'timestamp',
+        'profile.id',
+        'project',
+        'measurements.score.total',
+        ...(webVital
+          ? ([
+              `measurements.score.${webVital}`,
+              `measurements.score.weight.${webVital}`,
+            ] as DiscoverProperty[])
+          : []),
+      ],
+    },
+    DiscoverDatasets.DISCOVER,
+    'api.performance.browser.web-vitals.transaction'
+  );
+
+  const finalResult = useEap ? eapResult : result;
+
+  const finalData = finalResult.data.map(row => ({
     ...row,
-    'span.duration': row['span.duration'],
+    'span.duration': useEap ? row['span.duration'] : row['transaction.duration'],
     ...(webVital
       ? {
           [`${webVital}Score`]: Math.round(

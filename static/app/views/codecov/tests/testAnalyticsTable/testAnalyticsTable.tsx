@@ -1,11 +1,8 @@
 import {useSearchParams} from 'react-router-dom';
-import styled from '@emotion/styled';
 
 import type {GridColumnHeader} from 'sentry/components/tables/gridEditable';
 import GridEditable, {COL_WIDTH_UNDEFINED} from 'sentry/components/tables/gridEditable';
-import {IconSearch} from 'sentry/icons';
 import {t} from 'sentry/locale';
-import {space} from 'sentry/styles/space';
 import type {Sort} from 'sentry/utils/discover/fields';
 import {renderTableBody} from 'sentry/views/codecov/tests/testAnalyticsTable/tableBody';
 import {renderTableHeader} from 'sentry/views/codecov/tests/testAnalyticsTable/tableHeader';
@@ -73,6 +70,7 @@ interface Props {
   response: {
     data: Row[];
     isLoading: boolean;
+    error?: Error | null;
   };
   sort: ValidSort;
 }
@@ -82,24 +80,12 @@ export default function TestAnalyticsTable({response, sort}: Props) {
   const [searchParams] = useSearchParams();
   const wrapToggleValue = searchParams.get('wrap') === 'true';
 
-  const selectorEmptyMessage = (
-    <MessageContainer>
-      <StyledIconSearch color="subText" size="xl" />
-      <Title>{t('It looks like there is nothing to show right now.')}</Title>
-      <Subtitle>
-        {t(
-          'Please consider adjusting your filters, merging data into your chosen branch, or checking if the resource is available.'
-        )}
-      </Subtitle>
-    </MessageContainer>
-  );
-
   return (
     <GridEditable
       aria-label={t('Test Analytics')}
       isLoading={isLoading}
-      data={data ?? []}
-      emptyMessage={selectorEmptyMessage}
+      error={response.error}
+      data={data}
       columnOrder={COLUMNS_ORDER}
       // TODO: This isn't used as per the docs but is still required. Test if
       // it affects sorting when backend is ready.
@@ -120,26 +106,3 @@ export default function TestAnalyticsTable({response, sort}: Props) {
     />
   );
 }
-
-const MessageContainer = styled('div')`
-  display: flex;
-  flex-direction: column;
-  gap: ${space(0.5)};
-  width: 350px;
-  justify-items: center;
-  align-items: center;
-  text-align: center;
-`;
-
-const Subtitle = styled('div')`
-  font-size: ${p => p.theme.fontSize.sm};
-`;
-
-const Title = styled('div')`
-  font-weight: ${p => p.theme.fontWeight.bold};
-  font-size: 14px;
-`;
-
-const StyledIconSearch = styled(IconSearch)`
-  margin-right: ${space(1)};
-`;

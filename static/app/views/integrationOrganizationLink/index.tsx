@@ -5,10 +5,10 @@ import {addErrorMessage} from 'sentry/actionCreators/indicator';
 import {Alert} from 'sentry/components/core/alert';
 import {Button} from 'sentry/components/core/button';
 import type {SelectOption} from 'sentry/components/core/compactSelect/types';
-import {ExternalLink} from 'sentry/components/core/link';
 import {Select} from 'sentry/components/core/select';
 import FieldGroup from 'sentry/components/forms/fieldGroup';
 import IdBadge from 'sentry/components/idBadge';
+import ExternalLink from 'sentry/components/links/externalLink';
 import LoadingIndicator from 'sentry/components/loadingIndicator';
 import NarrowLayout from 'sentry/components/narrowLayout';
 import SentryDocumentTitle from 'sentry/components/sentryDocumentTitle';
@@ -24,7 +24,6 @@ import {
 } from 'sentry/utils/integrationUtil';
 import {singleLineRenderer} from 'sentry/utils/marked/marked';
 import {useApiQuery} from 'sentry/utils/queryClient';
-import {testableWindowLocation} from 'sentry/utils/testableWindowLocation';
 import normalizeUrl from 'sentry/utils/url/normalizeUrl';
 import {useLocation} from 'sentry/utils/useLocation';
 import {useParams} from 'sentry/utils/useParams';
@@ -96,11 +95,13 @@ export default function IntegrationOrganizationLink() {
     {staleTime: Infinity, enabled: isOrganizationQueryEnabled}
   );
   const organization = organizationQuery.data ?? null;
+  const isPendingOrganization = isOrganizationQueryEnabled && organizationQuery.isPending;
+
   useEffect(() => {
-    if (isOrganizationQueryEnabled && organizationQuery.error) {
+    if (organizationQuery.error) {
       addErrorMessage(t('Failed to retrieve organization details'));
     }
-  }, [isOrganizationQueryEnabled, organizationQuery.error]);
+  }, [organizationQuery.error]);
 
   const isProviderQueryEnabled = !!selectedOrgSlug;
   const providerQuery = useApiQuery<{
@@ -113,12 +114,14 @@ export default function IntegrationOrganizationLink() {
     {staleTime: Infinity, enabled: isProviderQueryEnabled}
   );
   const provider = providerQuery.data?.providers[0] ?? null;
+  const isPendingProviders = isProviderQueryEnabled && providerQuery.isPending;
+
   useEffect(() => {
-    const hasEmptyProvider = !provider && !providerQuery.isPending;
-    if (isProviderQueryEnabled && (providerQuery.error || hasEmptyProvider)) {
+    const hasEmptyProvider = !provider && !isPendingProviders;
+    if (providerQuery.error || hasEmptyProvider) {
       addErrorMessage(t('Failed to retrieve integration details'));
     }
-  }, [isProviderQueryEnabled, providerQuery.error, providerQuery.isPending, provider]);
+  }, [providerQuery.error, isPendingProviders, provider]);
 
   const isInstallationQueryEnabled = !!installationId && integrationSlug === 'github';
   const installationQuery = useApiQuery<GitHubIntegrationInstallation>(
@@ -128,15 +131,13 @@ export default function IntegrationOrganizationLink() {
   const installationData = installationQuery.data ?? null;
 
   useEffect(() => {
-    if (isInstallationQueryEnabled && installationQuery.error) {
+    if (installationQuery.error) {
       addErrorMessage(t('Failed to retrieve GitHub installation details'));
     }
-  }, [isInstallationQueryEnabled, installationQuery.error]);
+  }, [installationQuery.error]);
 
   // These two queries are recomputed when an organization is selected
-  const isPendingSelection =
-    (isOrganizationQueryEnabled && organizationQuery.isPending) ||
-    (isProviderQueryEnabled && providerQuery.isPending);
+  const isPendingSelection = isPendingOrganization || isPendingProviders;
 
   const selectOrganization = useCallback(
     (orgSlug: string) => {
@@ -144,7 +145,7 @@ export default function IntegrationOrganizationLink() {
       // redirect to the org if it's different than the org being selected
       if (customerDomain?.subdomain && orgSlug !== customerDomain?.subdomain) {
         const urlWithQuery = generateOrgSlugUrl(orgSlug) + location.search;
-        testableWindowLocation.assign(urlWithQuery);
+        window.location.assign(urlWithQuery);
         return;
       }
       // otherwise proceed as normal
@@ -157,7 +158,7 @@ export default function IntegrationOrganizationLink() {
     // If only one organization, select it and redirect
     if (organizations.length === 1) {
       const urlWithQuery = generateOrgSlugUrl(organizations[0]?.slug) + location.search;
-      testableWindowLocation.assign(urlWithQuery);
+      window.location.assign(urlWithQuery);
     }
     // Now, check the subdomain and use that org slug if it exists
     const customerDomain = ConfigStore.get('customerDomain');
@@ -273,7 +274,7 @@ export default function IntegrationOrganizationLink() {
       <Fragment>
         {selectedOrgSlug && organization && !hasAccess && (
           <Alert.Container>
-            <Alert type="error">
+            <Alert type="error" showIcon>
               <p>
                 {tct(
                   `You do not have permission to install integrations in
@@ -322,7 +323,7 @@ export default function IntegrationOrganizationLink() {
     if (!installationData) {
       return (
         <Alert.Container>
-          <Alert type="warning">
+          <Alert type="warning" showIcon>
             {t(
               'We could not verify the authenticity of the installation request. We recommend restarting the installation process.'
             )}
@@ -358,7 +359,9 @@ export default function IntegrationOrganizationLink() {
 
     return (
       <Alert.Container>
-        <Alert type="info">{alertText}</Alert>
+        <Alert type="info" showIcon>
+          {alertText}
+        </Alert>
       </Alert.Container>
     );
   }, [integrationSlug, installationData]);

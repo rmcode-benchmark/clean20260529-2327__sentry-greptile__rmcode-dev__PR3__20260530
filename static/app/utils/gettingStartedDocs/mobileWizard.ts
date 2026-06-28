@@ -27,19 +27,25 @@ export function getWizardInstallSnippet({
       code: `brew install getsentry/tools/sentry-wizard && sentry-wizard -i ${platformWithFlags}`,
     },
     {
-      label: 'macOS (Apple Silicon/arm64)',
-      value: 'macos-arm64',
+      label: 'npx',
+      value: 'npx',
       language: 'bash',
-      code: `downloadUrl="https://github.com/getsentry/sentry-wizard/releases/download/v${version}/sentry-wizard-darwin-arm64"
-curl -L $downloadUrl -o sentry-wizard
-chmod +x sentry-wizard
-./sentry-wizard -i ${platformWithFlags}`,
+      code: `npx @sentry/wizard@latest -i ${platformWithFlags}`,
     },
     {
       label: 'macOS (Intel/x64)',
       value: 'macos-x64',
       language: 'bash',
       code: `downloadUrl="https://github.com/getsentry/sentry-wizard/releases/download/v${version}/sentry-wizard-darwin-x64"
+curl -L $downloadUrl -o sentry-wizard
+chmod +x sentry-wizard
+./sentry-wizard -i ${platformWithFlags}`,
+    },
+    {
+      label: 'macOS (Apple Silicon/arm64)',
+      value: 'macos-arm64',
+      language: 'bash',
+      code: `downloadUrl="https://github.com/getsentry/sentry-wizard/releases/download/v${version}/sentry-wizard-darwin-arm64"
 curl -L $downloadUrl -o sentry-wizard
 chmod +x sentry-wizard
 ./sentry-wizard -i ${platformWithFlags}`,
@@ -61,12 +67,6 @@ chmod +x sentry-wizard
 curl -L $downloadUrl -o sentry-wizard
 chmod +x sentry-wizard
 ./sentry-wizard -i ${platformWithFlags}`,
-    },
-    {
-      label: 'npx',
-      value: 'npx',
-      language: 'bash',
-      code: `npx @sentry/wizard@latest -i ${platformWithFlags}`,
     },
     {
       label: 'Windows',

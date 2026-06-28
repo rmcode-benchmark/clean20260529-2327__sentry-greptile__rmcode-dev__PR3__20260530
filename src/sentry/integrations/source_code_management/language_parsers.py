@@ -5,6 +5,7 @@ from abc import ABC
 
 from snuba_sdk import BooleanCondition, BooleanOp, Column, Condition, Function, Op
 
+from sentry import features
 from sentry.integrations.source_code_management.constants import STACKFRAME_COUNT
 from sentry.models.organization import Organization
 from sentry.organizations.services.organization.model import RpcOrganization
@@ -375,8 +376,6 @@ PATCH_PARSERS: dict[str, type[SimpleLanguageParser] | type[LanguageParser]] = {
     "tsx": JavascriptParser,
     "php": PHPParser,
     "rb": RubyParser,
-    "cs": CSharpParser,
-    "go": GoParser,
 }
 
 
@@ -384,7 +383,13 @@ def get_patch_parsers_for_organization(
     organization: Organization | RpcOrganization | None = None,
 ) -> dict[str, type[SimpleLanguageParser] | type[LanguageParser]]:
     """
+    Returns the appropriate patch parsers based on feature flags.
     Falls back to the standard parsers if no organization is provided.
     """
+    parsers = PATCH_PARSERS
+    if organization and features.has("organizations:csharp-open-pr-comments", organization):
+        parsers.update({"cs": CSharpParser})
+    if organization and features.has("organizations:go-open-pr-comments", organization):
+        parsers.update({"go": GoParser})
 
-    return PATCH_PARSERS
+    return parsers

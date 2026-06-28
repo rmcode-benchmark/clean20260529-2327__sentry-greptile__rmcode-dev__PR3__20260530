@@ -1,16 +1,16 @@
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import styled from '@emotion/styled';
 import {AnimatePresence, motion, useAnimation} from 'framer-motion';
 
 import {Button} from 'sentry/components/core/button';
-import {Link} from 'sentry/components/core/link';
 import Hook from 'sentry/components/hook';
+import Link from 'sentry/components/links/link';
 import LogoSentry from 'sentry/components/logoSentry';
 import {useOnboardingContext} from 'sentry/components/onboarding/onboardingContext';
 import {useRecentCreatedProject} from 'sentry/components/onboarding/useRecentCreatedProject';
 import Redirect from 'sentry/components/redirect';
 import SentryDocumentTitle from 'sentry/components/sentryDocumentTitle';
-import {getCategoryList} from 'sentry/data/platformPickerCategories';
+import categoryList from 'sentry/data/platformPickerCategories';
 import platforms from 'sentry/data/platforms';
 import {IconArrow} from 'sentry/icons';
 import {t} from 'sentry/locale';
@@ -87,10 +87,6 @@ function Onboarding(props: Props) {
 
   const {activateSidebar} = useOnboardingSidebar();
 
-  const categories = useMemo(() => {
-    return getCategoryList(organization);
-  }, [organization]);
-
   useEffect(() => {
     return () => {
       window.clearTimeout(cornerVariantTimeoutRed.current);
@@ -117,7 +113,7 @@ function Onboarding(props: Props) {
       }
 
       const frameworkCategory =
-        categories.find(category => {
+        categoryList.find(category => {
           return category.platforms?.has(platform.id);
         })?.id ?? 'all';
 
@@ -136,7 +132,6 @@ function Onboarding(props: Props) {
     onboardingContext,
     organization.slug,
     props.location.pathname,
-    categories,
   ]);
 
   const shallProjectBeDeleted =

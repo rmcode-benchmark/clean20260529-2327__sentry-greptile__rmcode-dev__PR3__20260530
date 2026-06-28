@@ -146,7 +146,7 @@ function EventDetailsContent(props: Props) {
               <EventHeader event={event} />
             </Layout.HeaderContent>
             <Layout.HeaderActions>
-              <ButtonBar>
+              <ButtonBar gap={1}>
                 <Button size="sm" onClick={() => setIsSidebarVisible(prev => !prev)}>
                   {isSidebarVisible ? 'Hide Details' : 'Show Details'}
                 </Button>
@@ -194,6 +194,7 @@ function EventDetailsContent(props: Props) {
                 projectId={projectId}
                 location={location}
                 errorDest="discover"
+                transactionDest="discover"
               />
             </Layout.Main>
             <Layout.Main fullWidth={!isSidebarVisible}>
@@ -333,7 +334,9 @@ function EventDetailsContent(props: Props) {
 
     return (
       <Alert.Container>
-        <Alert type="error">{error.message}</Alert>
+        <Alert type="error" showIcon>
+          {error.message}
+        </Alert>
       </Alert.Container>
     );
   }

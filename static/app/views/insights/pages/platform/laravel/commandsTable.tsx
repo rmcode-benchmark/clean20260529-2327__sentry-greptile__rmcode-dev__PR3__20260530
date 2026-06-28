@@ -1,6 +1,6 @@
 import {useCallback} from 'react';
 
-import {Link} from 'sentry/components/core/link';
+import Link from 'sentry/components/links/link';
 import {
   COL_WIDTH_UNDEFINED,
   type GridColumnHeader,
@@ -22,8 +22,7 @@ import {
   getErrorCellIssuesLink,
 } from 'sentry/views/insights/pages/platform/shared/table/ErrorRateCell';
 import {NumberCell} from 'sentry/views/insights/pages/platform/shared/table/NumberCell';
-import {useSpanTableData} from 'sentry/views/insights/pages/platform/shared/table/useTableData';
-import {useTransactionNameQuery} from 'sentry/views/insights/pages/platform/shared/useTransactionNameQuery';
+import {useTableData} from 'sentry/views/insights/pages/platform/shared/table/useTableData';
 
 const defaultColumnOrder: Array<GridColumnOrder<string>> = [
   {key: 'command', name: t('Command Name'), width: COL_WIDTH_UNDEFINED},
@@ -43,9 +42,8 @@ const rightAlignColumns = new Set([
 ]);
 
 export function CommandsTable() {
-  const {query} = useTransactionNameQuery();
-  const tableDataRequest = useSpanTableData({
-    query: `span.op:console.command* ${query ?? ''}`.trim(),
+  const tableDataRequest = useTableData({
+    query: 'span.op:console.command*',
     fields: [
       'command',
       'project.id',
@@ -55,7 +53,7 @@ export function CommandsTable() {
       'p95(span.duration)',
       'sum(span.duration)',
     ],
-    cursorParamName: 'commandsCursor',
+    cursorParamName: 'jobsCursor',
     referrer: Referrer.PATHS_TABLE,
   });
 

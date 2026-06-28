@@ -3,7 +3,6 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from sentry import analytics, audit_log
-from sentry.analytics.events.org_auth_token_deleted import OrgAuthTokenDeleted
 from sentry.api.api_owners import ApiOwner
 from sentry.api.api_publish_status import ApiPublishStatus
 from sentry.api.base import control_silo_endpoint
@@ -96,10 +95,9 @@ class OrganizationAuthTokenDetailsEndpoint(ControlSiloOrganizationEndpoint):
         )
 
         analytics.record(
-            OrgAuthTokenDeleted(
-                user_id=request.user.id,
-                organization_id=organization.id,
-            )
+            "org_auth_token.deleted",
+            user_id=request.user.id,
+            organization_id=organization.id,
         )
 
         return Response(status=204)

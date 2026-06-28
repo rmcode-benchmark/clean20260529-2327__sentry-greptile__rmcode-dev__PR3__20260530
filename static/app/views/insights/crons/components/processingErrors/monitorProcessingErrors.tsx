@@ -153,6 +153,7 @@ export function MonitorProcessingErrors({
     <Alert.Container>
       <ScrollableAlert
         type="error"
+        showIcon
         expand={
           showingMultipleProjects ? (
             <ProjectGroupsList>{accordionErrors}</ProjectGroupsList>

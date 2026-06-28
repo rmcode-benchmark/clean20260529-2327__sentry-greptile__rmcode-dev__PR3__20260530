@@ -15,6 +15,7 @@ from django.utils.translation import gettext as _
 
 from sentry import features
 from sentry.eventstore.models import GroupEvent
+from sentry.exceptions import InvalidConfiguration
 from sentry.integrations.base import (
     FeatureDescription,
     IntegrationData,
@@ -24,12 +25,7 @@ from sentry.integrations.base import (
 )
 from sentry.integrations.jira.models.create_issue_metadata import JiraIssueTypeMetadata
 from sentry.integrations.jira.tasks import migrate_issues
-from sentry.integrations.mixins.issues import (
-    MAX_CHAR,
-    IntegrationSyncTargetNotFound,
-    IssueSyncIntegration,
-    ResolveSyncAction,
-)
+from sentry.integrations.mixins.issues import MAX_CHAR, IssueSyncIntegration, ResolveSyncAction
 from sentry.integrations.models.external_issue import ExternalIssue
 from sentry.integrations.models.integration_external_project import IntegrationExternalProject
 from sentry.integrations.pipeline import IntegrationPipeline
@@ -1018,20 +1014,16 @@ class JiraIntegration(IssueSyncIntegration):
                     },
                 )
                 if not user.emails:
-                    raise IntegrationSyncTargetNotFound(
+                    raise InvalidConfiguration(
                         {
                             "email": "User must have a verified email on Sentry to sync assignee in Jira",
                             "help": "https://sentry.io/settings/account/emails",
                         }
                     )
-                raise IntegrationSyncTargetNotFound("No matching Jira user found.")
+                raise InvalidConfiguration({"email": "Unable to find the requested user"})
         try:
             id_field = client.user_id_field()
             client.assign_issue(external_issue.key, jira_user and jira_user.get(id_field))
-        except ApiUnauthorized as e:
-            raise IntegrationInstallationConfigurationError(
-                "Insufficient permissions to assign user to the Jira issue."
-            ) from e
         except ApiError as e:
             # TODO(jess): do we want to email people about these types of failures?
             logger.info(
@@ -1044,7 +1036,7 @@ class JiraIntegration(IssueSyncIntegration):
                     "issue_key": external_issue.key,
                 },
             )
-            raise IntegrationError("There was an error assigning the issue.") from e
+            raise
 
     def sync_status_outbound(
         self, external_issue: ExternalIssue, is_resolved: bool, project_id: int
@@ -1157,9 +1149,9 @@ class JiraIntegrationProvider(IntegrationProvider):
         # yet, we can't make API calls for more details like the server name or
         # Icon.
         # two ways build_integration can be called
-        if state.get(IntegrationProviderSlug.JIRA.value):
-            metadata = state[IntegrationProviderSlug.JIRA.value]["metadata"]
-            external_id = state[IntegrationProviderSlug.JIRA.value]["external_id"]
+        if state.get("jira"):
+            metadata = state["jira"]["metadata"]
+            external_id = state["jira"]["external_id"]
         else:
             external_id = state["clientKey"]
             metadata = {
@@ -1172,7 +1164,7 @@ class JiraIntegrationProvider(IntegrationProvider):
             }
         return {
             "external_id": external_id,
-            "provider": IntegrationProviderSlug.JIRA.value,
+            "provider": "jira",
             "name": "JIRA",
             "metadata": metadata,
         }

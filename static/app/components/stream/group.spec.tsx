@@ -237,6 +237,7 @@ describe('StreamGroup', function () {
           project: '13',
           query: 'is:unresolved is:for_review assigned_or_suggested:[me, none]',
           referrer: 'issue-stream',
+          stream_index: undefined,
         },
       });
     });

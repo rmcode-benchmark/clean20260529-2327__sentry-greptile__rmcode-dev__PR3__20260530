@@ -219,11 +219,9 @@ export function DebugImageDetails({
     refetch,
   } = useApiQuery<DebugFile[]>(
     [
-      `/projects/${organization.slug}/${projSlug}/files/dsyms/`,
+      `/projects/${organization.slug}/${projSlug}/files/dsyms/?debug_id=${image?.debug_id}`,
       {
         query: {
-          debug_id: image?.debug_id,
-          code_id: image?.code_id,
           // FIXME(swatinem): Ideally we should not filter here at all,
           // though Symbolicator does not currently report `bcsymbolmap` and `il2cpp`
           // candidates, and we would thus show bogus "unapplied" entries for those,
@@ -317,7 +315,7 @@ export function DebugImageDetails({
         </Content>
       </Body>
       <Footer>
-        <StyledButtonBar>
+        <StyledButtonBar gap={1}>
           <LinkButton
             href="https://docs.sentry.io/platforms/native/data-management/debug-files/"
             external

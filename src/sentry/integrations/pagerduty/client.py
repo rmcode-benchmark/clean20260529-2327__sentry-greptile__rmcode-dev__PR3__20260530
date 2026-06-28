@@ -8,7 +8,6 @@ from sentry.eventstore.models import Event, GroupEvent
 from sentry.integrations.client import ApiClient
 from sentry.integrations.on_call.metrics import OnCallInteractionType
 from sentry.integrations.pagerduty.metrics import record_event
-from sentry.integrations.types import IntegrationProviderSlug
 
 type PagerDutyEventPayload = dict[str, Any]
 
@@ -35,7 +34,7 @@ PAGERDUTY_SUMMARY_MAX_LENGTH = 1024
 
 class PagerDutyClient(ApiClient):
     allow_redirects = False
-    integration_name = IntegrationProviderSlug.PAGERDUTY.value
+    integration_name = "pagerduty"
     base_url = "https://events.pagerduty.com/v2/enqueue"
 
     def __init__(self, integration_key: str, integration_id: int | None) -> None:

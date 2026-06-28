@@ -6,7 +6,7 @@ import {Button} from 'sentry/components/core/button';
 import {CompactSelect} from 'sentry/components/core/compactSelect';
 import {SegmentedControl} from 'sentry/components/core/segmentedControl';
 import {EventDrawerHeader} from 'sentry/components/events/eventDrawer';
-import {EapSpanSearchQueryBuilderWrapper} from 'sentry/components/performance/spanSearchQueryBuilder';
+import {SpanSearchQueryBuilder} from 'sentry/components/performance/spanSearchQueryBuilder';
 import {t} from 'sentry/locale';
 import {space} from 'sentry/styles/space';
 import {trackAnalytics} from 'sentry/utils/analytics';
@@ -35,9 +35,13 @@ import * as ModuleLayout from 'sentry/views/insights/common/components/moduleLay
 import {ReadoutRibbon} from 'sentry/views/insights/common/components/ribbon';
 import {SampleDrawerBody} from 'sentry/views/insights/common/components/sampleDrawerBody';
 import {SampleDrawerHeaderTransaction} from 'sentry/views/insights/common/components/sampleDrawerHeaderTransaction';
-import {useSpans} from 'sentry/views/insights/common/queries/useDiscover';
-import {useSpanSeries} from 'sentry/views/insights/common/queries/useDiscoverSeries';
-import {useTopNSpanSeries} from 'sentry/views/insights/common/queries/useTopNDiscoverSeries';
+import {
+  useSpanMetrics,
+  useSpansIndexed,
+} from 'sentry/views/insights/common/queries/useDiscover';
+import {useSpanMetricsSeries} from 'sentry/views/insights/common/queries/useDiscoverSeries';
+import {useTopNSpanMetricsSeries} from 'sentry/views/insights/common/queries/useTopNDiscoverSeries';
+import {useInsightsEap} from 'sentry/views/insights/common/utils/useEap';
 import {
   DataTitles,
   getDurationChartTitle,
@@ -56,13 +60,16 @@ import {
   ModuleName,
   SpanFields,
   SpanFunction,
-  type SpanQueryFilters,
+  SpanIndexedField,
+  SpanMetricsField,
+  type SpanMetricsQueryFilters,
 } from 'sentry/views/insights/types';
 import {TraceViewSources} from 'sentry/views/performance/newTraceDetails/traceHeader/breadcrumbs';
 
 export function HTTPSamplesPanel() {
   const navigate = useNavigate();
   const location = useLocation();
+  const useEap = useInsightsEap();
 
   const query = useLocationQuery({
     fields: {
@@ -73,7 +80,7 @@ export function HTTPSamplesPanel() {
       panel: decodePanel,
       responseCodeClass: decodeResponseCodeClass,
       spanSearchQuery: decodeScalar,
-      [SpanFields.USER_GEO_SUBREGION]: decodeList,
+      [SpanMetricsField.USER_GEO_SUBREGION]: decodeList,
     },
   });
 
@@ -131,22 +138,22 @@ export function HTTPSamplesPanel() {
     'span.domain':
       query.domain === '' ? EMPTY_OPTION_VALUE : escapeFilterValue(query.domain),
     transaction: query.transaction,
-    ...(query[SpanFields.USER_GEO_SUBREGION].length > 0
+    ...(query[SpanMetricsField.USER_GEO_SUBREGION].length > 0
       ? {
-          [SpanFields.USER_GEO_SUBREGION]: `[${query[SpanFields.USER_GEO_SUBREGION].join(',')}]`,
+          [SpanMetricsField.USER_GEO_SUBREGION]: `[${query[SpanMetricsField.USER_GEO_SUBREGION].join(',')}]`,
         }
       : {}),
   };
 
   // The ribbon is above the data selectors, and not affected by them. So, it has its own filters.
-  const ribbonFilters: SpanQueryFilters = {
+  const ribbonFilters: SpanMetricsQueryFilters = {
     ...BASE_FILTERS,
     ...ADDITONAL_FILTERS,
     ...new MutableSearch(query.spanSearchQuery).filters,
   };
 
   // These filters are for the charts and samples tables
-  const filters: SpanQueryFilters = {
+  const filters: SpanMetricsQueryFilters = {
     ...BASE_FILTERS,
     ...ADDITONAL_FILTERS,
     ...new MutableSearch(query.spanSearchQuery).filters,
@@ -168,13 +175,13 @@ export function HTTPSamplesPanel() {
   const {
     data: domainTransactionMetrics,
     isFetching: areDomainTransactionMetricsFetching,
-  } = useSpans(
+  } = useSpanMetrics(
     {
       search: MutableSearch.fromQueryObject(ribbonFilters),
       fields: [
         `${SpanFunction.EPM}()`,
-        `avg(${SpanFields.SPAN_SELF_TIME})`,
-        `sum(${SpanFields.SPAN_SELF_TIME})`,
+        `avg(${SpanMetricsField.SPAN_SELF_TIME})`,
+        `sum(${SpanMetricsField.SPAN_SELF_TIME})`,
         'http_response_rate(3)',
         'http_response_rate(4)',
         'http_response_rate(5)',
@@ -188,7 +195,7 @@ export function HTTPSamplesPanel() {
     isFetching: isDurationDataFetching,
     data: durationData,
     error: durationError,
-  } = useSpanSeries(
+  } = useSpanMetricsSeries(
     {
       search,
       yAxis: [`avg(span.self_time)`],
@@ -202,10 +209,10 @@ export function HTTPSamplesPanel() {
     isFetching: isResponseCodeDataLoading,
     data: responseCodeData,
     error: responseCodeError,
-  } = useTopNSpanSeries(
+  } = useTopNSpanMetricsSeries(
     {
       search,
-      fields: [SpanFields.SPAN_STATUS_CODE, 'count()'],
+      fields: [SpanFields.RESPONSE_CODE, 'count()'],
       yAxis: ['count()'],
       topN: 5,
       sort: {
@@ -227,10 +234,10 @@ export function HTTPSamplesPanel() {
   } = useSpanSamples({
     search,
     fields: [
-      SpanFields.ID,
-      SpanFields.TRACE,
-      SpanFields.SPAN_DESCRIPTION,
-      SpanFields.SPAN_STATUS_CODE,
+      SpanIndexedField.ID,
+      SpanIndexedField.TRACE,
+      SpanIndexedField.SPAN_DESCRIPTION,
+      SpanIndexedField.RESPONSE_CODE,
     ],
     min: 0,
     max: durationAxisMax,
@@ -247,17 +254,17 @@ export function HTTPSamplesPanel() {
     isFetching: isResponseCodeSamplesDataFetching,
     error: responseCodeSamplesDataError,
     refetch: refetchResponseCodeSpanSamples,
-  } = useSpans(
+  } = useSpansIndexed(
     {
       search,
       fields: [
-        SpanFields.PROJECT,
-        SpanFields.TRACE,
-        SpanFields.TRANSACTION_SPAN_ID,
-        SpanFields.SPAN_ID,
-        SpanFields.TIMESTAMP,
-        SpanFields.SPAN_DESCRIPTION,
-        SpanFields.SPAN_STATUS_CODE,
+        SpanIndexedField.PROJECT,
+        SpanIndexedField.TRACE,
+        SpanIndexedField.TRANSACTION_SPAN_ID,
+        SpanIndexedField.SPAN_ID,
+        SpanIndexedField.TIMESTAMP,
+        SpanIndexedField.SPAN_DESCRIPTION,
+        SpanIndexedField.RESPONSE_CODE,
       ],
       sorts: [SPAN_SAMPLES_SORT],
       limit: SPAN_SAMPLE_LIMIT,
@@ -343,7 +350,9 @@ export function HTTPSamplesPanel() {
                 <MetricReadout
                   title={DataTitles.avg}
                   value={
-                    domainTransactionMetrics?.[0]?.[`avg(${SpanFields.SPAN_SELF_TIME})`]
+                    domainTransactionMetrics?.[0]?.[
+                      `avg(${SpanMetricsField.SPAN_SELF_TIME})`
+                    ]
                   }
                   unit={DurationUnit.MILLISECOND}
                   isLoading={areDomainTransactionMetricsFetching}
@@ -430,7 +439,7 @@ export function HTTPSamplesPanel() {
                   <ResponseCodeCountChart
                     search={search}
                     referrer={Referrer.SAMPLES_PANEL_RESPONSE_CODE_CHART}
-                    groupBy={[SpanFields.SPAN_STATUS_CODE]}
+                    groupBy={[SpanFields.RESPONSE_CODE]}
                     series={Object.values(responseCodeData).filter(Boolean)}
                     isLoading={isResponseCodeDataLoading}
                     error={responseCodeError}
@@ -440,12 +449,13 @@ export function HTTPSamplesPanel() {
             )}
 
             <ModuleLayout.Full>
-              <EapSpanSearchQueryBuilderWrapper
+              <SpanSearchQueryBuilder
                 projects={selection.projects}
                 initialQuery={query.spanSearchQuery}
                 onSearch={handleSearch}
                 placeholder={t('Search for span attributes')}
                 searchSource={`${ModuleName.HTTP}-sample-panel`}
+                useEap={useEap}
               />
             </ModuleLayout.Full>
 

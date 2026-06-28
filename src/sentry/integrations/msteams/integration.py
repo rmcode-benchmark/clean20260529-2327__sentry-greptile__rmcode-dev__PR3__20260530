@@ -113,7 +113,7 @@ class MsTeamsIntegrationProvider(IntegrationProvider):
                 "tenant_id": data["tenant_id"],
             },
             "user_identity": {
-                "type": IntegrationProviderSlug.MSTEAMS.value,
+                "type": "msteams",
                 "external_id": user_id,
                 "scopes": [],
                 "data": {},

@@ -111,28 +111,15 @@ METRICS_TAGS_BY_HASH_BASIS = {
 def should_handle_grouphash_metadata(project: Project, grouphash_is_new: bool) -> bool:
     # Killswitches
     if not options.get("grouping.grouphash_metadata.ingestion_writes_enabled"):
-        metrics.incr(
-            "grouping.grouphash_metadata.should_handle",
-            tags={"result": False, "reason": "killswitch"},
-        )
         return False
 
     # While we're backfilling metadata for existing grouphash records, if the load is too high, we
     # want to prioritize metadata for new grouphashes because there's certain information
     # (timestamp, Seer data) which is only available at group creation time.
     if grouphash_is_new:
-        metrics.incr(
-            "grouping.grouphash_metadata.should_handle",
-            tags={"result": True, "reason": "new_group"},
-        )
         return True
     else:
-        result = random.random() <= options.get("grouping.grouphash_metadata.backfill_sample_rate")
-        metrics.incr(
-            "grouping.grouphash_metadata.should_handle",
-            tags={"result": result, "reason": f"die_roll_{result}"},
-        )
-        return result
+        return random.random() <= options.get("grouping.grouphash_metadata.backfill_sample_rate")
 
 
 def create_or_update_grouphash_metadata_if_needed(
@@ -140,7 +127,7 @@ def create_or_update_grouphash_metadata_if_needed(
     project: Project,
     grouphash: GroupHash,
     grouphash_is_new: bool,
-    grouping_config_id: str,
+    grouping_config: str,
     variants: dict[str, BaseVariant],
 ) -> None:
     db_hit_metadata: dict[str, Any] = {}
@@ -151,9 +138,8 @@ def create_or_update_grouphash_metadata_if_needed(
         # for a lock
         grouphash_metadata, created = GroupHashMetadata.objects.get_or_create(grouphash=grouphash)
 
-        new_data = get_grouphash_metadata_data(event, project, variants, grouping_config_id)
+        new_data = get_grouphash_metadata_data(event, project, variants, grouping_config)
 
-        # Handle race condition cases where this event lost the race to create the metadata record
         if not created:
             logger.info(
                 "grouphash_metadata.creation_race_condition.record_exists",
@@ -202,19 +188,19 @@ def create_or_update_grouphash_metadata_if_needed(
         # Keep track of the most recent config which computed this hash, so that once a config is
         # deprecated, we can clear out the GroupHash records which are no longer being produced
         current_latest_config = grouphash.metadata.latest_grouping_config
-        if _is_incoming_config_newer_than_current_latest(grouping_config_id, current_latest_config):
-            updated_data = {"latest_grouping_config": grouping_config_id}
+        if _is_incoming_config_newer_than_current_latest(grouping_config, current_latest_config):
+            updated_data = {"latest_grouping_config": grouping_config}
             db_hit_metadata = {
                 "reason": "old_grouping_config",
                 "current_config": current_latest_config,
-                "new_config": grouping_config_id,
+                "new_config": grouping_config,
             }
 
         # If the metadata was gathered under an old schema, get new data and bump the schema version
         if grouphash.metadata.schema_version != GROUPHASH_METADATA_SCHEMA_VERSION:
             updated_data.update(
                 # This includes `schema_version`
-                get_grouphash_metadata_data(event, project, variants, grouping_config_id)
+                get_grouphash_metadata_data(event, project, variants, grouping_config)
             )
 
             db_hit_metadata.update(
@@ -260,14 +246,14 @@ def get_grouphash_metadata_data(
     event: Event,
     project: Project,
     variants: dict[str, BaseVariant],
-    grouping_config_id: str,
+    grouping_config: str,
 ) -> dict[str, Any]:
     with metrics.timer(
         "grouping.grouphashmetadata.get_grouphash_metadata_data"
     ) as metrics_timer_tags:
         base_data = {
             "schema_version": GROUPHASH_METADATA_SCHEMA_VERSION,
-            "latest_grouping_config": grouping_config_id,
+            "latest_grouping_config": grouping_config,
             "platform": event.platform or "unknown",
         }
         hashing_metadata: HashingMetadata = {}

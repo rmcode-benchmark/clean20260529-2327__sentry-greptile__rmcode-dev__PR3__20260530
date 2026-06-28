@@ -67,7 +67,7 @@ function TeamDetails({children}: Props) {
   if (!team || isError) {
     return (
       <Alert.Container>
-        <Alert type="warning" showIcon={false}>
+        <Alert type="warning">
           <div>{t('This team does not exist, or you do not have access to it.')}</div>
         </Alert>
       </Alert.Container>

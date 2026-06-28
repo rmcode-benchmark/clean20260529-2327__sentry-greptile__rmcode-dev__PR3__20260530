@@ -8,7 +8,6 @@ from sentry.api.api_owners import ApiOwner
 from sentry.api.api_publish_status import ApiPublishStatus
 from sentry.api.base import Endpoint, control_silo_endpoint
 from sentry.integrations.pipeline import ensure_integration
-from sentry.integrations.types import IntegrationProviderSlug
 
 from .integration import BitbucketIntegrationProvider
 
@@ -29,6 +28,6 @@ class BitbucketInstalledEndpoint(Endpoint):
     def post(self, request: Request, *args, **kwargs) -> Response:
         state = request.data
         data = BitbucketIntegrationProvider().build_integration(state)
-        ensure_integration(IntegrationProviderSlug.BITBUCKET.value, data)
+        ensure_integration("bitbucket", data)
 
         return self.respond()

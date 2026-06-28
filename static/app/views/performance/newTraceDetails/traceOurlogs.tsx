@@ -63,6 +63,7 @@ function LogsSectionContent({
   return (
     <Fragment>
       <SearchQueryBuilder
+        searchOnChange={organization.features.includes('ui-search-on-change')}
         placeholder={t('Search logs for this event')}
         filterKeys={{}}
         getTagValues={() => new Promise<string[]>(() => [])}

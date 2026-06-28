@@ -12,11 +12,11 @@ import {
   PRIMARY_RELEASE_ALIAS,
   SECONDARY_RELEASE_ALIAS,
 } from 'sentry/views/insights/common/components/releaseSelector';
-import {useSpans} from 'sentry/views/insights/common/queries/useDiscover';
+import {useSpansIndexed} from 'sentry/views/insights/common/queries/useDiscover';
 import {useReleaseSelection} from 'sentry/views/insights/common/queries/useReleases';
 import {COLD_START_TYPE} from 'sentry/views/insights/mobile/appStarts/components/startTypeSelector';
 import {EventSamplesTable} from 'sentry/views/insights/mobile/screenload/components/tables/eventSamplesTable';
-import {SpanFields} from 'sentry/views/insights/types';
+import {SpanIndexedField, SpanMetricsField} from 'sentry/views/insights/types';
 
 const DEFAULT_SORT: Sort = {
   kind: 'desc',
@@ -45,15 +45,15 @@ export function EventSamples({
   const {primaryRelease} = useReleaseSelection();
   const cursor = decodeScalar(location.query?.[cursorName]);
 
-  const deviceClass = decodeScalar(location.query[SpanFields.DEVICE_CLASS]) ?? '';
+  const deviceClass = decodeScalar(location.query[SpanMetricsField.DEVICE_CLASS]) ?? '';
   const startType =
-    decodeScalar(location.query[SpanFields.APP_START_TYPE]) ?? COLD_START_TYPE;
+    decodeScalar(location.query[SpanMetricsField.APP_START_TYPE]) ?? COLD_START_TYPE;
 
   const searchQuery = new MutableSearch([
     `transaction:${transaction}`,
     `release:${release}`,
-    ...(startType ? [`${SpanFields.APP_START_TYPE}:${startType}`] : []),
-    ...(deviceClass ? [`${SpanFields.DEVICE_CLASS}:${deviceClass}`] : []),
+    ...(startType ? [`${SpanMetricsField.APP_START_TYPE}:${startType}`] : []),
+    ...(deviceClass ? [`${SpanMetricsField.DEVICE_CLASS}:${deviceClass}`] : []),
   ]);
 
   // TODO: Add this back in once os.name is available in the spansIndexed dataset
@@ -92,21 +92,20 @@ export function EventSamples({
   const eventView = EventView.fromNewQueryWithLocation(newQuery, location);
   eventView.sorts = [sort];
 
-  const {data, meta, isPending, pageLinks} = useSpans(
+  const {data, meta, isPending, pageLinks} = useSpansIndexed(
     {
       search: searchQuery.formatString(),
       cursor,
       limit: 4,
       enabled: defined(release),
       fields: [
-        SpanFields.ID,
-        SpanFields.TRACE,
-        SpanFields.TIMESTAMP,
-        SpanFields.TRANSACTION,
-        SpanFields.TRANSACTION_SPAN_ID,
-        SpanFields.PROJECT,
-        SpanFields.PROFILE_ID,
-        SpanFields.SPAN_DURATION,
+        SpanIndexedField.TRACE,
+        SpanIndexedField.TIMESTAMP,
+        SpanIndexedField.TRANSACTION,
+        SpanIndexedField.TRANSACTION_SPAN_ID,
+        SpanIndexedField.PROJECT,
+        SpanIndexedField.PROFILE_ID,
+        SpanIndexedField.SPAN_DURATION,
       ],
     },
     'api.starfish.mobile-startup-event-samples'
@@ -115,7 +114,7 @@ export function EventSamples({
   return (
     <EventSamplesTable
       cursorName={cursorName}
-      eventIdKey={SpanFields.TRANSACTION_SPAN_ID}
+      eventIdKey={SpanIndexedField.TRANSACTION_SPAN_ID}
       eventView={eventView}
       isLoading={defined(release) && isPending}
       profileIdKey="profile_id"

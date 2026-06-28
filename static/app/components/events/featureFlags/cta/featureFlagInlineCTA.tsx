@@ -113,7 +113,7 @@ export default function FeatureFlagInlineCTA({
   }
 
   const actions = (
-    <ButtonBar>
+    <ButtonBar gap={1}>
       {feedbackButton}
       <FeatureFlagSettingsButton orgSlug={organization.slug} />
     </ButtonBar>

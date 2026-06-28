@@ -11,7 +11,6 @@ from sentry.integrations.client import ApiClient
 from sentry.integrations.models.integration import Integration
 from sentry.integrations.services.integration.model import RpcIntegration
 from sentry.integrations.source_code_management.repository import RepositoryClient
-from sentry.integrations.types import IntegrationProviderSlug
 from sentry.integrations.utils.atlassian_connect import get_query_hash
 from sentry.models.repository import Repository
 from sentry.utils import jwt
@@ -54,7 +53,7 @@ class BitbucketApiClient(ApiClient, RepositoryClient):
     NOTE: repo is the fully qualified slug containing 'username/repo_slug'
     """
 
-    integration_name = IntegrationProviderSlug.BITBUCKET.value
+    integration_name = "bitbucket"
 
     def __init__(self, integration: RpcIntegration | Integration):
         self.base_url = integration.metadata["base_url"]

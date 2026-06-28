@@ -19,7 +19,6 @@ class DeletionJobStatus(models.TextChoices):
     PENDING = "pending", gettext_lazy("Pending")
     IN_PROGRESS = "in-progress", gettext_lazy("In Progress")
     COMPLETED = "completed", gettext_lazy("Completed")
-    FAILED = "failed", gettext_lazy("Failed")
 
 
 @region_silo_model

@@ -125,7 +125,7 @@ export default function BreadcrumbsDataSection({
       : BreadcrumbTimeDisplay.ABSOLUTE;
 
   const actions = (
-    <ButtonBar>
+    <ButtonBar gap={1}>
       <Button
         aria-label={t('Open Breadcrumb Search')}
         icon={<IconSearch size="xs" />}

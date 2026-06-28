@@ -27,18 +27,9 @@ describe('getWidgetExploreUrl', () => {
     const url = getWidgetExploreUrl(widget, undefined, selection, organization);
 
     // Note: for table widgets the mode is set to samples and the fields are propagated
-    expectUrl(url).toMatch({
-      path: '/organizations/org-slug/traces/',
-      params: [
-        ['field', 'span.description'],
-        ['field', 'span.duration'],
-        ['groupBy', 'span.description'],
-        ['interval', '30m'],
-        ['mode', 'aggregate'],
-        ['statsPeriod', '14d'],
-        ['visualize', JSON.stringify({chartType: 1, yAxes: ['avg(span.duration)']})],
-      ],
-    });
+    expect(url).toBe(
+      '/organizations/org-slug/traces/?groupBy=span.description&interval=30m&mode=aggregate&statsPeriod=14d&visualize=%7B%22chartType%22%3A1%2C%22yAxes%22%3A%5B%22avg%28span.duration%29%22%5D%7D'
+    );
   });
 
   it('returns the correct samples mode url for table widgets without aggregation', () => {
@@ -59,16 +50,9 @@ describe('getWidgetExploreUrl', () => {
     const url = getWidgetExploreUrl(widget, undefined, selection, organization);
 
     // Note: for table widgets the mode is set to samples and the fields are propagated
-    expectUrl(url).toMatch({
-      path: '/organizations/org-slug/traces/',
-      params: [
-        ['field', 'span.description'],
-        ['field', 'span.duration'],
-        ['interval', '30m'],
-        ['mode', 'samples'],
-        ['statsPeriod', '14d'],
-      ],
-    });
+    expect(url).toBe(
+      '/organizations/org-slug/traces/?field=span.description&field=span.duration&interval=30m&mode=samples&statsPeriod=14d&visualize=%7B%22chartType%22%3A1%2C%22yAxes%22%3A%5B%5D%7D'
+    );
   });
 
   it('returns the correct url for timeseries widgets', () => {
@@ -90,18 +74,9 @@ describe('getWidgetExploreUrl', () => {
 
     // Note: for line widgets the mode is set to aggregate
     // The chart type is set to 1 for area charts
-    expectUrl(url).toMatch({
-      path: '/organizations/org-slug/traces/',
-      params: [
-        ['field', 'span.description'],
-        ['field', 'span.duration'],
-        ['groupBy', 'span.description'],
-        ['interval', '30m'],
-        ['mode', 'aggregate'],
-        ['statsPeriod', '14d'],
-        ['visualize', JSON.stringify({chartType: 2, yAxes: ['avg(span.duration)']})],
-      ],
-    });
+    expect(url).toBe(
+      '/organizations/org-slug/traces/?groupBy=span.description&interval=30m&mode=aggregate&statsPeriod=14d&visualize=%7B%22chartType%22%3A2%2C%22yAxes%22%3A%5B%22avg%28span.duration%29%22%5D%7D'
+    );
   });
 
   it('returns the correct url for timeseries widgets without grouping', () => {
@@ -123,17 +98,9 @@ describe('getWidgetExploreUrl', () => {
 
     // Note: for line widgets the mode is set to aggregate
     // The chart type is set to 1 for area charts
-    expectUrl(url).toMatch({
-      path: '/organizations/org-slug/traces/',
-      params: [
-        ['field', 'span.duration'],
-        ['groupBy', ''],
-        ['interval', '30m'],
-        ['mode', 'aggregate'],
-        ['statsPeriod', '14d'],
-        ['visualize', JSON.stringify({chartType: 2, yAxes: ['avg(span.duration)']})],
-      ],
-    });
+    expect(url).toBe(
+      '/organizations/org-slug/traces/?groupBy=&interval=30m&mode=aggregate&statsPeriod=14d&visualize=%7B%22chartType%22%3A2%2C%22yAxes%22%3A%5B%22avg%28span.duration%29%22%5D%7D'
+    );
   });
 
   it('returns the correct URL for chart widgets where the sort is not in the yAxes', () => {
@@ -155,20 +122,9 @@ describe('getWidgetExploreUrl', () => {
     const url = getWidgetExploreUrl(widget, undefined, selection, organization);
 
     // The URL should have the sort and another visualize to plot the sort
-    expectUrl(url).toMatch({
-      path: '/organizations/org-slug/traces/',
-      params: [
-        ['field', 'span.description'],
-        ['field', 'span.duration'],
-        ['groupBy', 'span.description'],
-        ['interval', '30m'],
-        ['mode', 'aggregate'],
-        ['sort', '-count(span.duration)'],
-        ['statsPeriod', '14d'],
-        ['visualize', JSON.stringify({chartType: 1, yAxes: ['avg(span.duration)']})],
-        ['visualize', JSON.stringify({chartType: 1, yAxes: ['count(span.duration)']})],
-      ],
-    });
+    expect(url).toBe(
+      '/organizations/org-slug/traces/?groupBy=span.description&interval=30m&mode=aggregate&sort=-count%28span.duration%29&statsPeriod=14d&visualize=%7B%22chartType%22%3A1%2C%22yAxes%22%3A%5B%22avg%28span.duration%29%22%5D%7D&visualize=%7B%22chartType%22%3A1%2C%22yAxes%22%3A%5B%22count%28span.duration%29%22%5D%7D'
+    );
   });
 
   it('applies the dashboard filters to the query', () => {
@@ -196,20 +152,9 @@ describe('getWidgetExploreUrl', () => {
     );
 
     // Assert that the query contains the dashboard filters in its resulting URL
-    expectUrl(url).toMatch({
-      path: '/organizations/org-slug/traces/',
-      params: [
-        ['field', 'span.description'],
-        ['field', 'span.duration'],
-        ['groupBy', 'span.description'],
-        ['interval', '30m'],
-        ['mode', 'aggregate'],
-        ['query', '(span.description:test) release:\[\"1.0.0\",\"2.0.0\"\] '],
-        ['sort', '-avg(span.duration)'],
-        ['statsPeriod', '14d'],
-        ['visualize', JSON.stringify({chartType: 1, yAxes: ['avg(span.duration)']})],
-      ],
-    });
+    expect(url).toContain(
+      '&query=%28span.description%3Atest%29%20release%3A%5B%221.0.0%22%2C%222.0.0%22%5D%20'
+    );
   });
 
   it('returns the correct url for multiple queries', () => {
@@ -260,26 +205,3 @@ describe('getWidgetExploreUrl', () => {
     expect(query2.query).toBe('is_transaction:false');
   });
 });
-
-function expectUrl(url: string) {
-  return {
-    toMatch({path, params}: {params: Array<[string, string]>; path: string}) {
-      expect(url).toMatch(new RegExp(`^${path}\\?`));
-      const urlParams = new URLSearchParams(url.substring(path.length));
-      function compareFn(a: [string, string], b: [string, string]) {
-        if (a[0] < b[0]) {
-          return -1;
-        }
-
-        if (a[0] > b[0]) {
-          return 1;
-        }
-
-        return a[1].localeCompare(b[1]);
-      }
-      expect([...urlParams.entries()].sort(compareFn)).toEqual(
-        [...params].sort(compareFn)
-      );
-    },
-  };
-}

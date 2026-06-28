@@ -11,13 +11,13 @@ import useFeedbackQueryKeys from 'sentry/components/feedback/useFeedbackQueryKey
 import {IconRefresh} from 'sentry/icons';
 import {t} from 'sentry/locale';
 import {space} from 'sentry/styles/space';
-import type {useListItemCheckboxContext} from 'sentry/utils/list/useListItemCheckboxState';
+import type useListItemCheckboxState from 'sentry/utils/list/useListItemCheckboxState';
 import useLocationQuery from 'sentry/utils/url/useLocationQuery';
-import useUrlParams from 'sentry/utils/url/useUrlParams';
+import useUrlParams from 'sentry/utils/useUrlParams';
 
 interface Props
   extends Pick<
-    ReturnType<typeof useListItemCheckboxContext>,
+    ReturnType<typeof useListItemCheckboxState>,
     | 'countSelected'
     | 'deselectAll'
     | 'isAllSelected'
@@ -96,12 +96,11 @@ const HeaderPanel = styled('div')`
 `;
 
 const HeaderPanelItem = styled('div')`
-  padding: ${space(1)} ${space(1.5)} ${space(1)} ${space(2)};
+  padding: ${space(1)} ${space(1.5)} ${space(1)} 18px;
   display: flex;
   gap: ${space(1)};
   align-items: center;
-  border: 1px solid transparent;
-  border-bottom-color: ${p => p.theme.innerBorder};
+  border-bottom: 1px solid ${p => p.theme.innerBorder};
 `;
 
 const RefreshContainer = styled('div')`

@@ -611,45 +611,38 @@ class RuleFormContainer extends DeprecatedAsyncComponent<Props, State> {
         'alertType',
       ].includes(name)
     ) {
-      this.setState(
-        ({dataset: _dataset, aggregate, alertType, eventTypes: _eventTypes}) => {
-          const dataset = this.checkOnDemandMetricsDataset(
-            name === 'dataset' ? (value as Dataset) : _dataset,
-            this.state.query
-          );
+      this.setState(({dataset: _dataset, aggregate, alertType}) => {
+        const dataset = this.checkOnDemandMetricsDataset(
+          name === 'dataset' ? (value as Dataset) : _dataset,
+          this.state.query
+        );
 
-          const eventTypes =
-            name === 'eventTypes' ? (value as EventTypes[]) : _eventTypes;
-
-          if (deprecateTransactionAlerts(organization)) {
-            const newAlertType = getAlertTypeFromAggregateDataset({
-              aggregate: name === 'aggregate' ? (value as string) : aggregate,
-              dataset,
-              organization,
-              eventTypes,
-            });
-
-            return {
-              [name]: value,
-              alertType: newAlertType,
-              dataset,
-            };
-          }
-
+        if (deprecateTransactionAlerts(organization)) {
           const newAlertType = getAlertTypeFromAggregateDataset({
-            aggregate,
+            aggregate: name === 'aggregate' ? (value as string) : aggregate,
             dataset,
-            eventTypes,
             organization,
           });
 
           return {
             [name]: value,
-            alertType: alertType === newAlertType ? alertType : 'custom_transactions',
+            alertType: newAlertType,
             dataset,
           };
         }
-      );
+
+        const newAlertType = getAlertTypeFromAggregateDataset({
+          aggregate,
+          dataset,
+          organization,
+        });
+
+        return {
+          [name]: value,
+          alertType: alertType === newAlertType ? alertType : 'custom_transactions',
+          dataset,
+        };
+      });
     }
   };
 
@@ -1467,7 +1460,7 @@ class RuleFormContainer extends DeprecatedAsyncComponent<Props, State> {
                   {thresholdTypeForm(formDisabled)}
                   {showErrorMigrationWarning && (
                     <Alert.Container>
-                      <Alert type="warning">
+                      <Alert type="warning" showIcon>
                         {tct(
                           "We've added [code:is:unresolved] to your events filter; please make sure the current thresholds are still valid as this alert is now filtering out resolved and archived errors.",
                           {

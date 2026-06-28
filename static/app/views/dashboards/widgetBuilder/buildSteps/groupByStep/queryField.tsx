@@ -17,7 +17,6 @@ export interface QueryFieldProps {
   attributes?: UseDraggableArguments['attributes'];
   canDelete?: boolean;
   canDrag?: boolean;
-  disabled?: boolean;
   fieldValidationError?: ReactNode;
   isDragging?: boolean;
   listeners?: DraggableSyntheticListeners;
@@ -39,7 +38,6 @@ export function QueryField({
   style,
   fieldValidationError,
   isDragging,
-  disabled,
 }: QueryFieldProps) {
   return (
     <QueryFieldWrapper ref={ref} style={style}>
@@ -60,7 +58,6 @@ export function QueryField({
             fieldValue={value}
             fieldOptions={fieldOptions}
             onChange={onChange}
-            disabled={disabled}
             filterPrimaryOptions={option => option.value.kind !== FieldValueKind.FUNCTION}
           />
           {fieldValidationError ? fieldValidationError : null}
@@ -72,7 +69,6 @@ export function QueryField({
               icon={<IconDelete />}
               title={t('Remove group')}
               aria-label={t('Remove group')}
-              disabled={disabled}
             />
           )}
         </Fragment>

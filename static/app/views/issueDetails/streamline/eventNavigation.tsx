@@ -268,16 +268,10 @@ export function IssueEventNavigation({event, group}: IssueEventNavigationProps) 
             </Fragment>
           )}
           {isListView && (
-            <ButtonBar>
+            <ButtonBar gap={1}>
               {issueTypeConfig.discover.enabled && currentTab === Tab.EVENTS && (
                 <LinkButton
-                  to={{
-                    pathname: discoverUrl.pathname,
-                    query: {
-                      ...discoverUrl.query,
-                      sort: location.query.sort ?? '-timestamp',
-                    },
-                  }}
+                  to={discoverUrl}
                   aria-label={t('Open in Discover')}
                   size="xs"
                   icon={<IconTelescope />}

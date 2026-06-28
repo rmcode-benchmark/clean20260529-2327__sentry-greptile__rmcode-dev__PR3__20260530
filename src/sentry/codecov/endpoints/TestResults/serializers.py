@@ -3,8 +3,6 @@ import logging
 import sentry_sdk
 from rest_framework import serializers
 
-from sentry.codecov.endpoints.common.serializers import PageInfoSerializer
-
 logger = logging.getLogger(__name__)
 
 
@@ -17,7 +15,6 @@ class TestResultNodeSerializer(serializers.Serializer):
 
     updatedAt = serializers.CharField()
     avgDuration = serializers.FloatField()
-    totalDuration = serializers.FloatField()
     name = serializers.CharField()
     failureRate = serializers.FloatField()
     flakeRate = serializers.FloatField()
@@ -27,6 +24,15 @@ class TestResultNodeSerializer(serializers.Serializer):
     totalSkipCount = serializers.IntegerField()
     totalPassCount = serializers.IntegerField()
     lastDuration = serializers.FloatField()
+
+
+class PageInfoSerializer(serializers.Serializer):
+    """
+    Serializer for pagination information
+    """
+
+    endCursor = serializers.CharField(allow_null=True)
+    hasNextPage = serializers.BooleanField()
 
 
 class TestResultSerializer(serializers.Serializer):
@@ -58,13 +64,7 @@ class TestResultSerializer(serializers.Serializer):
             response_data = {
                 "results": nodes,
                 "pageInfo": test_results_data.get(
-                    "pageInfo",
-                    {
-                        "endCursor": None,
-                        "hasNextPage": False,
-                        "startCursor": None,
-                        "hasPreviousPage": False,
-                    },
+                    "pageInfo", {"endCursor": None, "hasNextPage": False}
                 ),
                 "totalCount": test_results_data.get("totalCount", len(nodes)),
             }

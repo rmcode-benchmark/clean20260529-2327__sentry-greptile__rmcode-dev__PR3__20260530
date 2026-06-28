@@ -194,7 +194,7 @@ export default function DevKitSettings({organization, project}: Props) {
 
 export const getDevKitHeaderAction = (organization: Organization, project: Project) => {
   return (
-    <ButtonBar gap="lg">
+    <ButtonBar gap={1.5}>
       <FeedbackWidgetButton />
       <RequestSdkAccessButton organization={organization} project={project} />
     </ButtonBar>

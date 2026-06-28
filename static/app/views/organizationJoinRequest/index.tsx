@@ -10,7 +10,6 @@ import {t, tct} from 'sentry/locale';
 import {space} from 'sentry/styles/space';
 import type {RouteComponentProps} from 'sentry/types/legacyReactRouter';
 import {trackAnalytics} from 'sentry/utils/analytics';
-import {testableWindowLocation} from 'sentry/utils/testableWindowLocation';
 
 type Props = RouteComponentProps<{orgId: string}>;
 
@@ -40,7 +39,7 @@ class OrganizationJoinRequest extends Component<Props, State> {
     e.preventDefault();
     const {params} = this.props;
 
-    testableWindowLocation.assign(`/auth/login/${params.orgId}/`);
+    window.location.assign(`/auth/login/${params.orgId}/`);
   };
 
   render() {

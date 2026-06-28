@@ -30,7 +30,6 @@ def get_test_message_status_change(
         "new_substatus": new_substatus,
         "payload_type": "status_change",
         "detector_id": detector_id,
-        "activity_data": {"test": "test"},
     }
 
     return payload
@@ -374,7 +373,6 @@ class TestStatusChangeRegistry(IssueOccurrenceTestBase):
             new_status=status_change["new_status"],
             new_substatus=status_change.get("new_substatus"),
             detector_id=status_change.get("detector_id"),
-            activity_data=status_change.get("activity_data"),
         )
 
     def get_latest_activity(self, activity_type: ActivityType) -> Activity:
@@ -400,8 +398,6 @@ class TestStatusChangeRegistry(IssueOccurrenceTestBase):
 
             update_status(self.group, self.message)
             latest_activity = self.get_latest_activity(ActivityType.SET_RESOLVED)
-
-            assert latest_activity.data == {"test": "test"}
 
             mock_handler.assert_called_once_with(self.group, self.message, latest_activity)
 
@@ -435,9 +431,6 @@ class TestStatusChangeRegistry(IssueOccurrenceTestBase):
 
             update_status(self.group, self.message)
             latest_activity = self.get_latest_activity(ActivityType.AUTO_SET_ONGOING)
-
-            assert latest_activity.data == {"test": "test"}
-
             mock_handler.assert_called_once_with(self.group, self.message, latest_activity)
 
     def test_handler_is_called__unresolved_regressed(self) -> None:
@@ -454,9 +447,6 @@ class TestStatusChangeRegistry(IssueOccurrenceTestBase):
 
             update_status(self.group, self.message)
             latest_activity = self.get_latest_activity(ActivityType.SET_REGRESSION)
-
-            assert latest_activity.data == {"test": "test"}
-
             mock_handler.assert_called_once_with(self.group, self.message, latest_activity)
 
     def test_handler_is_called__ignored(self) -> None:
@@ -473,7 +463,4 @@ class TestStatusChangeRegistry(IssueOccurrenceTestBase):
 
             update_status(self.group, self.message)
             latest_activity = self.get_latest_activity(ActivityType.SET_IGNORED)
-
-            assert latest_activity.data == {"test": "test"}
-
             mock_handler.assert_called_once_with(self.group, self.message, latest_activity)

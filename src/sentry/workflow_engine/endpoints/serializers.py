@@ -12,7 +12,6 @@ from django.db.models.functions import TruncHour
 from sentry.api.paginator import OffsetPaginator
 from sentry.api.serializers import Serializer, register, serialize
 from sentry.api.serializers.models.group import BaseGroupSerializerResponse
-from sentry.api.serializers.rest_framework.base import convert_dict_key_case, snake_to_camel_case
 from sentry.grouping.grouptype import ErrorGroupType
 from sentry.models.group import Group
 from sentry.models.options.project_option import ProjectOption
@@ -22,7 +21,6 @@ from sentry.sentry_apps.models.sentry_app_installation import prepare_ui_compone
 from sentry.utils.cursors import Cursor, CursorResult
 from sentry.workflow_engine.models import (
     Action,
-    AlertRuleDetector,
     DataCondition,
     DataConditionGroup,
     DataSource,
@@ -53,7 +51,7 @@ class ActionSerializer(Serializer):
             "type": obj.type,
             "integrationId": str(obj.integration_id) if obj.integration_id else None,
             "data": obj.data,
-            "config": convert_dict_key_case(obj.config, snake_to_camel_case),
+            "config": obj.config,
         }
 
 
@@ -311,17 +309,6 @@ class DetectorSerializer(Serializer):
         for detector_id, workflow_id in detector_workflows:
             workflows_map[detector_id].append(str(workflow_id))
 
-        # Fetch alert rule mappings
-        # TODO: Remove alert rule mappings as they're deprecated
-        alert_rule_mappings = list(AlertRuleDetector.objects.filter(detector__in=item_list))
-        alert_rule_map = {
-            mapping.detector_id: {
-                "alert_rule_id": mapping.alert_rule_id,
-                "rule_id": mapping.rule_id,
-            }
-            for mapping in alert_rule_mappings
-        }
-
         filtered_item_list = [item for item in item_list if item.type == ErrorGroupType.slug]
         project_ids = [item.project_id for item in filtered_item_list]
 
@@ -343,13 +330,6 @@ class DetectorSerializer(Serializer):
                 str(item.workflow_condition_group_id)
             )
             attrs[item]["workflow_ids"] = workflows_map[item.id]
-            attrs[item]["alert_rule_mapping"] = alert_rule_map.get(
-                item.id,
-                {
-                    "alert_rule_id": None,
-                    "rule_id": None,
-                },
-            )
             if item.id in configs:
                 attrs[item]["config"] = configs[item.id]
             else:
@@ -361,7 +341,6 @@ class DetectorSerializer(Serializer):
         return attrs
 
     def serialize(self, obj: Detector, attrs: Mapping[str, Any], user, **kwargs) -> dict[str, Any]:
-        alert_rule_mapping = attrs.get("alert_rule_mapping", {})
         return {
             "id": str(obj.id),
             "projectId": str(obj.project_id),
@@ -374,10 +353,8 @@ class DetectorSerializer(Serializer):
             "dateUpdated": obj.date_updated,
             "dataSources": attrs.get("data_sources"),
             "conditionGroup": attrs.get("condition_group"),
-            "config": convert_dict_key_case(attrs.get("config"), snake_to_camel_case),
+            "config": attrs.get("config"),
             "enabled": obj.enabled,
-            "alertRuleId": alert_rule_mapping.get("alert_rule_id"),
-            "ruleId": alert_rule_mapping.get("rule_id"),
         }
 
 
@@ -447,7 +424,7 @@ class WorkflowSerializer(Serializer):
             "triggers": attrs.get("triggers"),
             "actionFilters": attrs.get("actionFilters"),
             "environment": obj.environment.name if obj.environment else None,
-            "config": convert_dict_key_case(obj.config, snake_to_camel_case),
+            "config": obj.config,
             "detectorIds": attrs.get("detectorIds"),
             "enabled": obj.enabled,
             "lastTriggered": attrs.get("lastTriggered"),

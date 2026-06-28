@@ -29,19 +29,11 @@ export default function useLoadReplayReader({
 }: Props): ReplayReaderResult {
   const replayId = parseReplayId(replaySlug);
 
-  const {
-    attachments,
-    errors,
-    feedbackEvents,
-    replayRecord,
-    status,
-    isError,
-    isPending,
-    ...replayData
-  } = useReplayData({
-    orgSlug,
-    replayId,
-  });
+  const {attachments, errors, replayRecord, status, isError, isPending, ...replayData} =
+    useReplayData({
+      orgSlug,
+      replayId,
+    });
 
   // get first error matching our group
   const firstMatchingError = useMemo(
@@ -71,7 +63,6 @@ export default function useLoadReplayReader({
           attachments,
           clipWindow: memoizedClipWindow,
           errors,
-          feedbackEvents,
           fetching: isPending,
           replayRecord,
           eventTimestampMs,
@@ -80,7 +71,6 @@ export default function useLoadReplayReader({
     attachments,
     memoizedClipWindow,
     errors,
-    feedbackEvents,
     isPending,
     replayRecord,
     eventTimestampMs,
@@ -90,7 +80,6 @@ export default function useLoadReplayReader({
     ...replayData,
     attachments,
     errors,
-    feedbackEvents,
     isError,
     isPending,
     replay,

@@ -13,7 +13,6 @@ from sentry.exceptions import InvalidIdentity
 from sentry.integrations.client import ApiClient
 from sentry.integrations.services.integration.service import integration_service
 from sentry.integrations.source_code_management.repository import RepositoryClient
-from sentry.integrations.types import IntegrationProviderSlug
 from sentry.models.repository import Repository
 from sentry.shared_integrations.client.proxy import IntegrationProxyClient
 from sentry.silo.base import control_silo_function
@@ -119,7 +118,7 @@ def _create_subscription_data(shared_secret: str) -> dict[str, Any]:
 
 
 class VstsSetupApiClient(ApiClient):
-    integration_name = IntegrationProviderSlug.AZURE_DEVOPS.value
+    integration_name = "vsts"
     api_version = "4.1"  # TODO: update api version
     api_version_preview = "-preview.1"
 
@@ -146,7 +145,7 @@ class VstsSetupApiClient(ApiClient):
 
 
 class VstsApiClient(IntegrationProxyClient, RepositoryClient):
-    integration_name = IntegrationProviderSlug.AZURE_DEVOPS.value
+    integration_name = "vsts"
     api_version = "4.1"  # TODO: update api version
     api_version_preview = "-preview.1"
     _identity: Identity | None = None

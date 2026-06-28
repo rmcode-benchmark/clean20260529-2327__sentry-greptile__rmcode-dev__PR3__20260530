@@ -54,7 +54,6 @@ import {
 import {
   getPlanCategoryName,
   hasCategoryFeature,
-  isByteCategory,
   isPartOfReservedBudget,
 } from 'getsentry/utils/dataCategory';
 import formatCurrency from 'getsentry/utils/formatCurrency';
@@ -66,8 +65,8 @@ import {
 const USAGE_CHART_OPTIONS_DATACATEGORY = [
   ...CHART_OPTIONS_DATACATEGORY,
   {
-    label: DATA_CATEGORY_INFO.span_indexed.titleName,
-    value: DATA_CATEGORY_INFO.span_indexed.plural,
+    label: DATA_CATEGORY_INFO.spanIndexed.titleName,
+    value: DATA_CATEGORY_INFO.spanIndexed.plural,
     yAxisMinInterval: 100,
   },
 ];
@@ -189,7 +188,7 @@ function mapReservedToChart(reserved: number | null, category: DataCategory) {
     return 0;
   }
 
-  if (isByteCategory(category)) {
+  if (category === DataCategory.ATTACHMENTS) {
     return typeof reserved === 'number' ? reserved * GIGABYTE : 0;
   }
   return reserved || 0;

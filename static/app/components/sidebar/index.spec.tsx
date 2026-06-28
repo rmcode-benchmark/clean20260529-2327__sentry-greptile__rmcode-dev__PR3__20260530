@@ -32,10 +32,11 @@ const ALL_AVAILABLE_FEATURES = [
   'discover-query',
   'dashboards-basic',
   'dashboards-edit',
+  'user-feedback-ui',
   'session-replay-ui',
   'performance-view',
+  'performance-trace-explorer',
   'profiling',
-  'visibility-explore-view',
 ];
 
 jest.mock('sentry/utils/demoMode');
@@ -43,7 +44,10 @@ jest.mock('sentry/utils/demoMode');
 describe('Sidebar', function () {
   const organization = OrganizationFixture();
   const broadcast = BroadcastFixture();
-  const user = UserFixture();
+  const userMock = UserFixture();
+  const user = UserFixture({
+    options: {...userMock.options, quickStartDisplay: {[organization.id]: 2}},
+  });
   const apiMocks = {
     broadcasts: jest.fn(),
     broadcastsMarkAsSeen: jest.fn(),
@@ -417,7 +421,10 @@ describe('Sidebar', function () {
         body: {data: null},
       });
 
-      renderSidebarWithFeatures(['navigation-sidebar-v2']);
+      renderSidebarWithFeatures([
+        'navigation-sidebar-v2',
+        'navigation-sidebar-v2-banner',
+      ]);
 
       expect(await screen.findByText(/New Navigation/)).toBeInTheDocument();
     });
@@ -428,7 +435,10 @@ describe('Sidebar', function () {
         body: {data: null},
       });
 
-      renderSidebarWithFeatures(['navigation-sidebar-v2']);
+      renderSidebarWithFeatures([
+        'navigation-sidebar-v2',
+        'navigation-sidebar-v2-banner',
+      ]);
 
       await userEvent.click(screen.getByTestId('sidebar-collapse'));
 
@@ -449,7 +459,10 @@ describe('Sidebar', function () {
         body: {},
       });
 
-      renderSidebarWithFeatures(['navigation-sidebar-v2']);
+      renderSidebarWithFeatures([
+        'navigation-sidebar-v2',
+        'navigation-sidebar-v2-banner',
+      ]);
 
       await userEvent.click(await screen.findByRole('button', {name: /Dismiss/}));
 

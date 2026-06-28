@@ -16,7 +16,7 @@ import ListItem from 'sentry/components/list/listItem';
 import {useIsCreatingProjectAndRules} from 'sentry/components/onboarding/useCreateProjectAndRules';
 import Panel from 'sentry/components/panels/panel';
 import PanelBody from 'sentry/components/panels/panelBody';
-import {createablePlatforms, getCategoryList} from 'sentry/data/platformPickerCategories';
+import categoryList, {createablePlatforms} from 'sentry/data/platformPickerCategories';
 import platforms from 'sentry/data/platforms';
 import {t, tn} from 'sentry/locale';
 import {space} from 'sentry/styles/space';
@@ -260,21 +260,6 @@ export function FrameworkSuggestionModal({
     ...listEntries,
   ];
 
-  useEffect(() => {
-    const documentElement = document.querySelector('[role="dialog"] [role="document"]');
-    if (
-      !(documentElement instanceof HTMLElement) ||
-      listEntriesWithVanilla.length <= COLLAPSE_COUNT
-    ) {
-      return;
-    }
-    documentElement.style.minHeight = '631px';
-  }, [listEntriesWithVanilla.length]);
-
-  const categories = useMemo(() => {
-    return getCategoryList(organization);
-  }, [organization]);
-
   return (
     <Fragment>
       <Header>
@@ -304,7 +289,7 @@ export function FrameworkSuggestionModal({
                     <PlatformList>
                       {items.map((platform, index) => {
                         const platformCategory =
-                          categories.find(category => {
+                          categoryList.find(category => {
                             return category.platforms?.has(platform.id);
                           })?.id ?? 'all';
 
@@ -335,7 +320,7 @@ export function FrameworkSuggestionModal({
                         );
                       })}
                     </PlatformList>
-                    {showMoreButton && (
+                    {!isExpanded && (
                       <ShowMoreButtonWrapper>{showMoreButton}</ShowMoreButtonWrapper>
                     )}
                   </Fragment>
@@ -498,7 +483,7 @@ export const modalCss = css`
     display: flex;
     flex-direction: column;
     max-height: 80vh;
-    min-height: 550px;
+    min-height: 631px;
   }
   section {
     display: flex;

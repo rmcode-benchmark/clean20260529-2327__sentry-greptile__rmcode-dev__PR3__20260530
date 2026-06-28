@@ -59,7 +59,7 @@ function useExploreAggregatesTableImp({
   const {selection} = usePageFilters();
 
   const dataset = useExploreDataset();
-  const aggregateFields = useExploreAggregateFields({validate: true});
+  const aggregateFields = useExploreAggregateFields();
   const sorts = useExploreSortBys();
 
   const fields = useMemo(() => {

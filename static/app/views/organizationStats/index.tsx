@@ -7,10 +7,10 @@ import moment from 'moment-timezone';
 
 import type {DateTimeObject} from 'sentry/components/charts/utils';
 import {CompactSelect} from 'sentry/components/core/compactSelect';
-import {ExternalLink} from 'sentry/components/core/link';
 import ErrorBoundary from 'sentry/components/errorBoundary';
 import HookOrDefault from 'sentry/components/hookOrDefault';
 import * as Layout from 'sentry/components/layouts/thirds';
+import ExternalLink from 'sentry/components/links/externalLink';
 import NoProjectMessage from 'sentry/components/noProjectMessage';
 import {DatePageFilter} from 'sentry/components/organizations/datePageFilter';
 import PageFilterBar from 'sentry/components/organizations/pageFilterBar';
@@ -90,7 +90,7 @@ export class OrganizationStats extends Component<OrganizationStatsProps> {
     ) {
       return {
         ...info,
-        name: DataCategoryExact.SPAN_INDEXED,
+        apiName: 'span_indexed',
       };
     }
 
@@ -104,10 +104,6 @@ export class OrganizationStats extends Component<OrganizationStatsProps> {
 
   get dataCategoryName() {
     return this.dataCategoryInfo.titleName;
-  }
-
-  get dataCategoryApiName() {
-    return this.dataCategoryInfo.name;
   }
 
   get dataDatetime(): DateTimeObject {
@@ -334,8 +330,8 @@ export class OrganizationStats extends Component<OrganizationStatsProps> {
         projectIds={this.projectIds}
         organization={organization}
         dataCategory={this.dataCategory}
-        dataCategoryName={this.dataCategoryName}
-        dataCategoryApiName={this.dataCategoryApiName}
+        dataCategoryName={this.dataCategoryInfo.titleName}
+        dataCategoryApiName={this.dataCategoryInfo.apiName}
         dataDatetime={this.dataDatetime}
         chartTransform={this.chartTransform}
         clientDiscard={this.clientDiscard}
@@ -346,8 +342,8 @@ export class OrganizationStats extends Component<OrganizationStatsProps> {
 
   renderEstimationDisclaimer() {
     if (
-      this.dataCategory === DATA_CATEGORY_INFO.profile_duration.plural ||
-      this.dataCategory === DATA_CATEGORY_INFO.profile_duration_ui.plural
+      this.dataCategory === DATA_CATEGORY_INFO.profileDuration.plural ||
+      this.dataCategory === DATA_CATEGORY_INFO.profileDurationUI.plural
     ) {
       return (
         <EstimationText data-test-id="estimation-text">

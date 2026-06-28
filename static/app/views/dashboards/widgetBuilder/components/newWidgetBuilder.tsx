@@ -370,10 +370,15 @@ export function WidgetPreviewContainer({
                 ref={setNodeRef}
                 id={WIDGET_PREVIEW_DRAG_ID}
                 style={draggableStyle}
-                aria-label={t('Draggable Preview')}
+                aria-label={t('Draggable Widget Preview')}
                 {...attributes}
                 {...listeners}
               >
+                {!isSmallScreen && (
+                  <WidgetPreviewTitle {...animatedProps}>
+                    {t('Widget Preview')}
+                  </WidgetPreviewTitle>
+                )}
                 <SampleWidgetCard
                   {...animatedProps}
                   style={{
@@ -557,6 +562,13 @@ const SurroundingWidgetContainer = styled('div')`
   display: flex;
   justify-content: center;
   align-items: center;
+`;
+
+const WidgetPreviewTitle = styled(motion.h5)`
+  margin-bottom: ${space(1)};
+  margin-left: ${space(1)};
+  color: ${p => p.theme.white};
+  font-weight: ${p => p.theme.fontWeight.bold};
 `;
 
 const FilterBarContainer = styled(motion.div)`

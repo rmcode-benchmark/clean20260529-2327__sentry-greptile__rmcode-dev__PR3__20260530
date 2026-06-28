@@ -98,6 +98,9 @@ export function WizardProjectSelection({
     if (orgDetailsRequest.data?.access.includes('org:admin')) {
       return teamsRequest.data;
     }
+    if (orgDetailsRequest.data?.allowMemberProjectCreation) {
+      return teamsRequest.data?.filter(team => team.isMember);
+    }
     return teamsRequest.data?.filter(team => team.teamRole === 'admin');
   }, [orgDetailsRequest.data, teamsRequest.data]);
 

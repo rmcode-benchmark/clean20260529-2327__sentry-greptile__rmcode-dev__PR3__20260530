@@ -5,25 +5,26 @@
 
 import abc
 
-from sentry.data_secrecy.service.model import RpcEffectiveGrantStatus
-from sentry.hybridcloud.rpc.service import RpcService, rpc_method
+from sentry.data_secrecy.service.model import RpcDataSecrecyWaiver
+from sentry.hybridcloud.rpc.resolvers import ByOrganizationId
+from sentry.hybridcloud.rpc.service import RpcService, regional_rpc_method
 from sentry.silo.base import SiloMode
 
 
-class DataAccessGrantService(RpcService):
-    key = "data_access_grant"
-    local_mode = SiloMode.CONTROL
+class DataSecrecyService(RpcService):
+    key = "data_secrecy"
+    local_mode = SiloMode.REGION
 
     @classmethod
     def get_local_implementation(cls) -> RpcService:
-        from sentry.data_secrecy.service.impl import DatabaseBackedDataAccessGrantService
+        from sentry.data_secrecy.service.impl import DatabaseBackedDataSecrecyService
 
-        return DatabaseBackedDataAccessGrantService()
+        return DatabaseBackedDataSecrecyService()
 
-    @rpc_method
+    @regional_rpc_method(resolve=ByOrganizationId())
     @abc.abstractmethod
-    def get_effective_grant_status(self, *, organization_id: int) -> RpcEffectiveGrantStatus | None:
+    def get_data_secrecy_waiver(self, *, organization_id: int) -> RpcDataSecrecyWaiver | None:
         pass
 
 
-data_access_grant_service = DataAccessGrantService.create_delegation()
+data_secrecy_service = DataSecrecyService.create_delegation()

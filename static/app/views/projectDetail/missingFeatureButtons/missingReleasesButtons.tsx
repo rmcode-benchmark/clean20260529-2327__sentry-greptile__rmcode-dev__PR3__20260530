@@ -47,7 +47,7 @@ function MissingReleasesButtons({organization, health, projectId, platform}: Pro
     : t('Release Health is not yet supported on this platform.');
 
   return (
-    <ButtonBar>
+    <ButtonBar gap={1}>
       <LinkButton
         size="sm"
         priority="primary"

@@ -3,11 +3,7 @@ import type {Location} from 'history';
 import {Expression} from 'sentry/components/arithmeticBuilder/expression';
 import type {Organization} from 'sentry/types/organization';
 import {defined} from 'sentry/utils';
-import {
-  isEquation,
-  parseFunction,
-  stripEquationPrefix,
-} from 'sentry/utils/discover/fields';
+import {isEquation, parseFunction} from 'sentry/utils/discover/fields';
 import {
   AggregationKey,
   ALLOWED_EXPLORE_VISUALIZE_AGGREGATES,
@@ -16,7 +12,7 @@ import {
 } from 'sentry/utils/fields';
 import {decodeList} from 'sentry/utils/queryString';
 import {ChartType} from 'sentry/views/insights/common/components/chart';
-import {SpanFields} from 'sentry/views/insights/types';
+import {SpanIndexedField} from 'sentry/views/insights/types';
 
 export const MAX_VISUALIZES = 4;
 
@@ -50,14 +46,6 @@ export class Visualize {
     this.isEquation = isEquation(yAxis);
     this.chartType = this.selectedChartType ?? determineDefaultChartType([yAxis]);
     this.stack = 'all';
-  }
-
-  isValid(): boolean {
-    if (this.isEquation) {
-      const expression = new Expression(stripEquationPrefix(this.yAxis));
-      return expression.isValid;
-    }
-    return defined(parseFunction(this.yAxis));
   }
 
   clone(): Visualize {
@@ -124,13 +112,12 @@ export function parseBaseVisualize(
       return null;
     }
 
-    const allowEquations = organization.features.includes('visibility-explore-equations');
-    const yAxes = parsed.yAxes.filter((yAxis: string) => {
-      if (isEquation(yAxis)) {
-        return allowEquations;
-      }
-      return defined(parseFunction(yAxis));
-    });
+    const yAxes = organization.features.includes('visibility-explore-equations')
+      ? parsed.yAxes.filter((yAxis: string) => {
+          const expression = new Expression(yAxis);
+          return expression.isValid;
+        })
+      : parsed.yAxes.filter(parseFunction);
     if (yAxes.length <= 0) {
       return null;
     }
@@ -168,7 +155,7 @@ export function updateVisualizeAggregate({
     // and carry the argument if it's the same type, reset to a default
     // if it's not the same type. Just hard coding it for now for simplicity
     // as `count_unique` is the only aggregate that takes a string.
-    return `${newAggregate}(${SpanFields.SPAN_OP})`;
+    return `${newAggregate}(${SpanIndexedField.SPAN_OP})`;
   }
 
   if (NO_ARGUMENT_SPAN_AGGREGATES.includes(newAggregate as AggregationKey)) {

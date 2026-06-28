@@ -15,10 +15,14 @@ import {useLocation} from 'sentry/utils/useLocation';
 import useOrganization from 'sentry/utils/useOrganization';
 
 interface ContinuousProfileHeader {
+  projectId: string;
   transaction: Event | null;
 }
 
-export function ContinuousProfileHeader({transaction}: ContinuousProfileHeader) {
+export function ContinuousProfileHeader({
+  transaction,
+  projectId,
+}: ContinuousProfileHeader) {
   const location = useLocation();
   const organization = useOrganization();
 
@@ -27,10 +31,13 @@ export function ContinuousProfileHeader({transaction}: ContinuousProfileHeader) 
     return [{type: 'landing', payload: {query: {}}}];
   }, []);
 
+  const projectSlug = projectId ?? '';
+
   const transactionTarget = transaction?.id
     ? generateLinkToEventInTraceView({
         timestamp: transaction.endTimestamp ?? '',
         eventId: transaction.id,
+        projectSlug,
         traceSlug: transaction.contexts?.trace?.trace_id ?? '',
         location,
         organization,

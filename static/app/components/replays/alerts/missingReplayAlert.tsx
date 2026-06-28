@@ -2,7 +2,8 @@ import {Fragment} from 'react';
 import styled from '@emotion/styled';
 
 import {Alert} from 'sentry/components/core/alert';
-import {ExternalLink, Link} from 'sentry/components/core/link';
+import ExternalLink from 'sentry/components/links/externalLink';
+import Link from 'sentry/components/links/link';
 import List from 'sentry/components/list';
 import ListItem from 'sentry/components/list/listItem';
 import {t, tct} from 'sentry/locale';
@@ -39,6 +40,7 @@ export default function MissingReplayAlert({orgSlug}: Props) {
     <Alert.Container>
       <Alert
         type="info"
+        showIcon
         data-test-id="replay-error"
         expand={
           <Fragment>

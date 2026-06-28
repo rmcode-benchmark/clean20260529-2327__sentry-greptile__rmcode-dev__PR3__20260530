@@ -285,7 +285,7 @@ function NotificationActionItem({
         return (
           <NotificationActionFormContainer>
             <NotificationActionCell>{renderDescription()}</NotificationActionCell>
-            <ButtonBar gap="xs">
+            <ButtonBar gap={0.5}>
               <Button onClick={handleCancel} size="xs">
                 {t('Cancel')}
               </Button>

@@ -1,7 +1,6 @@
 import {Fragment} from 'react';
 import styled from '@emotion/styled';
 
-import AnalyticsArea from 'sentry/components/analyticsArea';
 import FullViewport from 'sentry/components/layouts/fullViewport';
 import * as Layout from 'sentry/components/layouts/thirds';
 import SentryDocumentTitle from 'sentry/components/sentryDocumentTitle';
@@ -71,22 +70,17 @@ export default function ReplayDetails({params: {replaySlug}}: Props) {
     </Fragment>
   );
   return (
-    <AnalyticsArea name="details">
-      <SentryDocumentTitle title={title}>
-        <FullViewport>
-          {replay ? (
-            <ReplayDetailsProviders
-              replay={replay}
-              projectSlug={readerResult.projectSlug}
-            >
-              {content}
-            </ReplayDetailsProviders>
-          ) : (
-            content
-          )}
-        </FullViewport>
-      </SentryDocumentTitle>
-    </AnalyticsArea>
+    <SentryDocumentTitle title={title}>
+      <FullViewport>
+        {replay ? (
+          <ReplayDetailsProviders replay={replay} projectSlug={readerResult.projectSlug}>
+            {content}
+          </ReplayDetailsProviders>
+        ) : (
+          content
+        )}
+      </FullViewport>
+    </SentryDocumentTitle>
   );
 }
 

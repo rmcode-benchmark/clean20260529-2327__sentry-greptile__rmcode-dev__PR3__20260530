@@ -134,7 +134,7 @@ function SearchDropdown({
       )}
 
       <DropdownFooter>
-        <ButtonBar>
+        <ButtonBar gap={1}>
           {runShortcut &&
             visibleShortcuts?.map(shortcut => (
               <Button

@@ -4,7 +4,7 @@ export type CodecovContextData = {
   changeContextValue: (value: Partial<CodecovContextDataParams>) => void;
   codecovPeriod: string;
   branch?: string;
-  integratedOrgId?: string;
+  integratedOrg?: string;
   repository?: string;
 };
 

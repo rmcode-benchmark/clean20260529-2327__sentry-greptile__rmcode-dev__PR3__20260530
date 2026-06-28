@@ -1,19 +1,20 @@
 import {useMemo, useRef, useState} from 'react';
 import type {ListRowProps} from 'react-virtualized';
 import {AutoSizer, CellMeasurer, List as ReactVirtualizedList} from 'react-virtualized';
+import styled from '@emotion/styled';
 
-import {Flex} from 'sentry/components/core/layout/flex';
 import Placeholder from 'sentry/components/placeholder';
 import JumpButtons from 'sentry/components/replays/jumpButtons';
 import {useReplayContext} from 'sentry/components/replays/replayContext';
 import useJumpButtons from 'sentry/components/replays/useJumpButtons';
 import {t} from 'sentry/locale';
+import {space} from 'sentry/styles/space';
 import useCrumbHandlers from 'sentry/utils/replays/hooks/useCrumbHandlers';
-import {useReplayReader} from 'sentry/utils/replays/playback/providers/replayReaderProvider';
 import useCurrentHoverTime from 'sentry/utils/replays/playback/providers/useCurrentHoverTime';
 import ConsoleFilters from 'sentry/views/replays/detail/console/consoleFilters';
 import ConsoleLogRow from 'sentry/views/replays/detail/console/consoleLogRow';
 import useConsoleFilters from 'sentry/views/replays/detail/console/useConsoleFilters';
+import FluidHeight from 'sentry/views/replays/detail/layout/fluidHeight';
 import NoRowRenderer from 'sentry/views/replays/detail/noRowRenderer';
 import TabItemContainer from 'sentry/views/replays/detail/tabItemContainer';
 import useVirtualizedInspector from 'sentry/views/replays/detail/useVirtualizedInspector';
@@ -27,8 +28,7 @@ const cellMeasurer = {
 };
 
 export default function Console() {
-  const replay = useReplayReader();
-  const {currentTime} = useReplayContext();
+  const {currentTime, replay} = useReplayContext();
   const [currentHoverTime] = useCurrentHoverTime();
   const {onMouseEnter, onMouseLeave, onClickTimestamp} = useCrumbHandlers();
 
@@ -99,7 +99,7 @@ export default function Console() {
   };
 
   return (
-    <Flex direction="column" wrap="nowrap">
+    <PaddedFluidHeight>
       <ConsoleFilters frames={frames} {...filterProps} />
       <TabItemContainer data-test-id="replay-details-console-tab">
         {frames ? (
@@ -143,6 +143,10 @@ export default function Console() {
           />
         ) : null}
       </TabItemContainer>
-    </Flex>
+    </PaddedFluidHeight>
   );
 }
+
+const PaddedFluidHeight = styled(FluidHeight)`
+  padding-top: ${space(1)};
+`;

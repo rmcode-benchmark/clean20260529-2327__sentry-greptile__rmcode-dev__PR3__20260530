@@ -1,7 +1,7 @@
 import {useCallback, useMemo} from 'react';
 
 import type {SpanFrame} from 'sentry/utils/replays/types';
-import useUrlParams from 'sentry/utils/url/useUrlParams';
+import useUrlParams from 'sentry/utils/useUrlParams';
 
 interface SortConfig {
   asc: boolean;

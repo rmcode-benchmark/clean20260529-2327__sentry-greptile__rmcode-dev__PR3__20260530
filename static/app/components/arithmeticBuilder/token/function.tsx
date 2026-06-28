@@ -25,7 +25,6 @@ import {IconClose} from 'sentry/icons';
 import {t} from 'sentry/locale';
 import {space} from 'sentry/styles/space';
 import {defined} from 'sentry/utils';
-import {FieldKind, FieldValueType} from 'sentry/utils/fields';
 
 interface ArithmeticTokenFunctionProps {
   item: Node<Token>;
@@ -38,20 +37,20 @@ export function ArithmeticTokenFunction({
   state,
   token,
 }: ArithmeticTokenFunctionProps) {
-  if (token.attributes.length > 1) {
-    throw new Error('Only functions with at most 1 argument supported.');
+  if (token.attributes.length !== 1) {
+    throw new Error('Only functions with 1 argument supported.');
   }
-  const attribute = token.attributes[0];
+  const attribute = token.attributes[0]!;
 
   const ref = useRef<HTMLDivElement>(null);
   const {rowProps, gridCellProps} = useGridListItem({
     item,
     ref,
     state,
-    focusable: defined(attribute), // if there are no attributes, it's not focusable
   });
 
   const isFocused = item.key === state.selectionManager.focusedKey;
+
   const showUnfocusedState = !state.selectionManager.isFocused || !isFocused;
 
   return (
@@ -59,29 +58,26 @@ export function ArithmeticTokenFunction({
       {...rowProps}
       ref={ref}
       tabIndex={isFocused ? 0 : -1}
-      aria-label={`${token.function}(${attribute?.text ?? ''})`}
+      aria-label={`${token.function}(${attribute.text})`}
       aria-invalid={false}
       state={'valid'}
     >
       <FunctionGridCell {...gridCellProps}>{token.function}</FunctionGridCell>
       {'('}
-      {defined(attribute) && (
-        <BaseGridCell {...gridCellProps}>
-          <InternalInput
-            item={item}
-            state={state}
-            token={token}
-            attribute={attribute}
-            rowRef={ref}
-            argumentIndex={0}
-          />
-          {showUnfocusedState && (
-            // Inject a floating span with the attribute name so when it's
-            // not focused, it doesn't look like the placeholder text
-            <UnfocusedOverlay>{attribute.attribute}</UnfocusedOverlay>
-          )}
-        </BaseGridCell>
-      )}
+      <BaseGridCell {...gridCellProps}>
+        <InternalInput
+          item={item}
+          state={state}
+          token={token}
+          attribute={attribute}
+          rowRef={ref}
+        />
+        {showUnfocusedState && (
+          // Inject a floating span with the attribute name so when it's
+          // not focused, it doesn't look like the placeholder text
+          <FunctionArgumentOverlay>{attribute.attribute}</FunctionArgumentOverlay>
+        )}
+      </BaseGridCell>
       {')'}
       <BaseGridCell {...gridCellProps}>
         <DeleteFunction token={token} />
@@ -90,20 +86,15 @@ export function ArithmeticTokenFunction({
   );
 }
 
-interface InternalInputProps extends ArithmeticTokenFunctionProps {
-  argumentIndex: number;
+interface InternalInputProps {
   attribute: TokenAttribute;
+  item: Node<Token>;
   rowRef: RefObject<HTMLDivElement | null>;
+  state: ListState<Token>;
+  token: TokenFunction;
 }
 
-function InternalInput({
-  argumentIndex,
-  token,
-  item,
-  state,
-  attribute,
-  rowRef,
-}: InternalInputProps) {
+function InternalInput({token, item, state, attribute, rowRef}: InternalInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [inputValue, setInputValue] = useState('');
   const [_selectionIndex, setSelectionIndex] = useState(0); // TODO
@@ -120,44 +111,10 @@ function InternalInput({
     updateSelectionIndex();
   }, [updateSelectionIndex]);
 
-  const {dispatch, functionArguments, getFieldDefinition, getSuggestedKey} =
-    useArithmeticBuilder();
-
-  const parameterDefinition = useMemo(
-    () => getFieldDefinition(token.function)?.parameters?.[argumentIndex],
-    [argumentIndex, getFieldDefinition, token]
-  );
-
-  const attributesFilter = useMemo(() => {
-    if (parameterDefinition && parameterDefinition.kind === 'column') {
-      const columnTypes = parameterDefinition.columnTypes;
-      return typeof columnTypes === 'function'
-        ? columnTypes
-        : (field: {key: string; valueType: FieldValueType}) =>
-            columnTypes.includes(field.valueType);
-    }
-    return () => false;
-  }, [parameterDefinition]);
-
-  const allowedAttributes = useMemo(() => {
-    return functionArguments.filter(functionArgument => {
-      const definition = getFieldDefinition(functionArgument.name);
-      const defaultType =
-        functionArgument.kind === FieldKind.MEASUREMENT
-          ? FieldValueType.NUMBER
-          : FieldValueType.STRING;
-      return (
-        definition &&
-        attributesFilter({
-          key: functionArgument.name,
-          valueType: definition?.valueType ?? defaultType,
-        })
-      );
-    });
-  }, [attributesFilter, functionArguments, getFieldDefinition]);
+  const {dispatch, functionArguments} = useArithmeticBuilder();
 
   const items = useAttributeItems({
-    allowedAttributes,
+    allowedAttributes: functionArguments,
     filterValue,
   });
 
@@ -183,16 +140,7 @@ function InternalInput({
   );
 
   const onInputCommit = useCallback(() => {
-    let value = inputValue.trim() || attribute.attribute;
-
-    if (
-      defined(getSuggestedKey) &&
-      parameterDefinition &&
-      parameterDefinition.kind === 'column'
-    ) {
-      value = getSuggestedKey(value) ?? value;
-    }
-
+    const value = inputValue.trim() || attribute.attribute;
     dispatch({
       text: `${token.function}(${value})`,
       type: 'REPLACE_TOKEN',
@@ -202,16 +150,7 @@ function InternalInput({
       },
     });
     resetInputValue();
-  }, [
-    dispatch,
-    state,
-    token,
-    attribute,
-    inputValue,
-    resetInputValue,
-    getSuggestedKey,
-    parameterDefinition,
-  ]);
+  }, [dispatch, state, token, attribute, inputValue, resetInputValue]);
 
   const onInputEscape = useCallback(() => {
     resetInputValue();
@@ -443,7 +382,7 @@ const FunctionGridCell = styled(BaseGridCell)`
   padding-left: ${space(0.5)};
 `;
 
-const UnfocusedOverlay = styled('div')`
+const FunctionArgumentOverlay = styled('div')`
   position: absolute;
   pointer-events: none;
 `;

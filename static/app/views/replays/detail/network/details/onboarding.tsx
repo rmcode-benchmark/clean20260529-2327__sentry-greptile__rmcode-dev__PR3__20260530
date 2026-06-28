@@ -2,11 +2,11 @@ import styled from '@emotion/styled';
 
 import {CodeSnippet} from 'sentry/components/codeSnippet';
 import {Alert} from 'sentry/components/core/alert';
-import {ExternalLink} from 'sentry/components/core/link';
+import ExternalLink from 'sentry/components/links/externalLink';
+import {useReplayContext} from 'sentry/components/replays/replayContext';
 import TextCopyInput from 'sentry/components/textCopyInput';
 import {t, tct} from 'sentry/locale';
 import {space} from 'sentry/styles/space';
-import {useReplayReader} from 'sentry/utils/replays/playback/providers/replayReaderProvider';
 import type {SpanFrame} from 'sentry/utils/replays/types';
 import useDismissAlert from 'sentry/utils/useDismissAlert';
 import useOrganization from 'sentry/utils/useOrganization';
@@ -69,14 +69,14 @@ export function Setup({
     projectId: [projectId],
   });
   const sdkNeedsUpdate = !isFetching && Boolean(needsUpdate);
-  const replay = useReplayReader();
+  const {replay} = useReplayContext();
   const isVideoReplay = replay?.isVideoReplay();
 
   const url = item.description || 'http://example.com';
 
   return isVideoReplay ? (
     visibleTab === 'request' || visibleTab === 'response' ? (
-      <StyledAlert type="info">
+      <StyledAlert type="info" showIcon>
         {tct(
           'Request and response headers or bodies are currently not available for mobile platforms. Track this [link:GitHub issue] to get progress on support for this feature.',
           {
@@ -182,7 +182,7 @@ function SetupInstructions({
       </NetworkUrlWrapper>
       {showSnippet === Output.BODY_SKIPPED && (
         <Alert.Container>
-          <Alert type="warning" showIcon={false}>
+          <Alert type="warning">
             {tct('Enable [field] to capture both Request and Response bodies.', {
               field: <code>networkCaptureBodies: true</code>,
             })}
