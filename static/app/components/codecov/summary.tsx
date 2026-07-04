@@ -1,8 +1,8 @@
 import {css} from '@emotion/react';
 import styled from '@emotion/styled';
 
-import {Link} from 'sentry/components/core/link';
 import {Hovercard} from 'sentry/components/hovercard';
+import Link from 'sentry/components/links/link';
 import {IconFilter} from 'sentry/icons';
 import {space} from 'sentry/styles/space';
 import {useLocation} from 'sentry/utils/useLocation';
@@ -37,7 +37,7 @@ export function useCreateSummaryFilterLink(filterBy: SummaryFilterKey) {
 
 const StyledSummaryEntryLabel = styled('span')`
   font-size: ${p => p.theme.fontSize.lg};
-  font-weight: ${p => p.theme.fontWeight.bold};
+  font-weight: ${p => p.theme.fontWeightBold};
   color: ${p => p.theme.gray300};
 `;
 
@@ -77,12 +77,12 @@ const StyledSummaryEntryValueLink = styled('span')`
     visibility: hidden;
     overflow: hidden;
     pointer-events: none;
-    font-weight: ${p => p.theme.fontWeight.bold};
+    font-weight: ${p => p.theme.fontWeightBold};
     display: block;
   }
 
   &[data-is-filtered='true'] {
-    font-weight: ${p => p.theme.fontWeight.bold};
+    font-weight: ${p => p.theme.fontWeightBold};
   }
 
   &:hover {
@@ -132,7 +132,7 @@ export const SummaryEntries = styled('div')<{
   padding-bottom: ${space(1)};
   grid-template-columns: repeat(${p => p.smallColumnSpan}, 1fr);
 
-  @media (min-width: ${p => p.theme.breakpoints.lg}) {
+  @media (min-width: ${p => p.theme.breakpoints.large}) {
     grid-template-columns: repeat(${p => p.largeColumnSpan}, 1fr);
   }
 `;

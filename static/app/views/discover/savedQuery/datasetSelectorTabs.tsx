@@ -19,9 +19,7 @@ import useOrganization from 'sentry/utils/useOrganization';
 import {
   getDatasetFromLocationOrSavedQueryDataset,
   getSavedQueryDataset,
-  getTransactionDeprecationMessage,
 } from 'sentry/views/discover/savedQuery/utils';
-import {getExploreUrl} from 'sentry/views/explore/utils';
 
 export const DATASET_PARAM = 'queryDataset';
 
@@ -109,15 +107,6 @@ export function DatasetSelectorTabs(props: Props) {
 
   const value = getSavedQueryDataset(organization, location, savedQuery, splitDecision);
 
-  const deprecatingTransactionsDataset = organization.features.includes(
-    'discover-saved-queries-deprecation'
-  );
-
-  const tracesUrl = getExploreUrl({
-    organization,
-    query: 'is_transaction:true',
-  });
-
   const options = [
     {
       value: SavedQueryDatasets.ERRORS,
@@ -126,13 +115,6 @@ export function DatasetSelectorTabs(props: Props) {
     {
       value: SavedQueryDatasets.TRANSACTIONS,
       label: DATASET_LABEL_MAP[SavedQueryDatasets.TRANSACTIONS],
-      disabled: deprecatingTransactionsDataset,
-      tooltip: deprecatingTransactionsDataset
-        ? {
-            title: getTransactionDeprecationMessage(tracesUrl),
-            isHoverable: true,
-          }
-        : undefined,
     },
   ];
 
@@ -171,13 +153,7 @@ export function DatasetSelectorTabs(props: Props) {
     >
       <TabList hideBorder>
         {options.map(option => (
-          <TabList.Item
-            key={option.value}
-            disabled={option.disabled}
-            tooltip={option.tooltip}
-          >
-            {option.label}
-          </TabList.Item>
+          <TabList.Item key={option.value}>{option.label}</TabList.Item>
         ))}
       </TabList>
     </Layout.HeaderTabs>

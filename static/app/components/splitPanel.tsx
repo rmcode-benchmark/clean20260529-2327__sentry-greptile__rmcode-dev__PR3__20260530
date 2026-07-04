@@ -196,12 +196,12 @@ const SplitPanelContainer = styled('div')<{
   orientation: 'rows' | 'columns';
   size: `${number}px` | `${number}%`;
 }>`
-  min-height: 0;
-  min-width: 0;
-  flex-grow: 1;
+  width: 100%;
+  height: 100%;
 
   position: relative;
   display: grid;
+  overflow: auto;
   grid-template-${p => p.orientation}: ${p => p.size} auto 1fr;
 
   /*
@@ -214,12 +214,7 @@ const SplitPanelContainer = styled('div')<{
 `;
 
 const Panel = styled('div')`
-  display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
-  flex-grow: 1;
-  min-height: 0;
-  min-width: 0;
+  overflow: hidden;
 `;
 
 export default SplitPanel;

@@ -11,13 +11,8 @@ import {
 import {
   DiscordDetails,
   DiscordNode,
-  validateDiscordAction,
 } from 'sentry/views/automations/components/actions/discord';
-import {
-  EmailDetails,
-  EmailNode,
-  validateEmailAction,
-} from 'sentry/views/automations/components/actions/email';
+import {EmailDetails, EmailNode} from 'sentry/views/automations/components/actions/email';
 import {
   GithubDetails,
   GithubNode,
@@ -34,30 +29,22 @@ import {
 import {
   MSTeamsDetails,
   MSTeamsNode,
-  validateMSTeamsAction,
 } from 'sentry/views/automations/components/actions/msTeams';
 import {
   OpsgenieDetails,
   OpsgenieNode,
-  validateOpsgenieAction,
 } from 'sentry/views/automations/components/actions/opsgenie';
 import {
   PagerdutyDetails,
   PagerdutyNode,
-  validatePagerdutyAction,
 } from 'sentry/views/automations/components/actions/pagerduty';
 import {PluginNode} from 'sentry/views/automations/components/actions/plugin';
 import {
   SentryAppDetails,
   SentryAppNode,
 } from 'sentry/views/automations/components/actions/sentryApp';
+import {SlackDetails, SlackNode} from 'sentry/views/automations/components/actions/slack';
 import {
-  SlackDetails,
-  SlackNode,
-  validateSlackAction,
-} from 'sentry/views/automations/components/actions/slack';
-import {
-  validateWebhookAction,
   WebhookDetails,
   WebhookNode,
 } from 'sentry/views/automations/components/actions/webhook';
@@ -81,8 +68,6 @@ export function useActionNodeContext(): ActionNodeProps {
 
 type ActionNode = {
   action: React.ComponentType<any>;
-  validate: ((action: Action) => string | undefined) | undefined;
-  defaultData?: Record<string, any>;
   details?: React.ComponentType<any>;
   label?: string;
   link?: string;
@@ -98,18 +83,11 @@ export const actionNodesMap = new Map<ActionType, ActionNode>([
       details: AzureDevOpsDetails,
       ticketType: t('an Azure DevOps work item'),
       link: 'https://docs.sentry.io/product/integrations/source-code-mgmt/azure-devops/#issue-sync',
-      validate: validateIntegrationId,
     },
   ],
   [
     ActionType.EMAIL,
-    {
-      label: t('Notify on preferred channel'),
-      action: EmailNode,
-      details: EmailDetails,
-      defaultData: {fallthroughType: 'ActiveMembers'},
-      validate: validateEmailAction,
-    },
+    {label: t('Notify on preferred channel'), action: EmailNode, details: EmailDetails},
   ],
   [
     ActionType.DISCORD,
@@ -117,7 +95,6 @@ export const actionNodesMap = new Map<ActionType, ActionNode>([
       label: t('Discord'),
       action: DiscordNode,
       details: DiscordDetails,
-      validate: validateDiscordAction,
     },
   ],
   [
@@ -127,7 +104,6 @@ export const actionNodesMap = new Map<ActionType, ActionNode>([
       action: GithubNode,
       details: GithubDetails,
       ticketType: t('a GitHub issue'),
-      validate: validateIntegrationId,
     },
   ],
   [
@@ -137,7 +113,6 @@ export const actionNodesMap = new Map<ActionType, ActionNode>([
       action: GithubEnterpriseNode,
       details: GithubEnterpriseDetails,
       ticketType: t('a GitHub Enterprise issue'),
-      validate: validateIntegrationId,
     },
   ],
   [
@@ -148,7 +123,6 @@ export const actionNodesMap = new Map<ActionType, ActionNode>([
       details: JiraDetails,
       ticketType: t('a Jira issue'),
       link: 'https://docs.sentry.io/product/integrations/issue-tracking/jira/#issue-sync',
-      validate: validateIntegrationId,
     },
   ],
   [
@@ -159,7 +133,6 @@ export const actionNodesMap = new Map<ActionType, ActionNode>([
       details: JiraServerDetails,
       ticketType: t('a Jira Server issue'),
       link: 'https://docs.sentry.io/product/integrations/issue-tracking/jira/#issue-sync',
-      validate: validateIntegrationId,
     },
   ],
   [
@@ -168,18 +141,11 @@ export const actionNodesMap = new Map<ActionType, ActionNode>([
       label: t('MS Teams'),
       action: MSTeamsNode,
       details: MSTeamsDetails,
-      validate: validateMSTeamsAction,
     },
   ],
   [
     ActionType.OPSGENIE,
-    {
-      label: t('Opsgenie'),
-      action: OpsgenieNode,
-      details: OpsgenieDetails,
-      defaultData: {priority: 'P1'},
-      validate: validateOpsgenieAction,
-    },
+    {label: t('Opsgenie'), action: OpsgenieNode, details: OpsgenieDetails},
   ],
   [
     ActionType.PAGERDUTY,
@@ -187,8 +153,6 @@ export const actionNodesMap = new Map<ActionType, ActionNode>([
       label: t('Pagerduty'),
       action: PagerdutyNode,
       details: PagerdutyDetails,
-      defaultData: {priority: 'default'},
-      validate: validatePagerdutyAction,
     },
   ],
   [
@@ -197,7 +161,6 @@ export const actionNodesMap = new Map<ActionType, ActionNode>([
       label: t('Legacy integrations'),
       action: PluginNode,
       details: PluginNode,
-      validate: undefined,
     },
   ],
   [
@@ -205,7 +168,6 @@ export const actionNodesMap = new Map<ActionType, ActionNode>([
     {
       action: SentryAppNode,
       details: SentryAppDetails,
-      validate: undefined,
     },
   ],
   [
@@ -214,7 +176,6 @@ export const actionNodesMap = new Map<ActionType, ActionNode>([
       label: t('Slack'),
       action: SlackNode,
       details: SlackDetails,
-      validate: validateSlackAction,
     },
   ],
   [
@@ -223,14 +184,6 @@ export const actionNodesMap = new Map<ActionType, ActionNode>([
       label: t('Send a notification via an integration'),
       action: WebhookNode,
       details: WebhookDetails,
-      validate: validateWebhookAction,
     },
   ],
 ]);
-
-function validateIntegrationId(action: Action): string | undefined {
-  if (!action.integrationId) {
-    return t('You must specify an integration installation.');
-  }
-  return undefined;
-}

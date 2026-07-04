@@ -174,7 +174,7 @@ function SavedIssueSearches({
     isError,
     refetch,
   } = useFetchSavedSearchesForOrg({orgSlug: organization.slug});
-  const isMobile = useMedia(`(max-width: ${theme.breakpoints.sm})`);
+  const isMobile = useMedia(`(max-width: ${theme.breakpoints.small})`);
   const prefersStackedNav = usePrefersStackedNav();
 
   const shouldShowSavedSearches = !prefersStackedNav;
@@ -276,12 +276,12 @@ const StyledSidebar = styled('aside')`
   width: 100%;
   padding: ${space(2)};
 
-  @media (max-width: ${p => p.theme.breakpoints.sm}) {
+  @media (max-width: ${p => p.theme.breakpoints.small}) {
     border-bottom: 1px solid ${p => p.theme.gray200};
     padding: ${space(2)} 0;
   }
 
-  @media (min-width: ${p => p.theme.breakpoints.sm}) {
+  @media (min-width: ${p => p.theme.breakpoints.small}) {
     border-left: 1px solid ${p => p.theme.gray200};
     max-width: 340px;
   }
@@ -320,7 +320,7 @@ const StyledItemButton = styled(Button)`
   width: 100%;
   text-align: left;
   height: auto;
-  font-weight: ${p => p.theme.fontWeight.normal};
+  font-weight: ${p => p.theme.fontWeightNormal};
   line-height: ${p => p.theme.text.lineHeightBody};
 
   padding: ${space(1)} ${space(2)};
@@ -342,13 +342,13 @@ const SearchListItem = styled('li')<{hasMenu?: boolean}>`
   ${p =>
     p.hasMenu &&
     css`
-      @media (max-width: ${p.theme.breakpoints.sm}) {
+      @media (max-width: ${p.theme.breakpoints.small}) {
         ${StyledItemButton} {
           padding-right: 60px;
         }
       }
 
-      @media (min-width: ${p.theme.breakpoints.sm}) {
+      @media (min-width: ${p.theme.breakpoints.small}) {
         ${OverflowMenu} {
           display: none;
         }
@@ -397,7 +397,7 @@ const SavedSearchItemQuery = styled('div')`
 
 const ShowAllButton = styled(Button)`
   color: ${p => p.theme.linkColor};
-  font-weight: ${p => p.theme.fontWeight.normal};
+  font-weight: ${p => p.theme.fontWeightNormal};
   padding: ${space(0.5)} ${space(2)};
 
   &:hover {

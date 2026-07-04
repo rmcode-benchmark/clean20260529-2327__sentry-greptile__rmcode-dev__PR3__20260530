@@ -46,32 +46,26 @@ export type TimeSeriesItem = {
   incomplete?: boolean;
 };
 
-type TimeSeriesGroupBy = {
-  key: string;
-  value: string;
-};
-
 export type TimeSeries = {
   meta: TimeSeriesMeta;
   values: TimeSeriesItem[];
   yAxis: string;
   confidence?: Confidence;
   dataScanned?: 'full' | 'partial';
-  groupBy?: TimeSeriesGroupBy[];
   sampleCount?: AccuracyStats<number>;
   samplingRate?: AccuracyStats<number | null>;
 };
 
 export type TabularValueType = AttributeValueType;
 export type TabularValueUnit = AttributeValueUnit;
-export type TabularMeta<TFields extends string = string> = {
+type TabularMeta<TFields extends string = string> = {
   fields: Record<TFields, TabularValueType>;
   units: Record<TFields, TabularValueUnit>;
 };
 
 export type TabularRow<TFields extends string = string> = Record<
   TFields,
-  number | string | string[] | boolean | null
+  number | string | string[] | null
 >;
 
 export type TabularData<TFields extends string = string> = {
@@ -81,7 +75,7 @@ export type TabularData<TFields extends string = string> = {
 
 export type TabularColumn<TFields extends string = string> = {
   key: TFields;
-  sortable?: boolean;
+  name: TFields;
   type?: AttributeValueType;
   width?: number;
 };

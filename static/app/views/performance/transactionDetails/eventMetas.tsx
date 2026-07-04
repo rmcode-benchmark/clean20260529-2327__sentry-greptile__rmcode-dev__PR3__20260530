@@ -32,7 +32,10 @@ import EventCreatedTooltip from 'sentry/views/issueDetails/eventCreatedTooltip';
 import QuickTraceMeta from './quickTraceMeta';
 import {MetaData} from './styles';
 
-type Props = Pick<React.ComponentProps<typeof QuickTraceMeta>, 'errorDest'> & {
+type Props = Pick<
+  React.ComponentProps<typeof QuickTraceMeta>,
+  'errorDest' | 'transactionDest'
+> & {
   event: Event;
   location: Location;
   meta: TraceMeta | null;
@@ -49,7 +52,8 @@ type State = {
 /**
  * This should match the breakpoint chosen for the `EventDetailHeader` below
  */
-const BREAKPOINT_MEDIA_QUERY = (theme: Theme) => `(min-width: ${theme.breakpoints.lg})`;
+const BREAKPOINT_MEDIA_QUERY = (theme: Theme) =>
+  `(min-width: ${theme.breakpoints.large})`;
 
 class EventMetas extends Component<Props, State> {
   state: State = {
@@ -77,8 +81,16 @@ class EventMetas extends Component<Props, State> {
   };
 
   render() {
-    const {event, organization, projectId, location, quickTrace, meta, errorDest} =
-      this.props;
+    const {
+      event,
+      organization,
+      projectId,
+      location,
+      quickTrace,
+      meta,
+      errorDest,
+      transactionDest,
+    } = this.props;
     const {isLargeScreen} = this.state;
 
     // Replay preview gets rendered as part of the breadcrumb section. We need
@@ -194,6 +206,7 @@ class EventMetas extends Component<Props, State> {
                   traceMeta={meta}
                   anchor={isLargeScreen ? 'right' : 'left'}
                   errorDest={errorDest}
+                  transactionDest={transactionDest}
                 />
               </QuickTraceContainer>
             </EventDetailHeader>
@@ -273,12 +286,12 @@ const EventDetailHeader = styled('div')<EventDetailHeaderProps>`
   gap: ${space(2)};
   margin-bottom: ${space(2)};
 
-  @media (min-width: ${p => p.theme.breakpoints.md}) {
+  @media (min-width: ${p => p.theme.breakpoints.medium}) {
     margin-bottom: 0;
   }
 
   /* This should match the breakpoint chosen for BREAKPOINT_MEDIA_QUERY above. */
-  @media (min-width: ${p => p.theme.breakpoints.lg}) {
+  @media (min-width: ${p => p.theme.breakpoints.large}) {
     ${p => getEventDetailHeaderCols(p)};
     grid-row-gap: 0;
   }
@@ -289,7 +302,7 @@ const ReplayButtonContainer = styled('div')`
   display: flex;
   justify-content: flex-end;
   align-items: flex-start;
-  @media (min-width: ${p => p.theme.breakpoints.lg}) {
+  @media (min-width: ${p => p.theme.breakpoints.large}) {
     order: 4;
   }
 `;
@@ -297,7 +310,7 @@ const ReplayButtonContainer = styled('div')`
 const QuickTraceContainer = styled('div')`
   grid-column: 1 / -2;
   order: 1;
-  @media (min-width: ${p => p.theme.breakpoints.lg}) {
+  @media (min-width: ${p => p.theme.breakpoints.large}) {
     order: 5;
     justify-self: flex-end;
     min-width: 325px;

@@ -72,7 +72,7 @@ class QuerySerializer(serializers.Serializer):
     orderby = serializers.CharField(
         required=False,
         allow_null=True,
-        help_text="How to order the query results. Must be something in the `field` list.",
+        help_text="How to order the query results. Must be something in the `field` list, excluding equations.",
     )
     groupby = ListField(child=serializers.CharField(), required=False, allow_null=True)
     query = serializers.CharField(
@@ -93,11 +93,6 @@ class QuerySerializer(serializers.Serializer):
         allow_null=True,
         help_text="The visualizations to be plotted on the chart.",
     )
-    aggregateOrderby = serializers.CharField(
-        required=False,
-        allow_null=True,
-        help_text="How to order the query results. Must be something in the `aggregateField` list, excluding equations.",
-    )
     mode = serializers.ChoiceField(
         choices=[
             "samples",
@@ -114,7 +109,7 @@ class ExploreSavedQuerySerializer(serializers.Serializer):
     projects = ListField(
         child=serializers.IntegerField(),
         required=False,
-        default=list,
+        default=[],
         help_text="The saved projects filter for this query.",
     )
     dataset = serializers.ChoiceField(
@@ -123,14 +118,10 @@ class ExploreSavedQuerySerializer(serializers.Serializer):
         help_text="The dataset you would like to query. `spans` is the only supported value for now.",
     )
     start = serializers.DateTimeField(
-        required=False,
-        allow_null=True,
-        help_text="The saved start time for this saved query.",
+        required=False, allow_null=True, help_text="The saved start time for this saved query."
     )
     end = serializers.DateTimeField(
-        required=False,
-        allow_null=True,
-        help_text="The saved end time for this saved query.",
+        required=False, allow_null=True, help_text="The saved end time for this saved query."
     )
     range = serializers.CharField(
         required=False,
@@ -172,7 +163,6 @@ class ExploreSavedQuerySerializer(serializers.Serializer):
             "visualize",
             "mode",
             "aggregateField",
-            "aggregateOrderby",
         ]
 
         for key in query_keys:

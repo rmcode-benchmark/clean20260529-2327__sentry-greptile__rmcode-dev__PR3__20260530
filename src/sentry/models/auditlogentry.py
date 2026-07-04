@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import logging
 import re
+from collections.abc import Mapping
+from typing import Any
 
 from django.db import models
 from django.utils import timezone
@@ -12,6 +14,7 @@ from sentry.db.models import (
     BoundedBigIntegerField,
     BoundedPositiveIntegerField,
     FlexibleForeignKey,
+    GzippedDictField,
     Model,
     sane_repr,
 )
@@ -62,7 +65,7 @@ class AuditLogEntry(Model):
     # TODO(dcramer): we want to compile this mapping into JSX for the UI
     event = BoundedPositiveIntegerField()
     ip_address = models.GenericIPAddressField(null=True, unpack_ipv4=True)
-    data = models.JSONField()
+    data: models.Field[Mapping[str, Any] | None, dict[str, Any]] = GzippedDictField()
     datetime = models.DateTimeField(default=timezone.now)
 
     class Meta:

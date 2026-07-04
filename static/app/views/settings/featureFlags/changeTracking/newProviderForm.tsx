@@ -7,7 +7,6 @@ import {
   addSuccessMessage,
 } from 'sentry/actionCreators/indicator';
 import {hasEveryAccess} from 'sentry/components/acl/access';
-import {ExternalLink} from 'sentry/components/core/link';
 import {
   PROVIDER_TO_SETUP_WEBHOOK_URL,
   WebhookProviderEnum,
@@ -16,6 +15,7 @@ import FieldGroup from 'sentry/components/forms/fieldGroup';
 import SelectField from 'sentry/components/forms/fields/selectField';
 import TextField from 'sentry/components/forms/fields/textField';
 import Form from 'sentry/components/forms/form';
+import ExternalLink from 'sentry/components/links/externalLink';
 import TextCopyInput from 'sentry/components/textCopyInput';
 import {t, tct} from 'sentry/locale';
 import {space} from 'sentry/styles/space';
@@ -163,8 +163,8 @@ export default function NewProviderForm({
       <TextField
         name="secret"
         label={t('Secret')}
-        maxLength={100}
-        minLength={1}
+        maxLength={32}
+        minLength={32}
         required
         help={t(
           'Paste the signing secret given by your provider when creating the webhook.'

@@ -21,7 +21,6 @@ import {AlertLink} from 'sentry/components/core/alert/alertLink';
 import {Button} from 'sentry/components/core/button';
 import {Checkbox} from 'sentry/components/core/checkbox';
 import {Input} from 'sentry/components/core/input';
-import {ExternalLink} from 'sentry/components/core/link';
 import {Select} from 'sentry/components/core/select';
 import DeprecatedAsyncComponent from 'sentry/components/deprecatedAsyncComponent';
 import ErrorBoundary from 'sentry/components/errorBoundary';
@@ -34,6 +33,7 @@ import Form from 'sentry/components/forms/form';
 import FormField from 'sentry/components/forms/formField';
 import IdBadge from 'sentry/components/idBadge';
 import * as Layout from 'sentry/components/layouts/thirds';
+import ExternalLink from 'sentry/components/links/externalLink';
 import List from 'sentry/components/list';
 import ListItem from 'sentry/components/list/listItem';
 import LoadingMask from 'sentry/components/loadingMask';
@@ -830,7 +830,7 @@ class IssueRuleEditor extends DeprecatedAsyncComponent<Props, State> {
   renderError() {
     return (
       <Alert.Container>
-        <Alert type="error">
+        <Alert type="error" showIcon>
           {t(
             'Unable to access this alert rule -- check to make sure you have the correct permissions'
           )}
@@ -956,7 +956,7 @@ class IssueRuleEditor extends DeprecatedAsyncComponent<Props, State> {
 
     return (
       <Alert.Container>
-        <Alert type="warning">
+        <Alert type="warning" showIcon>
           <div>
             {t(
               'Alerts without conditions can fire too frequently. Are you sure you want to save this alert rule?'
@@ -1302,7 +1302,7 @@ class IssueRuleEditor extends DeprecatedAsyncComponent<Props, State> {
                           disabled={disabled}
                           error={
                             this.hasError('conditions') && (
-                              <Alert type="error" showIcon={false}>
+                              <Alert type="error">
                                 {detailedError?.conditions![0]}
                                 {(detailedError?.conditions![0] || '').startsWith(
                                   'You may not exceed'
@@ -1389,9 +1389,7 @@ class IssueRuleEditor extends DeprecatedAsyncComponent<Props, State> {
                           disabled={disabled}
                           error={
                             this.hasError('filters') && (
-                              <Alert type="error" showIcon={false}>
-                                {detailedError?.filters![0]}
-                              </Alert>
+                              <Alert type="error">{detailedError?.filters![0]}</Alert>
                             )
                           }
                           incompatibleRules={incompatibleFilters}
@@ -1438,9 +1436,7 @@ class IssueRuleEditor extends DeprecatedAsyncComponent<Props, State> {
                           disabled={disabled}
                           error={
                             this.hasError('actions') && (
-                              <Alert type="error" showIcon={false}>
-                                {detailedError?.actions![0]}
-                              </Alert>
+                              <Alert type="error">{detailedError?.actions![0]}</Alert>
                             )
                           }
                           additionalAction={{
@@ -1620,7 +1616,7 @@ const StyledListItem = styled(ListItem)`
 
 const StyledFieldHelp = styled(FieldHelp)`
   margin-top: 0;
-  @media (max-width: ${p => p.theme.breakpoints.sm}) {
+  @media (max-width: ${p => p.theme.breakpoints.small}) {
     margin-left: -${space(4)};
   }
 `;
@@ -1686,7 +1682,7 @@ const Badge = styled('span')`
   text-transform: uppercase;
   text-align: center;
   font-size: ${p => p.theme.fontSize.md};
-  font-weight: ${p => p.theme.fontWeight.bold};
+  font-weight: ${p => p.theme.fontWeightBold};
   line-height: 1.5;
 `;
 
@@ -1696,7 +1692,7 @@ const EmbeddedWrapper = styled('div')`
 
 const EmbeddedSelectField = styled(SelectField)`
   padding: 0;
-  font-weight: ${p => p.theme.fontWeight.normal};
+  font-weight: ${p => p.theme.fontWeightNormal};
   text-transform: none;
 `;
 
@@ -1723,7 +1719,7 @@ const StyledField = styled(FieldGroup)`
 `;
 
 const StyledFieldWrapper = styled('div')`
-  @media (min-width: ${p => p.theme.breakpoints.sm}) {
+  @media (min-width: ${p => p.theme.breakpoints.small}) {
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: ${space(1)};
@@ -1731,7 +1727,7 @@ const StyledFieldWrapper = styled('div')`
 `;
 
 const ContentIndent = styled('div')`
-  @media (min-width: ${p => p.theme.breakpoints.sm}) {
+  @media (min-width: ${p => p.theme.breakpoints.small}) {
     margin-left: ${space(4)};
   }
 `;
@@ -1741,7 +1737,7 @@ const AcknowledgeLabel = styled('label')`
   align-items: center;
   gap: ${space(1)};
   line-height: 2;
-  font-weight: ${p => p.theme.fontWeight.normal};
+  font-weight: ${p => p.theme.fontWeightNormal};
 `;
 
 const AcknowledgeField = styled(FieldGroup)`

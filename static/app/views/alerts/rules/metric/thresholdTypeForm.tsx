@@ -49,7 +49,9 @@ function ThresholdTypeForm({
     'custom_transactions',
   ]);
 
-  const hasAnomalyDetection = organization.features.includes('anomaly-detection-alerts');
+  const hasAnomalyDetection =
+    organization.features.includes('anomaly-detection-alerts') &&
+    organization.features.includes('anomaly-detection-rollout');
 
   const hasAnomalyDetectionForEAP = organization.features.includes(
     'anomaly-detection-eap'

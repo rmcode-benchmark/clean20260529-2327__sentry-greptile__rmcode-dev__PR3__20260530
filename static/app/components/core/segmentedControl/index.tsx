@@ -263,12 +263,6 @@ const GroupWrap = withChonk(
   ChonkStyledGroupWrap
 );
 
-const segmentedWrapPadding = {
-  md: '10px 16px 10px 16px',
-  sm: '8px 12px 8px 12px',
-  xs: '6px 8px 6px 8px',
-} as const;
-
 const SegmentWrap = withChonk(
   styled('label')<{
     isSelected: boolean;
@@ -285,8 +279,8 @@ const SegmentWrap = withChonk(
     min-height: 0;
     min-width: 0;
 
-    padding: ${p => segmentedWrapPadding[p.size]};
-    font-weight: ${p => p.theme.fontWeight.normal};
+    ${p => p.theme.buttonPadding[p.size]}
+    font-weight: ${p => p.theme.fontWeightNormal};
 
     ${p =>
       !p.isDisabled &&

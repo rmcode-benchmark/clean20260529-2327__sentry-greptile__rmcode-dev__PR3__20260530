@@ -1,8 +1,6 @@
 import styled from '@emotion/styled';
 
-import {Alert} from 'sentry/components/core/alert';
 import {Button} from 'sentry/components/core/button';
-import {Flex} from 'sentry/components/core/layout';
 import {RowLine} from 'sentry/components/workflowEngine/form/automationBuilderRowLine';
 import {IconDelete} from 'sentry/icons';
 import {t} from 'sentry/locale';
@@ -11,31 +9,21 @@ import {space} from 'sentry/styles/space';
 interface RowProps {
   children: React.ReactNode;
   onDelete: () => void;
-  errorMessage?: string;
-  hasError?: boolean;
 }
 
-export default function AutomationBuilderRow({
-  onDelete,
-  children,
-  hasError,
-  errorMessage,
-}: RowProps) {
+export default function AutomationBuilderRow({onDelete, children}: RowProps) {
   return (
-    <Flex direction="column" gap="xs">
-      <RowContainer incompatible={hasError}>
-        <RowLine>{children}</RowLine>
-        <DeleteButton
-          aria-label={t('Delete row')}
-          size="sm"
-          icon={<IconDelete />}
-          borderless
-          onClick={onDelete}
-          className={'delete-row'}
-        />
-      </RowContainer>
-      {hasError && errorMessage && <Alert type={'error'}>{errorMessage}</Alert>}
-    </Flex>
+    <RowContainer>
+      <RowLine>{children}</RowLine>
+      <DeleteButton
+        aria-label={t('Delete Condition')}
+        size="sm"
+        icon={<IconDelete />}
+        borderless
+        onClick={onDelete}
+        className={'delete-condition'}
+      />
+    </RowContainer>
   );
 }
 
@@ -44,16 +32,16 @@ const RowContainer = styled('div')<{incompatible?: boolean}>`
   background-color: ${p => p.theme.backgroundSecondary};
   border-radius: ${p => p.theme.borderRadius};
   border: 1px ${p => p.theme.innerBorder} solid;
-  border-color: ${p => (p.incompatible ? p.theme.dangerFocus : 'none')};
+  border-color: ${p => (p.incompatible ? p.theme.red200 : 'none')};
   position: relative;
   padding: ${space(0.75)} ${space(1.5)};
   min-height: 46px;
   align-items: center;
 
-  .delete-row {
+  .delete-condition {
     opacity: 0;
   }
-  :hover .delete-row {
+  :hover .delete-condition {
     opacity: 1;
   }
 `;

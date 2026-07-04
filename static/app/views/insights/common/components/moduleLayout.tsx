@@ -19,7 +19,7 @@ export const TwoThirds = styled('div')`
 export const Half = styled('div')`
   grid-column: span 12;
 
-  @media (min-width: ${p => p.theme.breakpoints.sm}) {
+  @media (min-width: ${p => p.theme.breakpoints.small}) {
     grid-column: span 6;
   }
 `;

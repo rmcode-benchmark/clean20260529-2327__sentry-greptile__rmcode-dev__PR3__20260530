@@ -154,10 +154,10 @@ function GroupEventAttachments({project, group}: GroupEventAttachmentsProps) {
     <Wrapper>
       {hasStreamlinedUI ? (
         <Flex justify="space-between">
-          <Flex align="center" gap="md">
+          <FilterMessage align="center" gap={space(1)}>
             <IconFilter size="xs" />
             {t('Results are filtered by the selections above.')}
-          </Flex>
+          </FilterMessage>
           <GroupEventAttachmentsFilter
             onChange={key => setPreviouslyUsedAttachmentsTab(key)}
           />
@@ -181,15 +181,15 @@ const ScreenshotGrid = styled('div')`
   grid-template-rows: repeat(2, max-content);
   gap: ${space(2)};
 
-  @media (min-width: ${p => p.theme.breakpoints.sm}) {
+  @media (min-width: ${p => p.theme.breakpoints.small}) {
     grid-template-columns: repeat(3, minmax(100px, 1fr));
   }
 
-  @media (min-width: ${p => p.theme.breakpoints.xl}) {
+  @media (min-width: ${p => p.theme.breakpoints.xlarge}) {
     grid-template-columns: repeat(4, minmax(100px, 1fr));
   }
 
-  @media (min-width: ${p => p.theme.breakpoints['2xl']}) {
+  @media (min-width: ${p => p.theme.breakpoints.xxlarge}) {
     grid-template-columns: repeat(6, minmax(100px, 1fr));
   }
 `;
@@ -203,3 +203,5 @@ const Wrapper = styled('div')`
   flex-direction: column;
   gap: ${space(2)};
 `;
+
+const FilterMessage = styled(Flex)``;

@@ -138,11 +138,15 @@ export default function IntegrationDetailedView() {
     // The server response for integration installations includes old icon CSS classes
     // We map those to the currently in use values to their react equivalents
     // and fallback to IconFlag just in case.
-    const alertList = provider?.metadata.aspects.alerts || [];
+    const alertList = (provider?.metadata.aspects.alerts || []).map(item => ({
+      ...item,
+      showIcon: true,
+    }));
 
     if (!provider?.canAdd && provider?.metadata.aspects.externalInstall) {
       alertList.push({
         type: 'warning',
+        showIcon: true,
         text: provider?.metadata.aspects.externalInstall.noticeText,
       });
     }
@@ -339,7 +343,9 @@ export default function IntegrationDetailedView() {
       <Fragment>
         {alertText && (
           <Alert.Container>
-            <Alert type="warning">{alertText}</Alert>
+            <Alert type="warning" showIcon>
+              {alertText}
+            </Alert>
           </Alert.Container>
         )}
         <Panel>

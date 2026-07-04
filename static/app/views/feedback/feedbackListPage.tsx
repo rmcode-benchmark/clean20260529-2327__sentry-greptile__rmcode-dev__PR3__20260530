@@ -1,7 +1,6 @@
 import {Fragment} from 'react';
 import styled from '@emotion/styled';
 
-import AnalyticsArea from 'sentry/components/analyticsArea';
 import ErrorBoundary from 'sentry/components/errorBoundary';
 import FeedbackFilters from 'sentry/components/feedback/feedbackFilters';
 import FeedbackItemLoader from 'sentry/components/feedback/feedbackItem/feedbackItemLoader';
@@ -87,10 +86,7 @@ export default function FeedbackListPage() {
                   {hasSetupOneFeedback || hasSlug ? (
                     <Fragment>
                       <SummaryListContainer style={{gridArea: 'list'}}>
-                        {organization.features.includes('user-feedback-ai-summaries') &&
-                          organization.features.includes('gen-ai-features') && (
-                            <FeedbackSummary />
-                          )}
+                        <FeedbackSummary />
                         <Container>
                           <FeedbackList />
                         </Container>
@@ -99,9 +95,7 @@ export default function FeedbackListPage() {
                         <FeedbackSearch />
                       </SearchContainer>
                       <Container style={{gridArea: 'details'}}>
-                        <AnalyticsArea name="details">
-                          <FeedbackItemLoader />
-                        </AnalyticsArea>
+                        <FeedbackItemLoader />
                       </Container>
                     </Fragment>
                   ) : (
@@ -142,15 +136,15 @@ const LayoutGrid = styled('div')`
   gap: ${space(2)};
   place-items: stretch;
 
-  @media (max-width: ${p => p.theme.breakpoints.md}) {
+  @media (max-width: ${p => p.theme.breakpoints.medium}) {
     padding: ${space(2)};
   }
 
-  @media (min-width: ${p => p.theme.breakpoints.md}) {
+  @media (min-width: ${p => p.theme.breakpoints.medium}) {
     padding: ${space(2)};
   }
 
-  @media (min-width: ${p => p.theme.breakpoints.lg}) {
+  @media (min-width: ${p => p.theme.breakpoints.large}) {
     padding: ${space(2)} ${space(4)};
   }
 
@@ -159,7 +153,7 @@ const LayoutGrid = styled('div')`
     'filters search'
     'list details';
 
-  @media (max-width: ${p => p.theme.breakpoints.md}) {
+  @media (max-width: ${p => p.theme.breakpoints.medium}) {
     grid-template-columns: 1fr;
     grid-template-areas:
       'filters'
@@ -168,15 +162,15 @@ const LayoutGrid = styled('div')`
       'details';
   }
 
-  @media (min-width: ${p => p.theme.breakpoints.md}) {
+  @media (min-width: ${p => p.theme.breakpoints.medium}) {
     grid-template-columns: minmax(195px, 1fr) 1.5fr;
   }
 
-  @media (min-width: ${p => p.theme.breakpoints.lg}) {
+  @media (min-width: ${p => p.theme.breakpoints.large}) {
     grid-template-columns: 390px 1fr;
   }
 
-  @media (min-width: ${p => p.theme.breakpoints.lg}) {
+  @media (min-width: ${p => p.theme.breakpoints.large}) {
     grid-template-columns: minmax(390px, 1fr) 2fr;
   }
 `;

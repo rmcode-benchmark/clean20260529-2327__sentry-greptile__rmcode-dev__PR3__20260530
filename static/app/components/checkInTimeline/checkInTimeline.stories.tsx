@@ -21,21 +21,21 @@ enum ExampleStatus {
   TIMEOUT = 'timeout',
 }
 
-const statusStyle: TickStyle<ExampleStatus> = theme => ({
+const statusStyle: Record<ExampleStatus, TickStyle> = {
   [ExampleStatus.ERROR]: {
-    labelColor: theme.red400,
-    tickColor: theme.red300,
+    labelColor: 'red400',
+    tickColor: 'red300',
   },
   [ExampleStatus.TIMEOUT]: {
-    labelColor: theme.yellow400,
-    tickColor: theme.yellow300,
-    hatchTick: theme.yellow200,
+    labelColor: 'yellow400',
+    tickColor: 'yellow300',
+    hatchTick: 'yellow200',
   },
   [ExampleStatus.OK]: {
-    labelColor: theme.green400,
-    tickColor: theme.green300,
+    labelColor: 'green400',
+    tickColor: 'green300',
   },
-});
+};
 
 const statusLabel: Record<ExampleStatus, string> = {
   [ExampleStatus.OK]: 'Okay',
@@ -102,7 +102,7 @@ export default Storybook.story('CheckInTimeline', story => {
           are contiguously the same status will be merged together visually.
         </p>
 
-        <Controls>
+        <Controls gap={1}>
           <DatePageFilter triggerProps={{prefix: 'Time Window'}} />
           <CompactSelect
             triggerProps={{prefix: 'Spacing'}}

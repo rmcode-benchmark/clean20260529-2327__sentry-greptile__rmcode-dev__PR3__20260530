@@ -4,6 +4,7 @@ def _import_all() -> None:
         "message",
         "security",
         "template",
+        "legacy",
         "newstyle",
         "configurations",
     ]

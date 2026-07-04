@@ -3,6 +3,8 @@ import {css} from '@emotion/react';
 
 // eslint-disable-next-line boundaries/element-types
 import {type SVGIconProps} from 'sentry/icons/svgIcon';
+// eslint-disable-next-line boundaries/element-types
+import {space} from 'sentry/styles/space';
 
 import type {
   DO_NOT_USE_ButtonProps as ButtonProps,
@@ -25,7 +27,7 @@ const getBoxShadow = ({
   }
 
   const themeName = disabled ? 'disabled' : priority || 'default';
-  const {borderTranslucent} = theme.button[themeName] ?? theme.button.default;
+  const {borderTranslucent} = theme.button[themeName];
   const translucentBorderString = translucentBorder
     ? `0 0 0 1px ${borderTranslucent},`
     : '';
@@ -49,7 +51,7 @@ const getColors = ({
 }: (ButtonProps | LinkButtonProps) & {theme: Theme}): SerializedStyles => {
   const themeName = disabled ? 'disabled' : priority || 'default';
   const {color, colorActive, background, border, borderActive, focusBorder, focusShadow} =
-    theme.button[themeName] ?? theme.button.default;
+    theme.button[themeName];
 
   const getFocusState = (): SerializedStyles => {
     switch (priority) {
@@ -116,37 +118,6 @@ const getColors = ({
   `;
 };
 
-type ButtonSize = 'md' | 'sm' | 'xs';
-type ButtonPaddingSizes = Record<
-  ButtonSize,
-  {
-    paddingBottom: number;
-    paddingLeft: number;
-    paddingRight: number;
-    paddingTop: number;
-  }
->;
-const buttonPadding: ButtonPaddingSizes = {
-  md: {
-    paddingLeft: 16,
-    paddingRight: 16,
-    paddingTop: 10,
-    paddingBottom: 10,
-  },
-  sm: {
-    paddingLeft: 12,
-    paddingRight: 12,
-    paddingTop: 8,
-    paddingBottom: 8,
-  },
-  xs: {
-    paddingLeft: 8,
-    paddingRight: 8,
-    paddingTop: 6,
-    paddingBottom: 6,
-  },
-};
-
 const getSizeStyles = ({
   size = 'md',
   translucentBorder,
@@ -154,6 +125,7 @@ const getSizeStyles = ({
 }: (ButtonProps | LinkButtonProps) & {theme: Theme}): SerializedStyles => {
   const buttonSize = size === 'zero' ? 'md' : size;
   const formStyles = theme.form[buttonSize];
+  const buttonPadding = theme.buttonPadding[buttonSize];
 
   // If using translucent borders, rewrite size styles to
   // prevent layout shifts
@@ -161,15 +133,15 @@ const getSizeStyles = ({
     ? {
         height: `calc(${formStyles.height} - 2px)`,
         minHeight: `calc(${formStyles.minHeight} - 2px)`,
-        paddingTop: buttonPadding[buttonSize].paddingTop - 1,
-        paddingBottom: buttonPadding[buttonSize].paddingBottom - 1,
+        paddingTop: buttonPadding.paddingTop - 1,
+        paddingBottom: buttonPadding.paddingBottom - 1,
         margin: 1,
       }
     : {};
 
   return css`
     ${formStyles}
-    ${buttonPadding[buttonSize]}
+    ${buttonPadding}
     ${borderStyles}
   `;
 };
@@ -184,7 +156,7 @@ export function DO_NOT_USE_getButtonStyles(
     display: inline-block;
     border-radius: ${p.theme.borderRadius};
     text-transform: none;
-    font-weight: ${p.theme.fontWeight.bold};
+    font-weight: ${p.theme.fontWeightBold};
     cursor: ${p.disabled ? 'not-allowed' : p.busy ? 'wait' : 'pointer'};
     opacity: ${(p.busy || p.disabled) && '0.65'};
 
@@ -209,7 +181,7 @@ export function DO_NOT_USE_getButtonStyles(
     css`
       height: auto;
       min-height: auto;
-      padding: ${p.theme.space['2xs']};
+      padding: ${space(0.25)};
     `}
 
   &:focus {

@@ -1,16 +1,16 @@
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import styled from '@emotion/styled';
 import {AnimatePresence, motion, useAnimation} from 'framer-motion';
 
 import {Button} from 'sentry/components/core/button';
-import {Link} from 'sentry/components/core/link';
 import Hook from 'sentry/components/hook';
+import Link from 'sentry/components/links/link';
 import LogoSentry from 'sentry/components/logoSentry';
 import {useOnboardingContext} from 'sentry/components/onboarding/onboardingContext';
 import {useRecentCreatedProject} from 'sentry/components/onboarding/useRecentCreatedProject';
 import Redirect from 'sentry/components/redirect';
 import SentryDocumentTitle from 'sentry/components/sentryDocumentTitle';
-import {getCategoryList} from 'sentry/data/platformPickerCategories';
+import categoryList from 'sentry/data/platformPickerCategories';
 import platforms from 'sentry/data/platforms';
 import {IconArrow} from 'sentry/icons';
 import {t} from 'sentry/locale';
@@ -87,10 +87,6 @@ function Onboarding(props: Props) {
 
   const {activateSidebar} = useOnboardingSidebar();
 
-  const categories = useMemo(() => {
-    return getCategoryList(organization);
-  }, [organization]);
-
   useEffect(() => {
     return () => {
       window.clearTimeout(cornerVariantTimeoutRed.current);
@@ -104,9 +100,13 @@ function Onboarding(props: Props) {
       props.location.query?.platform &&
       onboardingContext.selectedPlatform === undefined
     ) {
-      const platform = Object.values(platforms).find(
-        p => p.id === props.location.query.platform
+      const platformKey = Object.keys(platforms).find(
+        // @ts-expect-error TS(7015): Element implicitly has an 'any' type because index... Remove this comment to see the full error message
+        key => platforms[key].id === props.location.query.platform
       );
+
+      // @ts-expect-error TS(7015): Element implicitly has an 'any' type because index... Remove this comment to see the full error message
+      const platform = platformKey ? platforms[platformKey] : undefined;
 
       // if no platform found, we redirect the user to the platform select page
       if (!platform) {
@@ -117,7 +117,7 @@ function Onboarding(props: Props) {
       }
 
       const frameworkCategory =
-        categories.find(category => {
+        categoryList.find(category => {
           return category.platforms?.has(platform.id);
         })?.id ?? 'all';
 
@@ -136,7 +136,6 @@ function Onboarding(props: Props) {
     onboardingContext,
     organization.slug,
     props.location.pathname,
-    categories,
   ]);
 
   const shallProjectBeDeleted =
@@ -249,11 +248,13 @@ function Onboarding(props: Props) {
             currentStepIndex={stepIndex}
             onClick={i => {
               if ((i as number) < stepIndex && shallProjectBeDeleted) {
-                handleGoBack(i as number);
+                // @ts-expect-error TS(2345): Argument of type 'number | MouseEvent<HTMLDivEleme... Remove this comment to see the full error message
+                handleGoBack(i);
                 return;
               }
 
-              goToStep(onboardingSteps[i as number]!);
+              // @ts-expect-error TS(2538): Type 'MouseEvent<HTMLDivElement, MouseEvent>' cann... Remove this comment to see the full error message
+              goToStep(onboardingSteps[i]);
             }}
           />
         )}
@@ -374,14 +375,14 @@ const OnboardingStep = styled(motion.div)`
 
 const AdaptivePageCorners = styled(PageCorners)`
   --corner-scale: 1;
-  @media (max-width: ${p => p.theme.breakpoints.sm}) {
+  @media (max-width: ${p => p.theme.breakpoints.small}) {
     --corner-scale: 0.5;
   }
 `;
 
 const StyledStepper = styled(Stepper)`
   justify-self: center;
-  @media (max-width: ${p => p.theme.breakpoints.md}) {
+  @media (max-width: ${p => p.theme.breakpoints.medium}) {
     display: none;
   }
 `;

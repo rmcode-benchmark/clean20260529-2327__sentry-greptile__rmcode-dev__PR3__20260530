@@ -48,16 +48,11 @@ describe('Quick Trace', function () {
       type: 'transaction',
       startTimestamp: 1615921516.132774,
       endTimestamp: 1615921517.924861,
-      contexts: {
-        trace: {
-          trace_id: `trace-id`,
-        },
-      },
     };
   }
 
-  function makeTransactionHref(eid: string, timestamp: number) {
-    return `/organizations/org-slug/traces/trace/trace-id/?eventId=${eid}&statsPeriod=14d&timestamp=${timestamp}`;
+  function makeTransactionHref(pid: string, eid: string, transaction: string) {
+    return `/organizations/${organization.slug}/insights/backend/${pid}:${eid}/?transaction=${transaction}`;
   }
 
   beforeEach(function () {
@@ -79,6 +74,7 @@ describe('Quick Trace', function () {
           }}
           anchor="left"
           errorDest="issue"
+          transactionDest="performance"
           location={location}
           organization={organization}
         />
@@ -98,6 +94,7 @@ describe('Quick Trace', function () {
           }}
           anchor="left"
           errorDest="issue"
+          transactionDest="performance"
           location={location}
           organization={organization}
         />
@@ -115,6 +112,7 @@ describe('Quick Trace', function () {
           }}
           anchor="left"
           errorDest="issue"
+          transactionDest="performance"
           location={location}
           organization={organization}
         />
@@ -138,6 +136,7 @@ describe('Quick Trace', function () {
           }}
           anchor="left"
           errorDest="issue"
+          transactionDest="performance"
           location={location}
           organization={organization}
         />
@@ -157,6 +156,7 @@ describe('Quick Trace', function () {
           }}
           anchor="left"
           errorDest="issue"
+          transactionDest="performance"
           location={location}
           organization={organization}
         />
@@ -183,6 +183,7 @@ describe('Quick Trace', function () {
           }}
           anchor="left"
           errorDest="issue"
+          transactionDest="performance"
           location={location}
           organization={organization}
         />
@@ -204,6 +205,7 @@ describe('Quick Trace', function () {
           }}
           anchor="left"
           errorDest="issue"
+          transactionDest="performance"
           location={location}
           organization={organization}
         />
@@ -232,6 +234,7 @@ describe('Quick Trace', function () {
           }}
           anchor="left"
           errorDest="issue"
+          transactionDest="performance"
           location={location}
           organization={organization}
         />
@@ -265,6 +268,7 @@ describe('Quick Trace', function () {
           }}
           anchor="left"
           errorDest="issue"
+          transactionDest="performance"
           location={location}
           organization={organization}
         />
@@ -290,6 +294,7 @@ describe('Quick Trace', function () {
           }}
           anchor="left"
           errorDest="issue"
+          transactionDest="performance"
           location={location}
           organization={organization}
         />
@@ -322,6 +327,7 @@ describe('Quick Trace', function () {
           }}
           anchor="left"
           errorDest="issue"
+          transactionDest="performance"
           location={location}
           organization={organization}
         />
@@ -359,6 +365,7 @@ describe('Quick Trace', function () {
           }}
           anchor="left"
           errorDest="issue"
+          transactionDest="performance"
           location={location}
           organization={organization}
         />
@@ -389,6 +396,7 @@ describe('Quick Trace', function () {
           }}
           anchor="left"
           errorDest="issue"
+          transactionDest="performance"
           location={location}
           organization={organization}
         />
@@ -396,12 +404,12 @@ describe('Quick Trace', function () {
       const nodes = await screen.findAllByTestId('event-node');
       expect(nodes).toHaveLength(6);
       [
-        makeTransactionHref('e0', 1615921516.132774),
-        makeTransactionHref('e1', 1615921516.132774),
-        makeTransactionHref('e2', 1615921516.132774),
+        makeTransactionHref('p0', 'e0', 't0'),
+        makeTransactionHref('p1', 'e1', 't1'),
+        makeTransactionHref('p2', 'e2', 't2'),
         undefined, // the "This Event" node has no target
-        makeTransactionHref('e4', 1615921516.132774),
-        makeTransactionHref('e5', 1615921516.132774),
+        makeTransactionHref('p4', 'e4', 't4'),
+        makeTransactionHref('p5', 'e5', 't5'),
       ].forEach((target, i) => {
         if (target) {
           expect(nodes[i]?.parentNode).toHaveAttribute('href', target);
@@ -426,6 +434,7 @@ describe('Quick Trace', function () {
           }}
           anchor="left"
           errorDest="issue"
+          transactionDest="performance"
           location={location}
           organization={organization}
         />

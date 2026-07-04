@@ -67,7 +67,7 @@ const StacktraceIntegrationBannerWrapper = styled('div')`
 const IntegationBannerTitle = styled('div')`
   font-size: ${p => p.theme.fontSize.xl};
   margin-bottom: ${space(1)};
-  font-weight: ${p => p.theme.fontWeight.bold};
+  font-weight: ${p => p.theme.fontWeightBold};
 `;
 
 const IntegationBannerDescription = styled('div')`
@@ -92,7 +92,7 @@ const IntegrationBannerImage = styled('img')`
   right: 4rem;
   pointer-events: none;
 
-  @media (max-width: ${p => p.theme.breakpoints.sm}) {
+  @media (max-width: ${p => p.theme.breakpoints.small}) {
     display: none;
   }
 `;

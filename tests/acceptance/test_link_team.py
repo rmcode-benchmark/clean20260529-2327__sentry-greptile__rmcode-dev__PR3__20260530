@@ -69,8 +69,7 @@ class SlackLinkTeamTest(AcceptanceTestCase):
         self.browser.click('[name="team"]')
         self.browser.click(f'[value="{self.team.id}"]')
         self.browser.click('[type="submit"]')
-        # Ensure we get to the next page before checking for the ExternalActor
-        self.browser.wait_until_test_id("back-to-slack")
+        self.browser.wait_until_not(".loading")
 
         assert ExternalActor.objects.filter(
             team_id=self.team.id,
@@ -96,8 +95,7 @@ class SlackLinkTeamTest(AcceptanceTestCase):
 
         self.browser.click(f'[value="{self.team.id}"]')
         self.browser.click('[type="submit"]')
-        # Ensure we get to the next page before checking for the ExternalActor
-        self.browser.wait_until_test_id("back-to-slack")
+        self.browser.wait_until_not(".loading")
 
         assert ExternalActor.objects.filter(
             team_id=self.team.id,

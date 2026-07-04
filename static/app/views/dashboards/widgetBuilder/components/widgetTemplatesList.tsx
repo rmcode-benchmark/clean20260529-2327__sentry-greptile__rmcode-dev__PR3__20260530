@@ -173,7 +173,7 @@ const TemplateCard = styled('div')<{selected: boolean}>`
 
 const WidgetTitle = styled('h3')`
   font-size: ${p => p.theme.fontSize.lg};
-  font-weight: ${p => p.theme.fontWeight.normal};
+  font-weight: ${p => p.theme.fontWeightNormal};
   margin-bottom: ${space(0.25)};
 `;
 

@@ -109,7 +109,7 @@ function SlackForm({
         />
       </NotificationActionCell>
 
-      <ButtonBar gap="xs">
+      <ButtonBar gap={0.5}>
         <Button onClick={onCancel} size="xs">
           {t('Cancel')}
         </Button>

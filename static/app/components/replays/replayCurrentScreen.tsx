@@ -5,12 +5,10 @@ import {useReplayContext} from 'sentry/components/replays/replayContext';
 import TextCopyInput from 'sentry/components/textCopyInput';
 import {t} from 'sentry/locale';
 import getCurrentScreenName from 'sentry/utils/replays/getCurrentScreenName';
-import {useReplayReader} from 'sentry/utils/replays/playback/providers/replayReaderProvider';
 
 // Screen name component for video/mobile replays - mirrors replayCurrentUrl.tsx
 function ReplayCurrentScreen() {
-  const replay = useReplayReader();
-  const {currentTime} = useReplayContext();
+  const {currentTime, replay} = useReplayContext();
   const frames = replay?.getMobileNavigationFrames();
   const replayRecord = replay?.getReplay();
 

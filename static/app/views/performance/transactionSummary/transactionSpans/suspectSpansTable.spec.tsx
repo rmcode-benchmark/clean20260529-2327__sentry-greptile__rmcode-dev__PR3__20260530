@@ -1,5 +1,3 @@
-import {LocationFixture} from 'sentry-fixture/locationFixture';
-
 import {
   initializeData as _initializeData,
   makeSuspectSpan,
@@ -28,7 +26,7 @@ describe('SuspectSpansTable', () => {
 
     render(
       <SuspectSpansTable
-        location={LocationFixture({...initialData.initialRouterConfig.location})}
+        location={initialData.router.location}
         organization={initialData.organization}
         transactionName="Test Transaction"
         isLoading={false}

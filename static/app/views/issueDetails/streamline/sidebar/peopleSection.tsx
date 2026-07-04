@@ -1,5 +1,6 @@
 import {Flex} from 'sentry/components/core/layout';
 import {t} from 'sentry/locale';
+import {space} from 'sentry/styles/space';
 import type {TeamParticipant, UserParticipant} from 'sentry/types/group';
 import type {User} from 'sentry/types/user';
 import ParticipantList from 'sentry/views/issueDetails/streamline/sidebar/participantList';
@@ -21,7 +22,7 @@ export default function PeopleSection({
     <div>
       <SidebarSectionTitle>{t('People')}</SidebarSectionTitle>
       {hasParticipants && (
-        <Flex gap="xs" align="center">
+        <Flex gap={space(0.5)} align="center">
           <ParticipantList
             users={userParticipants}
             teams={teamParticipants}
@@ -31,7 +32,7 @@ export default function PeopleSection({
         </Flex>
       )}
       {hasViewers && (
-        <Flex gap="xs" align="center">
+        <Flex gap={space(0.5)} align="center">
           <ParticipantList users={viewers} />
           {t('viewed')}
         </Flex>

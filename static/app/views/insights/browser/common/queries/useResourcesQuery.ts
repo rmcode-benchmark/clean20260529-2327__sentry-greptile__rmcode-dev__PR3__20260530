@@ -7,8 +7,8 @@ import {ResourceSpanOps} from 'sentry/views/insights/browser/resources/types';
 import type {ModuleFilters} from 'sentry/views/insights/browser/resources/utils/useResourceFilters';
 import {useResourceModuleFilters} from 'sentry/views/insights/browser/resources/utils/useResourceFilters';
 import type {ValidSort} from 'sentry/views/insights/browser/resources/utils/useResourceSort';
-import {useSpans} from 'sentry/views/insights/common/queries/useDiscover';
-import {SpanFields} from 'sentry/views/insights/types';
+import {useSpanMetrics} from 'sentry/views/insights/common/queries/useDiscover';
+import {SpanMetricsField} from 'sentry/views/insights/types';
 
 const {
   SPAN_DOMAIN,
@@ -20,7 +20,7 @@ const {
   FILE_EXTENSION,
   USER_GEO_SUBREGION,
   NORMALIZED_DESCRIPTION,
-} = SpanFields;
+} = SpanMetricsField;
 
 type Props = {
   referrer: string;
@@ -72,7 +72,7 @@ export const useResourcesQuery = ({
     query,
   ];
 
-  return useSpans(
+  return useSpanMetrics(
     {
       sorts: [sort],
       search: queryConditions.join(' '),

@@ -86,15 +86,12 @@ function CIEfficiencyBody({
           {t('Total Tests Run Time')}
         </SummaryEntryLabel>
         <SummaryEntryValue>
-          {totalTestsRunTime === undefined
-            ? '-'
-            : formatTimeDuration(totalTestsRunTime, 2)}
-          {typeof totalTestsRunTimeChange === 'number' &&
-            totalTestsRunTimeChange !== 0 && (
-              <Tag type={totalTestsRunTimeChange > 0 ? 'error' : 'success'}>
-                {formatPercentRate(totalTestsRunTimeChange)}
-              </Tag>
-            )}
+          {formatTimeDuration(totalTestsRunTime, 2)}
+          {totalTestsRunTimeChange ? (
+            <Tag type={totalTestsRunTimeChange > 0 ? 'error' : 'success'}>
+              {formatPercentRate(totalTestsRunTimeChange)}
+            </Tag>
+          ) : null}
         </SummaryEntryValue>
       </SummaryEntry>
       <SummaryEntry columns={3}>
@@ -109,13 +106,9 @@ function CIEfficiencyBody({
         >
           {t('Slowest Tests (P95)')}
         </SummaryEntryLabel>
-        {slowestTestsDuration === undefined ? (
-          <SummaryEntryValue>-</SummaryEntryValue>
-        ) : (
-          <SummaryEntryValueLink filterBy="slowestTests">
-            {formatTimeDuration(slowestTestsDuration, 2)}
-          </SummaryEntryValueLink>
-        )}
+        <SummaryEntryValueLink filterBy="slowestTests">
+          {formatTimeDuration(slowestTestsDuration, 2)}
+        </SummaryEntryValueLink>
       </SummaryEntry>
     </SummaryEntries>
   );
@@ -139,7 +132,7 @@ export function CIEfficiency({isLoading, ...bodyProps}: CIEfficiencyProps) {
 const CIEfficiencyPanel = styled(Panel)`
   grid-column: span 24;
 
-  @media (min-width: ${p => p.theme.breakpoints.md}) {
+  @media (min-width: ${p => p.theme.breakpoints.medium}) {
     grid-column: span 8;
   }
 `;

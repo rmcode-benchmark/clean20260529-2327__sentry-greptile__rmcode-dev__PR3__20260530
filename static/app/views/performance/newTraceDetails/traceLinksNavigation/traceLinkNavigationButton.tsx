@@ -1,12 +1,13 @@
 import {useMemo} from 'react';
 import styled from '@emotion/styled';
 
-import {ExternalLink, Link} from 'sentry/components/core/link';
 import {Tooltip} from 'sentry/components/core/tooltip';
 import type {
   SpanLink,
   TraceContextType,
 } from 'sentry/components/events/interfaces/spans/types';
+import ExternalLink from 'sentry/components/links/externalLink';
+import Link from 'sentry/components/links/link';
 import {normalizeDateTimeParams} from 'sentry/components/organizations/pageFilters/parse';
 import {IconChevron} from 'sentry/icons';
 import {t, tct} from 'sentry/locale';
@@ -200,7 +201,7 @@ const StyledTooltip = styled(Tooltip)`
 `;
 
 const TraceLink = styled(Link)`
-  font-weight: ${p => p.theme.fontWeight.normal};
+  font-weight: ${p => p.theme.fontWeightNormal};
   padding: ${space(0.25)} ${space(0.5)};
   display: flex;
   align-items: center;

@@ -45,7 +45,6 @@ import {
 import VisualizeGhostField from 'sentry/views/dashboards/widgetBuilder/components/visualize/visualizeGhostField';
 import {useWidgetBuilderContext} from 'sentry/views/dashboards/widgetBuilder/contexts/widgetBuilderContext';
 import useDashboardWidgetSource from 'sentry/views/dashboards/widgetBuilder/hooks/useDashboardWidgetSource';
-import {useDisableTransactionWidget} from 'sentry/views/dashboards/widgetBuilder/hooks/useDisableTransactionWidget';
 import useIsEditingWidget from 'sentry/views/dashboards/widgetBuilder/hooks/useIsEditingWidget';
 import {BuilderStateAction} from 'sentry/views/dashboards/widgetBuilder/hooks/useWidgetBuilderState';
 import {SESSIONS_TAGS} from 'sentry/views/dashboards/widgetBuilder/releaseWidget/fields';
@@ -255,7 +254,6 @@ function Visualize({error, setError}: VisualizeProps) {
   );
   const source = useDashboardWidgetSource();
   const isEditing = useIsEditingWidget();
-  const disableTransactionWidget = useDisableTransactionWidget();
 
   const isChartWidget =
     state.displayType !== DisplayType.TABLE &&
@@ -580,7 +578,6 @@ function Visualize({error, setError}: VisualizeProps) {
                               key="parameter:text"
                               type="text"
                               value={field.field}
-                              disabled={disableTransactionWidget}
                               onUpdate={value => {
                                 dispatch({
                                   type: updateAction,
@@ -620,7 +617,6 @@ function Visualize({error, setError}: VisualizeProps) {
                                 fieldOptions={fieldOptions}
                                 columnFilterMethod={columnFilterMethod}
                                 aggregates={aggregates}
-                                disabled={disableTransactionWidget}
                               />
                               {field.kind === FieldValueKind.FUNCTION &&
                                 parameterRefinements.length > 0 && (
@@ -692,7 +688,6 @@ function Visualize({error, setError}: VisualizeProps) {
                               name="name"
                               placeholder={t('Add Alias')}
                               value={field.alias ?? ''}
-                              disabled={disableTransactionWidget}
                               onChange={e => {
                                 const newFields = cloneDeep(fields);
                                 newFields[index]!.alias = e.target.value;
@@ -780,7 +775,6 @@ function Visualize({error, setError}: VisualizeProps) {
       <AddButtons>
         <AddButton
           priority="link"
-          disabled={disableTransactionWidget}
           aria-label={
             isChartWidget
               ? t('Add Series')
@@ -814,7 +808,6 @@ function Visualize({error, setError}: VisualizeProps) {
         {datasetConfig.enableEquations && (
           <AddButton
             priority="link"
-            disabled={disableTransactionWidget}
             aria-label={t('Add Equation')}
             onClick={() => {
               dispatch({
@@ -971,7 +964,6 @@ export const FieldExtras = styled('div')<{isChartWidget: boolean}>`
   flex-direction: row;
   gap: ${space(1)};
   flex: ${p => (p.isChartWidget ? '0' : '1')};
-  align-items: center;
 `;
 
 const AddButton = styled(Button)`

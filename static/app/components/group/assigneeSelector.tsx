@@ -121,7 +121,7 @@ export function AssigneeSelector({
 }
 
 const StyledDropdownButton = styled(Button)`
-  font-weight: ${p => p.theme.fontWeight.normal};
+  font-weight: ${p => p.theme.fontWeightNormal};
   border: none;
   padding: 0;
   height: unset;

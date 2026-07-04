@@ -16,7 +16,6 @@ jest.mock('sentry/utils/usePageFilters');
 import {PageFilterStateFixture} from 'sentry-fixture/pageFilters';
 
 import {useReleaseStats} from 'sentry/utils/useReleaseStats';
-import {SAMPLING_MODE} from 'sentry/views/explore/hooks/useProgressiveQuery';
 
 jest.mock('sentry/utils/useReleaseStats');
 
@@ -215,8 +214,7 @@ describe('HTTPDomainSummaryPage', function () {
           method: 'GET',
           query: {
             cursor: undefined,
-            dataset: 'spans',
-            sampling: SAMPLING_MODE.NORMAL,
+            dataset: 'spansMetrics',
             environment: [],
             excludeOther: 0,
             field: [],
@@ -243,8 +241,7 @@ describe('HTTPDomainSummaryPage', function () {
         method: 'GET',
         query: {
           cursor: undefined,
-          dataset: 'spans',
-          sampling: SAMPLING_MODE.NORMAL,
+          dataset: 'spansMetrics',
           environment: [],
           excludeOther: 0,
           field: [],
@@ -270,8 +267,7 @@ describe('HTTPDomainSummaryPage', function () {
         method: 'GET',
         query: {
           cursor: undefined,
-          dataset: 'spans',
-          sampling: SAMPLING_MODE.NORMAL,
+          dataset: 'spansMetrics',
           environment: [],
           excludeOther: 0,
           field: [],
@@ -300,7 +296,7 @@ describe('HTTPDomainSummaryPage', function () {
       expect.objectContaining({
         method: 'GET',
         query: {
-          dataset: 'spans',
+          dataset: 'spansMetrics',
           environment: [],
           field: [
             'epm()',
@@ -314,7 +310,6 @@ describe('HTTPDomainSummaryPage', function () {
           project: [],
           query: 'span.op:http.client span.domain:"\\*.sentry.dev"',
           referrer: 'api.performance.http.domain-summary-metrics-ribbon',
-          sampling: SAMPLING_MODE.NORMAL,
           statsPeriod: '10d',
         },
       })
@@ -326,7 +321,7 @@ describe('HTTPDomainSummaryPage', function () {
       expect.objectContaining({
         method: 'GET',
         query: {
-          dataset: 'spans',
+          dataset: 'spansMetrics',
           environment: [],
           field: [
             'project.id',
@@ -345,7 +340,6 @@ describe('HTTPDomainSummaryPage', function () {
           query: 'span.op:http.client span.domain:"\\*.sentry.dev"',
           sort: '-sum(span.self_time)',
           referrer: 'api.performance.http.domain-summary-transactions-list',
-          sampling: SAMPLING_MODE.NORMAL,
           statsPeriod: '10d',
         },
       })
@@ -356,7 +350,7 @@ describe('HTTPDomainSummaryPage', function () {
       expect.objectContaining({
         method: 'GET',
         query: {
-          dataset: 'spans',
+          dataset: 'spansMetrics',
           environment: [],
           field: ['user.geo.subregion', 'count()'],
           per_page: 50,
@@ -364,7 +358,6 @@ describe('HTTPDomainSummaryPage', function () {
           query: 'has:user.geo.subregion',
           sort: '-count()',
           referrer: 'api.insights.user-geo-subregion-selector',
-          sampling: SAMPLING_MODE.NORMAL,
           statsPeriod: '10d',
         },
       })

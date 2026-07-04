@@ -20,11 +20,6 @@ describe('IssueListSearchBar', function () {
       method: 'GET',
       body: [],
     });
-
-    MockApiClient.addMockResponse({
-      method: 'POST',
-      url: '/organizations/org-slug/recent-searches/',
-    });
   });
 
   afterEach(function () {

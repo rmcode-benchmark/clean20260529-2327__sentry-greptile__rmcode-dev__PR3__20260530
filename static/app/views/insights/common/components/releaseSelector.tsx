@@ -26,7 +26,7 @@ import {
   useReleases,
   useReleaseSelection,
 } from 'sentry/views/insights/common/queries/useReleases';
-import {formatVersionAndCenterTruncate} from 'sentry/views/insights/common/utils/formatVersionAndCenterTruncate';
+import {formatVersionAndCenterTruncate} from 'sentry/views/insights/common/utils/centerTruncate';
 
 export const PRIMARY_RELEASE_ALIAS = 'R1';
 export const SECONDARY_RELEASE_ALIAS = 'R2';
@@ -268,7 +268,7 @@ export function ReleaseComparisonSelector() {
 }
 
 const StyledCompactSelect = styled(CompactSelect)`
-  @media (min-width: ${p => p.theme.breakpoints.md}) {
+  @media (min-width: ${p => p.theme.breakpoints.medium}) {
     max-width: 275px;
   }
 `;

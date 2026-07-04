@@ -1111,7 +1111,6 @@ class DashboardDetail extends Component<Props, State> {
       seriesData,
       setData,
       newlyAddedWidget,
-      isCommittingChanges,
     } = this.state;
     const {dashboardId} = params;
 
@@ -1213,7 +1212,6 @@ class DashboardDetail extends Component<Props, State> {
                         onChangeEditAccess={this.onChangeEditAccess}
                         dashboardState={dashboardState}
                         widgetLimitReached={widgetLimitReached}
-                        isSaving={isCommittingChanges}
                       />
                     </Layout.HeaderActions>
                   </Layout.Header>
@@ -1404,7 +1402,7 @@ const StyledPageHeader = styled('div')`
   align-items: center;
   margin-bottom: ${space(2)};
 
-  @media (min-width: ${p => p.theme.breakpoints.md}) {
+  @media (min-width: ${p => p.theme.breakpoints.medium}) {
     grid-template-columns: minmax(0, 1fr) max-content;
     grid-column-gap: ${space(2)};
     height: 40px;

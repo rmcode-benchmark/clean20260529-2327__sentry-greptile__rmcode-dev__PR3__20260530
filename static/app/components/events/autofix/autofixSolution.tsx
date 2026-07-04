@@ -9,7 +9,6 @@ import {Alert} from 'sentry/components/core/alert';
 import {Button} from 'sentry/components/core/button';
 import {ButtonBar} from 'sentry/components/core/button/buttonBar';
 import {Input} from 'sentry/components/core/input';
-import {Link} from 'sentry/components/core/link';
 import {Tooltip} from 'sentry/components/core/tooltip';
 import {AutofixHighlightWrapper} from 'sentry/components/events/autofix/autofixHighlightWrapper';
 import {SolutionEventItem} from 'sentry/components/events/autofix/autofixSolutionEventItem';
@@ -24,6 +23,7 @@ import {
   makeAutofixQueryKey,
   useAutofixRepos,
 } from 'sentry/components/events/autofix/useAutofix';
+import Link from 'sentry/components/links/link';
 import {Timeline} from 'sentry/components/timeline';
 import {IconAdd, IconChat, IconFix} from 'sentry/icons';
 import {t, tct} from 'sentry/locale';
@@ -441,9 +441,7 @@ function AutofixSolutionDisplay({
   if (!solution || solution.length === 0) {
     return (
       <Alert.Container>
-        <Alert type="error" showIcon={false}>
-          {t('No solution available.')}
-        </Alert>
+        <Alert type="error">{t('No solution available.')}</Alert>
       </Alert.Container>
     );
   }
@@ -489,13 +487,13 @@ function AutofixSolutionDisplay({
               <IconChat size="xs" />
             </ChatButton>
           </HeaderText>
-          <ButtonBar>
-            <ButtonBar gap="none">
+          <ButtonBar gap={1}>
+            <ButtonBar>
               {!isEditing && (
                 <CopySolutionButton solution={solution} isEditing={isEditing} />
               )}
             </ButtonBar>
-            <ButtonBar gap="none">
+            <ButtonBar>
               <Tooltip
                 isHoverable
                 title={
@@ -512,7 +510,7 @@ function AutofixSolutionDisplay({
                       )
                     : cantReadRepos
                       ? t(
-                          "Seer can't access any of your selected repos. Check your GitHub integration and make sure Seer has read access."
+                          "Seer can't access any of your repos. Check your GitHub integration and configure repository access for Seer to write code for you."
                         )
                       : undefined
                 }
@@ -606,9 +604,7 @@ export function AutofixSolution(props: AutofixSolutionProps) {
       <AnimatePresence initial={props.isSolutionFirstAppearance}>
         <AnimationWrapper key="card" {...cardAnimationProps}>
           <NoSolutionPadding>
-            <Alert type="warning" showIcon={false}>
-              {t('No solution found.')}
-            </Alert>
+            <Alert type="warning">{t('No solution found.')}</Alert>
           </NoSolutionPadding>
         </AnimationWrapper>
       </AnimatePresence>

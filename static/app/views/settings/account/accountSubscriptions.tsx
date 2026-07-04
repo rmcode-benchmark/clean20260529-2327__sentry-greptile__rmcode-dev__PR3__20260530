@@ -230,10 +230,10 @@ const SubscriptionDetails = styled('label')`
   padding-right: ${space(2)};
   width: 85%;
 
-  @media (min-width: ${p => p.theme.breakpoints.sm}) {
+  @media (min-width: ${p => p.theme.breakpoints.small}) {
     width: 75%;
   }
-  @media (min-width: ${p => p.theme.breakpoints.lg}) {
+  @media (min-width: ${p => p.theme.breakpoints.large}) {
     width: 50%;
   }
 `;

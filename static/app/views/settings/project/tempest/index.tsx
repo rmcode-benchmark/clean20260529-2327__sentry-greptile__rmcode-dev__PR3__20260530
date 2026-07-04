@@ -66,9 +66,7 @@ export default function TempestSettings({organization, project}: Props) {
   if (!hasTempestAccess(organization)) {
     return (
       <Alert.Container>
-        <Alert type="warning" showIcon={false}>
-          {t("You don't have access to this feature")}
-        </Alert>
+        <Alert type="warning">{t("You don't have access to this feature")}</Alert>
       </Alert.Container>
     );
   }

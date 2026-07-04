@@ -14,7 +14,7 @@ import {IconCheckmark} from 'sentry/icons';
 import {space} from 'sentry/styles/space';
 import type {FormSize} from 'sentry/utils/theme';
 
-export interface GridListOptionProps extends AriaGridListItemOptions {
+interface GridListOptionProps extends AriaGridListItemOptions {
   listState: ListState<any>;
   node: Node<any>;
   size: FormSize;

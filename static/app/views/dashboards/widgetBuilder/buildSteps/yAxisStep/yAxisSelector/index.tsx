@@ -168,7 +168,7 @@ export function YAxisSelector({
       ))}
 
       {!hideAddYAxisButtons && (
-        <Actions>
+        <Actions gap={1}>
           <AddButton
             title={
               displayType === DisplayType.BIG_NUMBER ? t('Add Field') : t('Add Series')

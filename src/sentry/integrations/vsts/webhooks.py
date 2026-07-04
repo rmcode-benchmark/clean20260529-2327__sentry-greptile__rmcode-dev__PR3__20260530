@@ -21,10 +21,8 @@ from sentry.integrations.project_management.metrics import (
     ProjectManagementHaltReason,
 )
 from sentry.integrations.services.integration import integration_service
-from sentry.integrations.types import IntegrationProviderSlug
 from sentry.integrations.utils.metrics import IntegrationWebhookEvent, IntegrationWebhookEventType
 from sentry.integrations.utils.sync import sync_group_assignee_inbound
-from sentry.types.ratelimit import RateLimit, RateLimitCategory
 from sentry.utils.email import parse_email
 
 if TYPE_CHECKING:
@@ -33,6 +31,7 @@ if TYPE_CHECKING:
 
 UNSET = object()
 logger = logging.getLogger("sentry.integrations")
+PROVIDER_KEY = "vsts"
 
 
 def get_vsts_external_id(data: Mapping[str, Any]) -> str:
@@ -46,15 +45,6 @@ class WorkItemWebhook(Endpoint):
     publish_status = {
         "POST": ApiPublishStatus.PRIVATE,
     }
-
-    rate_limits = {
-        "POST": {
-            RateLimitCategory.IP: RateLimit(limit=100, window=1),
-            RateLimitCategory.USER: RateLimit(limit=100, window=1),
-            RateLimitCategory.ORGANIZATION: RateLimit(limit=100, window=1),
-        },
-    }
-
     authentication_classes = ()
     permission_classes = ()
 
@@ -70,9 +60,7 @@ class WorkItemWebhook(Endpoint):
         # https://docs.microsoft.com/en-us/azure/devops/service-hooks/events?view=azure-devops#workitem.updated
         if event_type == "workitem.updated":
             integration = integration_service.get_integration(
-                provider=IntegrationProviderSlug.AZURE_DEVOPS.value,
-                external_id=external_id,
-                status=ObjectStatus.ACTIVE,
+                provider=PROVIDER_KEY, external_id=external_id, status=ObjectStatus.ACTIVE
             )
             if integration is None:
                 logger.info(
@@ -89,7 +77,7 @@ class WorkItemWebhook(Endpoint):
             with IntegrationWebhookEvent(
                 interaction_type=IntegrationWebhookEventType.INBOUND_SYNC,
                 domain=IntegrationDomain.SOURCE_CODE_MANAGEMENT,
-                provider_key=IntegrationProviderSlug.AZURE_DEVOPS.value,
+                provider_key="vsts",
             ).capture():
                 handle_updated_workitem(data, integration)
 

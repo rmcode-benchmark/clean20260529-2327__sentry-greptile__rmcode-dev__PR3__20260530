@@ -15,7 +15,7 @@ export default function ReplayInlineCTAPanel() {
   return (
     <PageBanner
       button={
-        <ButtonBar>
+        <ButtonBar gap={1}>
           <Button
             type="button"
             priority="primary"
@@ -40,5 +40,5 @@ export default function ReplayInlineCTAPanel() {
 
 const PurpleText = styled('span')`
   color: ${p => p.theme.purple300};
-  font-weight: ${p => p.theme.fontWeight.bold};
+  font-weight: ${p => p.theme.fontWeightBold};
 `;

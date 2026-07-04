@@ -1,30 +1,16 @@
 import {render, screen, userEvent, waitFor} from 'sentry-test/reactTestingLibrary';
 
 import {ArithmeticBuilder} from 'sentry/components/arithmeticBuilder';
-import {FieldKind, getFieldDefinition} from 'sentry/utils/fields';
 
-const aggregations = ['avg', 'sum', 'count', 'count_unique'];
+const aggregateFunctions = [{name: 'avg'}, {name: 'sum'}, {name: 'count'}];
 
-const functionArguments = [
-  {name: 'span.duration', kind: FieldKind.MEASUREMENT},
-  {name: 'span.self_time', kind: FieldKind.MEASUREMENT},
-  {name: 'span.op', kind: FieldKind.TAG},
-  {name: 'span.description', kind: FieldKind.TAG},
-];
-
-const getSpanFieldDefinition = (key: string) => {
-  const argument = functionArguments.find(
-    functionArgument => functionArgument.name === key
-  );
-  return getFieldDefinition(key, 'span', argument?.kind);
-};
+const functionArguments = [{name: 'span.duration'}, {name: 'span.self_time'}];
 
 function ArithmeticBuilderWrapper({expression}: {expression: string}) {
   return (
     <ArithmeticBuilder
-      aggregations={aggregations}
+      aggregateFunctions={aggregateFunctions}
       functionArguments={functionArguments}
-      getFieldDefinition={getSpanFieldDefinition}
       expression={expression}
     />
   );

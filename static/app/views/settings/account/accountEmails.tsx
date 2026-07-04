@@ -200,7 +200,7 @@ function EmailRow({
         {!isVerified && <Tag type="warning">{t('Unverified')}</Tag>}
         {isPrimary && <Tag type="success">{t('Primary')}</Tag>}
       </EmailTags>
-      <ButtonBar>
+      <ButtonBar gap={1}>
         {!isPrimary && isVerified && (
           <Button size="sm" onClick={() => onSetPrimary?.(email)}>
             {t('Set as primary')}

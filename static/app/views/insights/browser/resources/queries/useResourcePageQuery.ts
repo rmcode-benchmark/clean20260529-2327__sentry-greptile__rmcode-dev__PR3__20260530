@@ -1,10 +1,10 @@
 import {defined} from 'sentry/utils';
 import type {Sort} from 'sentry/utils/discover/fields';
 import {MutableSearch} from 'sentry/utils/tokenizeSearch';
-import {useSpans} from 'sentry/views/insights/common/queries/useDiscover';
-import {SpanFields, type SubregionCode} from 'sentry/views/insights/types';
+import {useSpanMetrics} from 'sentry/views/insights/common/queries/useDiscover';
+import {SpanMetricsField, type SubregionCode} from 'sentry/views/insights/types';
 
-const {HTTP_RESPONSE_CONTENT_LENGTH, RESOURCE_RENDER_BLOCKING_STATUS} = SpanFields;
+const {HTTP_RESPONSE_CONTENT_LENGTH, RESOURCE_RENDER_BLOCKING_STATUS} = SpanMetricsField;
 
 export const useResourcePagesQuery = (
   groupId: string,
@@ -26,7 +26,9 @@ export const useResourcePagesQuery = (
     ...(renderBlockingStatus
       ? {[RESOURCE_RENDER_BLOCKING_STATUS]: renderBlockingStatus}
       : {}),
-    ...(subregions ? {[SpanFields.USER_GEO_SUBREGION]: `[${subregions.join(',')}]`} : {}),
+    ...(subregions
+      ? {[SpanMetricsField.USER_GEO_SUBREGION]: `[${subregions.join(',')}]`}
+      : {}),
   };
 
   const sorts = [sort];
@@ -52,7 +54,7 @@ export const useResourcePagesQuery = (
     }
   });
 
-  return useSpans(
+  return useSpanMetrics(
     {
       cursor,
       limit: 25,

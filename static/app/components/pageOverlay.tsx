@@ -36,7 +36,7 @@ const Header = styled((props: React.ComponentProps<typeof motion.h2>) => (
 ))`
   display: flex;
   align-items: center;
-  font-weight: ${p => p.theme.fontWeight.normal};
+  font-weight: ${p => p.theme.fontWeightNormal};
   margin-bottom: ${space(1)};
 `;
 

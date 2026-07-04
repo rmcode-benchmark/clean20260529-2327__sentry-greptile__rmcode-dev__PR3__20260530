@@ -5,10 +5,10 @@ import Color from 'color';
 
 import {Button} from 'sentry/components/core/button';
 import {LinkButton} from 'sentry/components/core/button/linkButton';
-import {ExternalLink} from 'sentry/components/core/link';
 import {useAutofixData} from 'sentry/components/events/autofix/useAutofix';
 import {useActionableItemsWithProguardErrors} from 'sentry/components/events/interfaces/crashContent/exception/useActionableItems';
 import {useGroupSummaryData} from 'sentry/components/group/groupSummary';
+import ExternalLink from 'sentry/components/links/externalLink';
 import {ScrollCarousel} from 'sentry/components/scrollCarousel';
 import TimeSince from 'sentry/components/timeSince';
 import {IconCopy, IconWarning} from 'sentry/icons';
@@ -90,7 +90,7 @@ function GroupMarkdownButton({group, event}: {event: Event; group: Group}) {
     },
   });
 
-  return <MarkdownButton onClick={copyMarkdown}>{t('Copy to Clipboard')}</MarkdownButton>;
+  return <MarkdownButton onClick={copyMarkdown}>{t('Markdown')}</MarkdownButton>;
 }
 
 export function EventTitle({event, group, ref, ...props}: EventNavigationProps) {
@@ -124,7 +124,7 @@ export function EventTitle({event, group, ref, ...props}: EventNavigationProps) 
 
   const grayText = css`
     color: ${theme.subText};
-    font-weight: ${theme.fontWeight.normal};
+    font-weight: ${theme.fontWeightNormal};
   `;
 
   const host = organization.links.regionUrl;
@@ -144,7 +144,7 @@ export function EventTitle({event, group, ref, ...props}: EventNavigationProps) 
 
   return (
     <div {...props} ref={ref}>
-      <EventInfoJumpToWrapper hasProcessingError={!!actionableItems}>
+      <EventInfoJumpToWrapper>
         <EventInfo>
           <EventIdWrapper>
             <span onClick={copyEventId}>{t('ID: %s', getShortEventId(event.id))}</span>
@@ -205,7 +205,7 @@ export function EventTitle({event, group, ref, ...props}: EventNavigationProps) 
         </EventInfo>
         {eventSectionConfigs.length > 0 && (
           <JumpTo>
-            <JumpToLabel aria-hidden>{t('Jump to:')}</JumpToLabel>
+            <div aria-hidden>{t('Jump to:')}</div>
             <ScrollCarousel gap={0.25} aria-label={t('Jump to section links')}>
               {eventSectionConfigs.map(config => (
                 <EventNavigationLink
@@ -267,25 +267,24 @@ function EventNavigationLink({
 
 const StyledTimeSince = styled(TimeSince)`
   color: ${p => p.theme.subText};
-  font-weight: ${p => p.theme.fontWeight.normal};
+  font-weight: ${p => p.theme.fontWeightNormal};
   white-space: nowrap;
 `;
 
-const EventInfoJumpToWrapper = styled('div')<{hasProcessingError: boolean}>`
-  display: grid;
+const EventInfoJumpToWrapper = styled('div')`
+  display: flex;
   gap: ${space(1)};
-  grid-template-columns: 1fr auto;
+  flex-direction: row;
+  justify-content: space-between;
   align-items: center;
   padding: 0 ${space(2)};
+  flex-wrap: nowrap;
   min-height: ${MIN_NAV_HEIGHT}px;
-  border-bottom: 1px solid ${p => p.theme.translucentBorder};
-
-  @media (max-width: ${p =>
-      p.hasProcessingError ? p.theme.breakpoints.lg : p.theme.breakpoints.sm}) {
-    grid-template-columns: 1fr;
-    gap: ${space(0.5)};
-    padding: ${space(0.5)} ${space(2)};
+  @media (max-width: ${p => p.theme.breakpoints.small}) {
+    flex-wrap: wrap;
+    gap: 0;
   }
+  border-bottom: 1px solid ${p => p.theme.translucentBorder};
 `;
 
 const EventInfo = styled('div')`
@@ -295,29 +294,28 @@ const EventInfo = styled('div')`
   align-items: center;
   line-height: 1.2;
 
-  @media (max-width: ${p => p.theme.breakpoints.sm}) {
+  @media (max-width: ${p => p.theme.breakpoints.small}) {
     padding-top: ${space(1)};
   }
 `;
 
-const JumpToLabel = styled('div')`
-  margin-top: ${space(0.25)};
-`;
-
 const JumpTo = styled('div')`
   display: flex;
-  gap: ${space(0.5)};
+  gap: ${space(1)};
   flex-direction: row;
   align-items: center;
   color: ${p => p.theme.subText};
   font-size: ${p => p.theme.fontSize.sm};
   white-space: nowrap;
-  overflow: hidden;
+  max-width: 100%;
+  @media (min-width: ${p => p.theme.breakpoints.small}) {
+    max-width: 50%;
+  }
 `;
 
 const ProcessingErrorButton = styled(Button)`
   color: ${p => p.theme.red300};
-  font-weight: ${p => p.theme.fontWeight.normal};
+  font-weight: ${p => p.theme.fontWeightNormal};
   font-size: ${p => p.theme.fontSize.sm};
   :hover {
     color: ${p => p.theme.red300};
@@ -326,7 +324,6 @@ const ProcessingErrorButton = styled(Button)`
 
 const JsonLinkWrapper = styled('div')`
   display: flex;
-  align-items: center;
   gap: ${space(0.5)};
 `;
 
@@ -351,7 +348,6 @@ const MarkdownButton = styled('button')`
   text-decoration-color: ${p => Color(p.theme.gray300).alpha(0.5).string()};
   font-size: inherit;
   cursor: pointer;
-  white-space: nowrap;
 
   :hover {
     color: ${p => p.theme.subText};
@@ -364,8 +360,7 @@ const EventIdWrapper = styled('div')`
   display: flex;
   gap: ${space(0.25)};
   align-items: center;
-  font-weight: ${p => p.theme.fontWeight.bold};
-  white-space: nowrap;
+  font-weight: ${p => p.theme.fontWeightBold};
 
   button {
     visibility: hidden;

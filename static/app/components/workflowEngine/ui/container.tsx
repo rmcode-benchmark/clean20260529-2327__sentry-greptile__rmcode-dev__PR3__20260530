@@ -12,7 +12,7 @@ export const Container = styled('div')`
   border-radius: ${p => p.theme.borderRadius};
   padding: ${space(1.5)};
 
-  @media (max-width: ${p => p.theme.breakpoints.lg}) {
+  @media (max-width: ${p => p.theme.breakpoints.large}) {
     min-width: fit-content;
     flex: 1;
   }

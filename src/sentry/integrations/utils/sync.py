@@ -117,9 +117,6 @@ def sync_group_assignee_inbound(
         projects_by_user = Project.objects.get_by_users(users)
 
         groups_assigned = []
-
-        assignee_not_found = False
-
         for group in affected_groups:
             user_id = get_user_id(projects_by_user, group)
             user = users_by_id.get(user_id)
@@ -131,13 +128,10 @@ def sync_group_assignee_inbound(
                 )
                 groups_assigned.append(group)
             else:
-                assignee_not_found = True
-
-        if assignee_not_found:
-            lifecycle.record_halt(
-                ProjectManagementHaltReason.SYNC_INBOUND_ASSIGNEE_NOT_FOUND, extra=log_context
-            )
-
+                lifecycle.record_halt(
+                    ProjectManagementHaltReason.SYNC_INBOUND_ASSIGNEE_NOT_FOUND, extra=log_context
+                )
+                logger.info("inbound-assignee-not-found", extra=log_context)
         return groups_assigned
 
 

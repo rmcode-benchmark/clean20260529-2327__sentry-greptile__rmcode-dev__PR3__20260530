@@ -12,7 +12,7 @@ import {Widget} from 'sentry/views/dashboards/widgets/widget/widget';
 import {Mode} from 'sentry/views/explore/contexts/pageParamsContext/mode';
 import {ChartType} from 'sentry/views/insights/common/components/chart';
 import type {LoadableChartWidgetProps} from 'sentry/views/insights/common/components/widgets/types';
-import {useSpanSeries} from 'sentry/views/insights/common/queries/useDiscoverSeries';
+import {useEAPSeries} from 'sentry/views/insights/common/queries/useDiscoverSeries';
 import {convertSeriesToTimeseries} from 'sentry/views/insights/common/utils/convertSeriesToTimeseries';
 import {Referrer} from 'sentry/views/insights/pages/platform/laravel/referrers';
 import {usePageFilterChartParams} from 'sentry/views/insights/pages/platform/laravel/utils';
@@ -45,7 +45,7 @@ export default function OverviewJobsChartWidget(props: LoadableChartWidgetProps)
 
   const fullQuery = `span.op:queue.process ${query}`.trim();
 
-  const {data, isLoading, error} = useSpanSeries(
+  const {data, isLoading, error} = useEAPSeries(
     {
       ...pageFilterChartParams,
       search: fullQuery,
@@ -60,14 +60,14 @@ export default function OverviewJobsChartWidget(props: LoadableChartWidgetProps)
     return [
       new Bars(convertSeriesToTimeseries(data['count(span.duration)']), {
         alias: ALIASES['count(span.duration)'],
-        color: theme.chart.neutral,
+        color: theme.gray200,
       }),
       new Line(convertSeriesToTimeseries(data['trace_status_rate(internal_error)']), {
         alias: ALIASES['trace_status_rate(internal_error)'],
         color: theme.error,
       }),
     ];
-  }, [data, theme.error, theme.chart.neutral]);
+  }, [data, theme.error, theme.gray200]);
 
   const isEmpty = useMemo(
     () =>

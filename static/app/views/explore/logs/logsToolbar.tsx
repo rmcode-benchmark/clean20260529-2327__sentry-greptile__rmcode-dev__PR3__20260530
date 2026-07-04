@@ -144,7 +144,7 @@ export function LogsToolbar({stringTags, numberTags}: LogsToolbarProps) {
           onChange={val =>
             setLogsPageParams({groupBy: val.value ? (val.value as string) : null})
           }
-          value={groupBy ?? ''}
+          value={groupBy}
           searchable
           triggerProps={{style: {width: '100%'}}}
         />
@@ -162,7 +162,7 @@ const Container = styled('div')`
   gap: ${space(2)};
   background-color: ${p => p.theme.background};
 
-  @media (min-width: ${p => p.theme.breakpoints.md}) {
+  @media (min-width: ${p => p.theme.breakpoints.medium}) {
     padding: ${space(2)} ${space(4)};
   }
 `;

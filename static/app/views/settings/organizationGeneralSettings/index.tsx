@@ -18,7 +18,6 @@ import {t, tct} from 'sentry/locale';
 import ConfigStore from 'sentry/stores/configStore';
 import type {Organization} from 'sentry/types/organization';
 import {trackAnalytics} from 'sentry/utils/analytics';
-import {testableWindowLocation} from 'sentry/utils/testableWindowLocation';
 import useApi from 'sentry/utils/useApi';
 import {useNavigate} from 'sentry/utils/useNavigate';
 import useOrganization from 'sentry/utils/useOrganization';
@@ -71,7 +70,7 @@ export default function OrganizationGeneralSettings() {
 
       if (ConfigStore.get('features').has('system:multi-region')) {
         const {organizationUrl} = updated.links;
-        testableWindowLocation.replace(`${organizationUrl}/settings/organization/`);
+        window.location.replace(`${organizationUrl}/settings/organization/`);
       } else {
         navigate(`/settings/${updated.slug}/`, {replace: true});
       }

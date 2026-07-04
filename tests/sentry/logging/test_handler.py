@@ -5,7 +5,6 @@ from typing import Any
 from unittest import mock
 
 import pytest
-import sentry_sdk
 
 from sentry.logging.handlers import (
     GKEStructLogHandler,
@@ -13,7 +12,6 @@ from sentry.logging.handlers import (
     SamplingFilter,
     StructLogHandler,
 )
-from sentry.utils.sdk import get_trace_id
 
 
 @pytest.fixture
@@ -100,37 +98,9 @@ def make_logrecord(
 def test_emit(record, out, handler, logger):
     record = make_logrecord(**record)
     handler.emit(record, logger=logger)
-    expected = {
-        "level": logging.INFO,
-        "event": "msg",
-        "name": "name",
-        "sentry.trace.trace_id": None,
-    }
+    expected = dict(level=logging.INFO, event="msg", name="name")
     expected.update(out)
     logger.log.assert_called_once_with(**expected)
-
-
-@pytest.mark.parametrize(
-    "record,out",
-    (
-        ({}, {}),
-        ({"msg": "%s", "args": (1,)}, {"event": "%s", "positional_args": (1,)}),
-        ({"args": ({"a": 1},)}, {"positional_args": ({"a": 1},)}),
-        ({"exc_info": True}, {"exc_info": True}),
-    ),
-)
-def test_emit_with_trace_id(record, out, handler, logger):
-    with sentry_sdk.start_span(name="test_emit_with_trace_id"):
-        record = make_logrecord(**record)
-        handler.emit(record, logger=logger)
-        expected = {
-            "level": logging.INFO,
-            "event": "msg",
-            "name": "name",
-            "sentry.trace.trace_id": get_trace_id(),
-        }
-        expected.update(out)
-        logger.log.assert_called_once_with(**expected)
 
 
 @mock.patch("sentry.logging.handlers.metrics")
@@ -196,7 +166,7 @@ def test_gke_emit() -> None:
         level=logging.INFO,
         severity="INFO",
         event="msg",
-        **{"logging.googleapis.com/labels": {"name": "name"}, "sentry.trace.trace_id": None},
+        **{"logging.googleapis.com/labels": {"name": "name"}},
     )
 
 

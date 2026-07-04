@@ -15,7 +15,7 @@ import {SQLishFormatter} from 'sentry/utils/sqlish/SQLishFormatter';
 import {FullSpanDescription} from 'sentry/views/insights/common/components/fullSpanDescription';
 import {WiderHovercard} from 'sentry/views/insights/common/components/tableCells/spanDescriptionCell';
 import {resolveSpanModule} from 'sentry/views/insights/common/utils/resolveSpanModule';
-import {ModuleName, SpanFields} from 'sentry/views/insights/types';
+import {ModuleName, SpanIndexedField} from 'sentry/views/insights/types';
 import {InterimSection} from 'sentry/views/issueDetails/streamline/interimSection';
 import {
   type SectionCardKeyValueList,
@@ -110,7 +110,7 @@ export function GeneralInfo(props: GeneralnfoProps) {
       value: span.op,
       actionButton: (
         <TraceDrawerComponents.KeyValueAction
-          rowKey={SpanFields.SPAN_OP}
+          rowKey={SpanIndexedField.SPAN_OP}
           rowValue={span.op}
           projectIds={projectIds}
         />
@@ -142,7 +142,7 @@ export function GeneralInfo(props: GeneralnfoProps) {
       ),
       actionButton: (
         <TraceDrawerComponents.KeyValueAction
-          rowKey={SpanFields.SPAN_DESCRIPTION}
+          rowKey={SpanIndexedField.SPAN_DESCRIPTION}
           rowValue={span.description}
           projectIds={projectIds}
         />
@@ -155,7 +155,7 @@ export function GeneralInfo(props: GeneralnfoProps) {
       value: <SpanDuration node={props.node} />,
       actionButton: (
         <TraceDrawerComponents.KeyValueAction
-          rowKey={SpanFields.SPAN_DURATION}
+          rowKey={SpanIndexedField.SPAN_DURATION}
           rowValue={getDuration((endTimestamp - startTimestamp) / 1000, 2, true)}
           projectIds={projectIds}
         />
@@ -189,7 +189,7 @@ export function GeneralInfo(props: GeneralnfoProps) {
       }),
       actionButton: (
         <TraceDrawerComponents.KeyValueAction
-          rowKey={SpanFields.TIMESTAMP}
+          rowKey={SpanIndexedField.TIMESTAMP}
           rowValue={new Date(endTimestamp).toISOString()}
           projectIds={projectIds}
         />
@@ -214,7 +214,7 @@ export function GeneralInfo(props: GeneralnfoProps) {
       value: <SpanSelfTime node={props.node} />,
       actionButton: (
         <TraceDrawerComponents.KeyValueAction
-          rowKey={SpanFields.SPAN_SELF_TIME}
+          rowKey={SpanIndexedField.SPAN_SELF_TIME}
           rowValue={getDuration(span.exclusive_time / 1000, 2, true)}
           projectIds={projectIds}
         />

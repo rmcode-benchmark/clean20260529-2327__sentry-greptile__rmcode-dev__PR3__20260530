@@ -17,7 +17,7 @@ const FullViewport = styled('div')`
     display: none;
   }
 
-  @media (max-width: ${p => p.theme.breakpoints.md}) {
+  @media (max-width: ${p => p.theme.breakpoints.medium}) {
     height: auto;
   }
 

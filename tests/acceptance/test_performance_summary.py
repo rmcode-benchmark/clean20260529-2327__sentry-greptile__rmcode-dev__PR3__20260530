@@ -1,8 +1,6 @@
 from unittest.mock import patch
 from urllib.parse import urlencode
 
-import pytest
-
 from fixtures.page_objects.transaction_summary import TransactionSummaryPage
 from sentry.models.assistant import AssistantActivity
 from sentry.testutils.cases import AcceptanceTestCase, SnubaTestCase
@@ -11,8 +9,6 @@ from sentry.testutils.silo import no_silo_test
 from sentry.utils.samples import load_data
 
 FEATURES = {"organizations:performance-view": True}
-
-pytestmark = pytest.mark.sentry_metrics
 
 
 def make_event(event_data):

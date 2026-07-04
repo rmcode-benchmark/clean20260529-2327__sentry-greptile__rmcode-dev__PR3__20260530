@@ -225,7 +225,7 @@ const Table = styled('div')`
   row-gap: ${space(0.5)};
   margin: 0 -${space(1)};
 
-  @media (min-width: ${p => p.theme.breakpoints.xl}) {
+  @media (min-width: ${p => p.theme.breakpoints.xlarge}) {
     column-gap: ${space(2)};
   }
 `;
@@ -233,7 +233,7 @@ const Table = styled('div')`
 const ColumnTitle = styled('div')`
   white-space: nowrap;
   color: ${p => p.theme.subText};
-  font-weight: ${p => p.theme.fontWeight.bold};
+  font-weight: ${p => p.theme.fontWeightBold};
 `;
 
 const Body = styled('div')`

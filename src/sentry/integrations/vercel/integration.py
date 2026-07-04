@@ -21,10 +21,9 @@ from sentry.integrations.base import (
     IntegrationProvider,
 )
 from sentry.integrations.models.integration import Integration
-from sentry.integrations.pipeline import IntegrationPipeline
+from sentry.integrations.pipeline_types import IntegrationPipelineViewT
 from sentry.integrations.services.integration import integration_service
 from sentry.organizations.services.organization.model import RpcOrganization
-from sentry.pipeline.views.base import PipelineView
 from sentry.pipeline.views.nested import NestedPipelineView
 from sentry.projects.services.project.model import RpcProject
 from sentry.projects.services.project_key import project_key_service
@@ -367,7 +366,7 @@ class VercelIntegrationProvider(IntegrationProvider):
     # feature flag handler is in getsentry
     requires_feature_flag = True
 
-    def _identity_pipeline_view(self) -> PipelineView[IntegrationPipeline]:
+    def _identity_pipeline_view(self) -> IntegrationPipelineViewT:
         return NestedPipelineView(
             bind_key="identity",
             provider_key=self.key,
@@ -375,7 +374,7 @@ class VercelIntegrationProvider(IntegrationProvider):
             config={"redirect_url": absolute_uri(self.oauth_redirect_url)},
         )
 
-    def get_pipeline_views(self) -> Sequence[PipelineView[IntegrationPipeline]]:
+    def get_pipeline_views(self) -> Sequence[IntegrationPipelineViewT]:
         return [self._identity_pipeline_view()]
 
     def build_integration(self, state: Mapping[str, Any]) -> IntegrationData:

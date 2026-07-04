@@ -1,14 +1,11 @@
 import {useCallback, useEffect, useRef, useState} from 'react';
 import styled from '@emotion/styled';
 
-import issueDetailsPreview from 'sentry-images/issue_details/issue-details-preview.png';
-
 import {openModal} from 'sentry/actionCreators/modal';
 import {Button} from 'sentry/components/core/button';
 import DropdownButton from 'sentry/components/dropdownButton';
 import {DropdownMenu} from 'sentry/components/dropdownMenu';
 import {TourAction, TourGuide} from 'sentry/components/tours/components';
-import {StartTourModal, startTourModalCss} from 'sentry/components/tours/startTour';
 import {useMutateAssistant} from 'sentry/components/tours/useAssistant';
 import {IconLab} from 'sentry/icons';
 import {t} from 'sentry/locale';
@@ -23,6 +20,10 @@ import {
   ISSUE_DETAILS_TOUR_GUIDE_KEY,
   useIssueDetailsTour,
 } from 'sentry/views/issueDetails/issueDetailsTour';
+import {
+  IssueDetailsTourModal,
+  IssueDetailsTourModalCss,
+} from 'sentry/views/issueDetails/issueDetailsTourModal';
 import {useHasStreamlinedUI} from 'sentry/views/issueDetails/utils';
 
 /**
@@ -70,20 +71,13 @@ function useIssueDetailsPromoModal() {
     if (isPromoVisible) {
       openModal(
         props => (
-          <StartTourModal
-            closeModal={props.closeModal}
-            img={{
-              src: issueDetailsPreview,
-              alt: t('Preview of the issue details experience'),
-            }}
-            header={t('Welcome to Issue Details')}
-            description={t(
-              "New around here? Tour the issue experience - we promise you'll be less confused."
-            )}
-            onDismissTour={() => {
+          <IssueDetailsTourModal
+            handleDismissTour={() => {
               handleEndTour();
+              props.closeModal();
             }}
-            onStartTour={() => {
+            handleStartTour={() => {
+              props.closeModal();
               setLocalTourState({hasSeen: true});
               startTour();
               trackAnalytics('issue_details.tour.started', {
@@ -94,7 +88,7 @@ function useIssueDetailsPromoModal() {
           />
         ),
         {
-          modalCss: startTourModalCss,
+          modalCss: IssueDetailsTourModalCss,
           onClose: reason => {
             if (reason) {
               handleEndTour();

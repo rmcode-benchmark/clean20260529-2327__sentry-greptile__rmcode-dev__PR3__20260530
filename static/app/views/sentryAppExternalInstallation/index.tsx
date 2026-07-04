@@ -20,7 +20,6 @@ import {generateOrgSlugUrl} from 'sentry/utils';
 import {trackIntegrationAnalytics} from 'sentry/utils/integrationUtil';
 import {useApiQuery} from 'sentry/utils/queryClient';
 import {addQueryParamsToExistingUrl} from 'sentry/utils/queryString';
-import {testableWindowLocation} from 'sentry/utils/testableWindowLocation';
 import useApi from 'sentry/utils/useApi';
 import {OrganizationContext} from 'sentry/views/organizationContext';
 
@@ -81,7 +80,7 @@ function SentryAppExternalInstallationContent({params, ...props}: Props) {
       // redirect to the org if it's different than the org being selected
       if (customerDomain?.subdomain && orgSlug !== customerDomain?.subdomain) {
         const urlWithQuery = generateOrgSlugUrl(orgSlug) + props.location.search;
-        testableWindowLocation.assign(urlWithQuery);
+        window.location.assign(urlWithQuery);
         return;
       }
       // otherwise proceed as normal
@@ -138,7 +137,7 @@ function SentryAppExternalInstallationContent({params, ...props}: Props) {
   const onClose = useCallback(() => {
     // if we came from somewhere, go back there. Otherwise, back to the integrations page
     const newUrl = document.referrer || `/settings/${selectedOrgSlug}/integrations/`;
-    testableWindowLocation.assign(newUrl);
+    window.location.assign(newUrl);
   }, [selectedOrgSlug]);
 
   const disableInstall = useCallback(
@@ -186,7 +185,7 @@ function SentryAppExternalInstallationContent({params, ...props}: Props) {
         queryParams.state = state;
       }
       const redirectUrl = addQueryParamsToExistingUrl(sentryApp.redirectUrl, queryParams);
-      return testableWindowLocation.assign(redirectUrl);
+      return window.location.assign(redirectUrl);
     }
     return onClose();
   }, [api, organization, sentryApp, onClose, props.location.query.state]);
@@ -246,7 +245,7 @@ function CheckAndRenderError({
   if (selectedOrgSlug && organization && !hasAccess(organization)) {
     return (
       <Alert.Container>
-        <Alert type="error">
+        <Alert type="error" showIcon>
           <p>
             {tct(
               `You do not have permission to install integrations in
@@ -264,7 +263,7 @@ function CheckAndRenderError({
   if (isInstalled && organization && sentryApp) {
     return (
       <Alert.Container>
-        <Alert type="error">
+        <Alert type="error" showIcon>
           {tct('Integration [sentryAppName] already installed for [organization]', {
             organization: <strong>{organization.name}</strong>,
             sentryAppName: <strong>{sentryApp.name}</strong>,
@@ -279,7 +278,7 @@ function CheckAndRenderError({
     const ownerSlug = sentryApp?.owner?.slug ?? 'another organization';
     return (
       <Alert.Container>
-        <Alert type="error">
+        <Alert type="error" showIcon>
           {tct(
             'Integration [sentryAppName] is an unpublished integration for [otherOrg]. An unpublished integration can only be installed on the organization which created it.',
             {

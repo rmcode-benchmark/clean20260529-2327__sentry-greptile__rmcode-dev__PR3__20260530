@@ -221,7 +221,6 @@ describe('OnDemandBudgets AM Checkout', function () {
             replaysBudget: 0,
             profileDurationBudget: 0,
             profileDurationUIBudget: 0,
-            logBytesBudget: 0,
             budgets: {
               errors: 1000,
               transactions: 2000,
@@ -231,7 +230,6 @@ describe('OnDemandBudgets AM Checkout', function () {
               uptime: 0,
               profileDuration: 0,
               profileDurationUI: 0,
-              logBytes: 0,
             },
           },
           onDemandMaxSpend: 10000,

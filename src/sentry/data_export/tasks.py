@@ -52,7 +52,6 @@ logger = logging.getLogger(__name__)
             times=3,
             delay=60,
         ),
-        processing_deadline_duration=120,
     ),
 )
 def assemble_download(

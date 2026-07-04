@@ -2,22 +2,20 @@ from django.http.request import HttpRequest
 from django.http.response import HttpResponseBase, HttpResponseRedirect
 
 from sentry.identity.base import Provider
-from sentry.identity.pipeline import IdentityPipeline
-from sentry.integrations.types import IntegrationProviderSlug
-from sentry.pipeline.views.base import PipelineView
+from sentry.identity.pipeline_types import IdentityPipelineT, IdentityPipelineViewT
 from sentry.utils.http import absolute_uri
 
 
 class BitbucketIdentityProvider(Provider):
-    key = IntegrationProviderSlug.BITBUCKET.value
+    key = "bitbucket"
     name = "Bitbucket"
 
-    def get_pipeline_views(self) -> list[PipelineView[IdentityPipeline]]:
+    def get_pipeline_views(self) -> list[IdentityPipelineViewT]:
         return [BitbucketLoginView()]
 
 
-class BitbucketLoginView:
-    def dispatch(self, request: HttpRequest, pipeline: IdentityPipeline) -> HttpResponseBase:
+class BitbucketLoginView(IdentityPipelineViewT):
+    def dispatch(self, request: HttpRequest, pipeline: IdentityPipelineT) -> HttpResponseBase:
         from sentry.integrations.base import IntegrationDomain
         from sentry.integrations.utils.metrics import (
             IntegrationPipelineViewEvent,

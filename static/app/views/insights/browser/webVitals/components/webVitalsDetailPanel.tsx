@@ -1,15 +1,16 @@
 import {useEffect, useMemo} from 'react';
 import styled from '@emotion/styled';
 
-import {ExternalLink, Link} from 'sentry/components/core/link';
 import {Tooltip} from 'sentry/components/core/tooltip';
 import {DrawerHeader} from 'sentry/components/globalDrawer/components';
 import type {
   GridColumnHeader,
   GridColumnOrder,
   GridColumnSortBy,
-} from 'sentry/components/tables/gridEditable';
-import GridEditable, {COL_WIDTH_UNDEFINED} from 'sentry/components/tables/gridEditable';
+} from 'sentry/components/gridEditable';
+import GridEditable, {COL_WIDTH_UNDEFINED} from 'sentry/components/gridEditable';
+import ExternalLink from 'sentry/components/links/externalLink';
+import Link from 'sentry/components/links/link';
 import {t, tct} from 'sentry/locale';
 import {trackAnalytics} from 'sentry/utils/analytics';
 import getDuration from 'sentry/utils/duration/getDuration';
@@ -33,8 +34,13 @@ import type {
 } from 'sentry/views/insights/browser/webVitals/types';
 import decodeBrowserTypes from 'sentry/views/insights/browser/webVitals/utils/queryParameterDecoders/browserType';
 import {SampleDrawerBody} from 'sentry/views/insights/common/components/sampleDrawerBody';
+import {useInsightsEap} from 'sentry/views/insights/common/utils/useEap';
 import {useModuleURL} from 'sentry/views/insights/common/utils/useModuleURL';
-import {ModuleName, SpanFields, type SubregionCode} from 'sentry/views/insights/types';
+import {
+  ModuleName,
+  SpanIndexedField,
+  type SubregionCode,
+} from 'sentry/views/insights/types';
 
 type Column = GridColumnHeader;
 
@@ -54,10 +60,12 @@ export function WebVitalsDetailPanel({webVital}: {webVital: WebVitals | null}) {
   const location = useLocation();
   const organization = useOrganization();
   const moduleUrl = useModuleURL(ModuleName.VITAL);
-  const browserTypes = decodeBrowserTypes(location.query[SpanFields.BROWSER_NAME]);
+  const browserTypes = decodeBrowserTypes(location.query[SpanIndexedField.BROWSER_NAME]);
   const subregions = decodeList(
-    location.query[SpanFields.USER_GEO_SUBREGION]
+    location.query[SpanIndexedField.USER_GEO_SUBREGION]
   ) as SubregionCode[];
+
+  const useEap = useInsightsEap();
 
   const {data: projectData} = useProjectRawWebVitalsQuery({browserTypes, subregions});
   const {data: projectScoresData} = useProjectWebVitalsScoresQuery({
@@ -89,8 +97,11 @@ export function WebVitalsDetailPanel({webVital}: {webVital: WebVitals | null}) {
     if (!data) {
       return [];
     }
-    const sumWeights = 1;
-
+    const sumWeights = useEap
+      ? 1
+      : webVital
+        ? projectScoresData?.[0]?.[`sum(measurements.score.weight.${webVital})`] || 0
+        : 0;
     return data
       .map(row => ({
         ...row,
@@ -106,7 +117,7 @@ export function WebVitalsDetailPanel({webVital}: {webVital: WebVitals | null}) {
         return b.opportunity - a.opportunity;
       })
       .slice(0, MAX_ROWS);
-  }, [data]);
+  }, [data, projectScoresData, webVital, useEap]);
 
   useEffect(() => {
     if (webVital !== null) {

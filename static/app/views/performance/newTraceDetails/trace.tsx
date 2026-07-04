@@ -912,7 +912,7 @@ const TraceStylingWrapper = styled('div')`
     text-align: center;
     position: absolute;
     font-size: 10px;
-    font-weight: ${p => p.theme.fontWeight.bold};
+    font-weight: ${p => p.theme.fontWeightBold};
     color: ${p => p.theme.textColor};
     background-color: ${p => p.theme.background};
     border-radius: 100px;
@@ -1085,7 +1085,7 @@ const TraceStylingWrapper = styled('div')`
       pointer-events: none;
 
       .TraceIndicatorLabelContainer {
-        font-weight: ${p => p.theme.fontWeight.normal};
+        font-weight: ${p => p.theme.fontWeightNormal};
         min-width: 0;
         top: 22px;
         width: auto;
@@ -1104,15 +1104,15 @@ const TraceStylingWrapper = styled('div')`
   &.light {
     .TracePattern {
       &.info {
-        --pattern-odd: ${p => p.theme.blue400};
+        --pattern-odd: #d1dff9;
         --pattern-even: ${p => p.theme.blue300};
       }
       &.warning {
-        --pattern-odd: ${p => p.theme.yellow400};
+        --pattern-odd: #a5752c;
         --pattern-even: ${p => p.theme.yellow300};
       }
       &.occurence {
-        --pattern-odd: ${p => p.theme.blue400};
+        --pattern-odd: #063690;
         --pattern-even: ${p => p.theme.blue300};
       }
 
@@ -1122,13 +1122,13 @@ const TraceStylingWrapper = styled('div')`
       }
 
       &.missing_instrumentation {
-        --pattern-odd: ${p => p.theme.gray200};
-        --pattern-even: ${p => p.theme.gray100};
+        --pattern-odd: #dedae3;
+        --pattern-even: #f4f2f7;
       }
 
       &.error,
       &.fatal {
-        --pattern-odd: ${p => p.theme.red400};
+        --pattern-odd: #872d32;
         --pattern-even: ${p => p.theme.red300};
       }
 
@@ -1145,15 +1145,15 @@ const TraceStylingWrapper = styled('div')`
   &.dark {
     .TracePattern {
       &.info {
-        --pattern-odd: ${p => p.theme.blue400};
+        --pattern-odd: #d1dff9;
         --pattern-even: ${p => p.theme.blue300};
       }
       &.warning {
-        --pattern-odd: ${p => p.theme.yellow400};
+        --pattern-odd: #a5752c;
         --pattern-even: ${p => p.theme.yellow300};
       }
       &.occurence {
-        --pattern-odd: ${p => p.theme.blue400};
+        --pattern-odd: #063690;
         --pattern-even: ${p => p.theme.blue300};
       }
 
@@ -1163,13 +1163,13 @@ const TraceStylingWrapper = styled('div')`
       }
 
       &.missing_instrumentation {
-        --pattern-odd: ${p => p.theme.gray200};
-        --pattern-even: ${p => p.theme.gray100};
+        --pattern-odd: #4b4550;
+        --pattern-even: #1c1521;
       }
 
       &.error,
       &.fatal {
-        --pattern-odd: ${p => p.theme.red400};
+        --pattern-odd: #510d10;
         --pattern-even: ${p => p.theme.red300};
       }
       /* stylelint-disable */
@@ -1384,7 +1384,7 @@ const TraceStylingWrapper = styled('div')`
       color: ${p => p.theme.blue300};
 
       .TraceDescription {
-        font-weight: ${p => p.theme.fontWeight.bold};
+        font-weight: ${p => p.theme.fontWeightBold};
       }
 
       .TraceChildrenCountWrapper {
@@ -1700,13 +1700,7 @@ const TraceStylingWrapper = styled('div')`
     margin-left: 4px;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-weight: ${p => p.theme.fontWeight.bold};
-  }
-
-  .TraceName {
-    margin-left: 4px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    font-weight: ${p => p.theme.fontWeightBold};
   }
 
   .TraceEmDash {

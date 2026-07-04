@@ -4,7 +4,7 @@ from unittest import mock
 import pytest
 import sentry_sdk
 from django.test.utils import override_settings
-from sentry_sdk import Scope
+from sentry_sdk import isolation_scope
 
 from sentry import eventstore
 from sentry.eventstore.models import Event
@@ -16,46 +16,43 @@ from sentry.testutils.pytest.relay import adjust_settings_for_relay_tests
 from sentry.testutils.silo import assume_test_silo_mode, no_silo_test
 from sentry.testutils.skips import requires_kafka
 from sentry.users.models.userrole import manage_default_super_admin_role
-from sentry.utils.sdk import bind_organization_context, get_project_key
+from sentry.utils.sdk import bind_organization_context, configure_sdk
 
 pytestmark = [requires_kafka]
 
 
-@pytest.fixture
-def scope():
-    with sentry_sdk.isolation_scope() as scope:
-        with assume_test_silo_mode(SiloMode.CONTROL):
-            manage_default_super_admin_role()
-        create_default_projects()
-        yield scope
+@pytest.fixture(autouse=True)
+def setup_fixtures():
+    with assume_test_silo_mode(SiloMode.CONTROL):
+        manage_default_super_admin_role()
+    create_default_projects()
 
 
 @pytest.fixture
-def post_event_with_sdk(settings, scope: Scope, relay_server, wait_for_ingest_consumer):
+def post_event_with_sdk(settings, relay_server, wait_for_ingest_consumer):
     adjust_settings_for_relay_tests(settings)
     settings.SENTRY_ENDPOINT = relay_server["url"]
     settings.SENTRY_PROJECT = 1
-    internal_project_key = get_project_key()
-    assert internal_project_key is not None
 
-    client = sentry_sdk.Client(
-        dsn=internal_project_key.dsn_private,
-    )
+    configure_sdk()
+
+    current_scope = sentry_sdk.Scope()
+    isolation_scope = sentry_sdk.Scope()
 
     wait_for_ingest_consumer = wait_for_ingest_consumer(settings)
 
     def inner(*args, **kwargs):
-        kwargs.setdefault("scope", scope)
-        event_id = client.capture_event(*args, **kwargs)
+        event_id = sentry_sdk.capture_event(*args, **kwargs)
         assert event_id is not None
-        client.flush()
+        sentry_sdk.flush()
 
-        return wait_for_ingest_consumer(
-            lambda: eventstore.backend.get_event_by_id(settings.SENTRY_PROJECT, event_id)
-        )
+        with sentry_sdk.scope.use_scope(current_scope):
+            with sentry_sdk.scope.use_isolation_scope(isolation_scope):
+                return wait_for_ingest_consumer(
+                    lambda: eventstore.backend.get_event_by_id(settings.SENTRY_PROJECT, event_id)
+                )
 
     yield inner
-    client.close()
 
 
 @no_silo_test
@@ -90,12 +87,13 @@ def test_recursion_breaker(settings, post_event_with_sdk):
 @no_silo_test
 @django_db_all
 @override_settings(SENTRY_PROJECT=1)
-def test_encoding(settings, post_event_with_sdk, scope: Scope):
+def test_encoding(settings, post_event_with_sdk):
     class NotJSONSerializable:
         pass
 
-    scope.set_extra("request", NotJSONSerializable())
-    event = post_event_with_sdk({"message": "check the req"})
+    with isolation_scope() as scope:
+        scope.set_extra("request", NotJSONSerializable())
+        event = post_event_with_sdk({"message": "check the req"})
 
     assert event.data["project"] == settings.SENTRY_PROJECT
     assert event.data["logentry"]["formatted"] == "check the req"
@@ -105,9 +103,12 @@ def test_encoding(settings, post_event_with_sdk, scope: Scope):
 @no_silo_test
 @override_settings(SENTRY_PROJECT=1)
 @django_db_all
-def test_bind_organization_context(default_organization, scope: Scope):
+def test_bind_organization_context(default_organization):
+    configure_sdk()
+
     bind_organization_context(default_organization)
 
+    scope = sentry_sdk.get_isolation_scope()
     assert scope._tags["organization"] == default_organization.id
     assert scope._tags["organization.slug"] == default_organization.slug
     assert scope._contexts["organization"] == {
@@ -119,24 +120,31 @@ def test_bind_organization_context(default_organization, scope: Scope):
 @no_silo_test
 @override_settings(SENTRY_PROJECT=1)
 @django_db_all
-def test_bind_organization_context_with_callback(default_organization, scope: Scope):
+def test_bind_organization_context_with_callback(default_organization):
+    create_default_projects()
+    configure_sdk()
+
     def add_context(scope, organization, **kwargs):
         scope.set_tag("organization.test", "1")
 
     with override_settings(SENTRY_ORGANIZATION_CONTEXT_HELPER=add_context):
         bind_organization_context(default_organization)
 
+        scope = sentry_sdk.get_isolation_scope()
         assert scope._tags["organization.test"] == "1"
 
 
 @no_silo_test
 @override_settings(SENTRY_PROJECT=1)
 @django_db_all
-def test_bind_organization_context_with_callback_error(default_organization, scope: Scope):
+def test_bind_organization_context_with_callback_error(default_organization):
+    configure_sdk()
 
     def add_context(scope, organization, **kwargs):
         1 / 0
 
     with override_settings(SENTRY_ORGANIZATION_CONTEXT_HELPER=add_context):
         bind_organization_context(default_organization)
+
+        scope = sentry_sdk.get_isolation_scope()
         assert scope._tags["organization"] == default_organization.id

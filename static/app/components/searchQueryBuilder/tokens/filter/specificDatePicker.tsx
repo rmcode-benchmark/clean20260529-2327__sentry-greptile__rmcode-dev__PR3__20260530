@@ -178,7 +178,7 @@ function SpecificDatePicker({
               </TimeUtcWrapper>
             </ControlsWrapper>
             <ButtonsFooter>
-              <ButtonBar>
+              <ButtonBar gap={1}>
                 <Button
                   size="xs"
                   icon={<IconArrow direction="left" />}
@@ -289,7 +289,7 @@ const UtcPickerLabel = styled('label')`
   align-items: center;
   justify-content: flex-end;
   margin: 0;
-  font-weight: ${p => p.theme.fontWeight.normal};
+  font-weight: ${p => p.theme.fontWeightNormal};
   user-select: none;
   gap: ${space(1)};
   cursor: pointer;
@@ -305,7 +305,7 @@ const CheckboxLabel = styled('label')`
   align-items: center;
   margin: 0;
   gap: ${space(1)};
-  font-weight: ${p => p.theme.fontWeight.normal};
+  font-weight: ${p => p.theme.fontWeightNormal};
   color: ${p => p.theme.textColor};
   cursor: pointer;
 `;

@@ -22,6 +22,7 @@ function LoadingError({
       <Alert
         type="error"
         data-test-id="loading-error"
+        showIcon
         className={className}
         trailingItems={
           onRetry && (

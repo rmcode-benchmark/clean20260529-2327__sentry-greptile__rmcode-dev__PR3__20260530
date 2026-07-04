@@ -169,7 +169,9 @@ function VitalDetailContent(props: Props) {
 
     return (
       <Alert.Container>
-        <Alert type="error">{error}</Alert>
+        <Alert type="error" showIcon>
+          {error}
+        </Alert>
       </Alert.Container>
     );
   }
@@ -270,7 +272,7 @@ function VitalDetailContent(props: Props) {
           <Layout.Title>{vitalMap[vital]}</Layout.Title>
         </Layout.HeaderContent>
         <Layout.HeaderActions>
-          <ButtonBar>
+          <ButtonBar gap={1}>
             {renderVitalSwitcher()}
             <Feature organization={organization} features="incidents">
               {({hasFeature}) =>
@@ -333,18 +335,18 @@ const FilterActions = styled('div')`
   gap: ${space(2)};
   margin-bottom: ${space(2)};
 
-  @media (min-width: ${p => p.theme.breakpoints.sm}) {
+  @media (min-width: ${p => p.theme.breakpoints.small}) {
     grid-template-columns: auto 1fr;
   }
 `;
 
 const StyledSearchBarWrapper = styled('div')`
-  @media (min-width: ${p => p.theme.breakpoints.sm}) {
+  @media (min-width: ${p => p.theme.breakpoints.small}) {
     order: 1;
     grid-column: 1/6;
   }
 
-  @media (min-width: ${p => p.theme.breakpoints.xl}) {
+  @media (min-width: ${p => p.theme.breakpoints.xlarge}) {
     order: initial;
     grid-column: auto;
   }

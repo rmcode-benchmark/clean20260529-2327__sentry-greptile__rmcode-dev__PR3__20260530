@@ -14,7 +14,6 @@ import {t} from 'sentry/locale';
 import type {Organization} from 'sentry/types/organization';
 import {uniqueId} from 'sentry/utils/guid';
 import {trackIntegrationAnalytics} from 'sentry/utils/integrationUtil';
-import {testableWindowLocation} from 'sentry/utils/testableWindowLocation';
 
 import FooterWithButtons from './components/footerWithButtons';
 import HeaderWithHelp from './components/headerWithHelp';
@@ -118,7 +117,7 @@ export default class AwsLambdaCloudformation extends Component<Props, State> {
     // this is needed so we don't restart the pipeline loading from the original
     // OrganizationIntegrationSetupView route
     const newUrl = `${origin}/extensions/aws_lambda/setup/?${qs.stringify(data)}`;
-    testableWindowLocation.assign(newUrl);
+    window.location.assign(newUrl);
   };
 
   validateAccountNumber = (value: string) => {

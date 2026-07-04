@@ -15,8 +15,9 @@ import {
 } from 'sentry/components/core/compactSelect/styles';
 import type {SelectKey, SelectSection} from 'sentry/components/core/compactSelect/types';
 import {t} from 'sentry/locale';
+import type {FormSize} from 'sentry/utils/theme';
 
-import {GridListOption, type GridListOptionProps} from './option';
+import {GridListOption} from './option';
 import {GridListSection} from './section';
 
 interface GridListProps
@@ -55,7 +56,7 @@ interface GridListProps
     section: SelectSection<SelectKey>,
     type: 'select' | 'unselect'
   ) => void;
-  size?: GridListOptionProps['size'];
+  size?: FormSize;
   /**
    * Message to be displayed when some options are hidden due to `sizeLimit`.
    */

@@ -262,15 +262,13 @@ class PendingChanges extends Component<Props> {
 
     const existingReservedBudgets = subscription.reservedBudgets ?? [];
     const pendingReservedBudgets = pendingChanges.reservedBudgets ?? [];
-    const seenBudgets = new Set<string>();
+    const matchedExistingBudgets = new Set<string>();
 
     pendingReservedBudgets.forEach(pendingBudget => {
       const pendingBudgetInfo = getReservedBudgetCategoryFromCategories(
         pendingChanges.planDetails,
         Object.keys(pendingBudget.categories) as DataCategory[]
       );
-
-      seenBudgets.add(pendingBudgetInfo?.apiName ?? '');
 
       if (pendingBudgetInfo?.isFixed) {
         // if it's a fixed budget, we don't care about the existing budget state
@@ -281,6 +279,10 @@ class PendingChanges extends Component<Props> {
           })
         );
       } else {
+        const matchedExistingBudget =
+          existingReservedBudgets.find(
+            existingBudget => existingBudget.apiName === pendingBudgetInfo?.apiName
+          ) ?? null;
         const budgetName = getReservedBudgetDisplayName({
           pendingReservedBudget: pendingBudget,
           plan: pendingChanges.planDetails,
@@ -289,13 +291,9 @@ class PendingChanges extends Component<Props> {
         });
         const newAmount = formatCurrency(pendingBudget.reservedBudget);
 
-        const existingEquivalent =
-          existingReservedBudgets.find(
-            existingBudget => existingBudget.apiName === pendingBudgetInfo?.apiName
-          ) ?? null;
-
-        if (existingEquivalent) {
-          const oldAmount = formatCurrency(existingEquivalent.reservedBudget);
+        if (matchedExistingBudget) {
+          matchedExistingBudgets.add(matchedExistingBudget.id);
+          const oldAmount = formatCurrency(matchedExistingBudget.reservedBudget);
           results.push(
             tct('[budgetName] change from [oldAmount] to [newAmount]', {
               budgetName,
@@ -315,10 +313,7 @@ class PendingChanges extends Component<Props> {
     });
 
     existingReservedBudgets.forEach(existingBudget => {
-      if (seenBudgets.has(existingBudget.apiName)) {
-        // if we've seen this budget already, we've already handled
-        // rendering the pending change (pending enable or pending
-        // budget amount change)
+      if (matchedExistingBudgets.has(existingBudget.id)) {
         return;
       }
 
@@ -398,7 +393,7 @@ class PendingChanges extends Component<Props> {
 
     return (
       <Alert.Container>
-        <Alert type="info">
+        <Alert type="info" showIcon>
           <PendingLists>
             {Object.entries(changes).map(([effectiveDate, items]) => (
               <div key={effectiveDate} data-test-id="pending-list">

@@ -1,10 +1,10 @@
 import logging
-from datetime import datetime
-from typing import Any, TypedDict
+from typing import Any
 
 from django.conf import settings
 
 from sentry.net.http import connection_from_url
+from sentry.seer.anomaly_detection.get_anomaly_data import get_anomaly_data_from_seer
 from sentry.seer.anomaly_detection.types import (
     AnomalyDetectionSeasonality,
     AnomalyDetectionSensitivity,
@@ -12,7 +12,7 @@ from sentry.seer.anomaly_detection.types import (
     AnomalyType,
 )
 from sentry.snuba.models import QuerySubscription
-from sentry.workflow_engine.models import Condition
+from sentry.workflow_engine.models import Condition, DataPacket
 from sentry.workflow_engine.models.data_condition import DataConditionEvaluationException
 from sentry.workflow_engine.registry import condition_handler_registry
 from sentry.workflow_engine.types import DataConditionHandler, DetectorPriorityLevel
@@ -31,15 +31,8 @@ SEER_EVALUATION_TO_DETECTOR_PRIORITY = {
 }
 
 
-class AnomalyDetectionUpdate(TypedDict):
-    value: int
-    source_id: int
-    subscription_id: int
-    timestamp: datetime
-
-
 @condition_handler_registry.register(Condition.ANOMALY_DETECTION)
-class AnomalyDetectionHandler(DataConditionHandler[AnomalyDetectionUpdate]):
+class AnomalyDetectionHandler(DataConditionHandler[DataPacket]):
     group = DataConditionHandler.Group.DETECTOR_TRIGGER
     comparison_json_schema = {
         "type": "object",
@@ -62,24 +55,21 @@ class AnomalyDetectionHandler(DataConditionHandler[AnomalyDetectionUpdate]):
     }
 
     @staticmethod
-    def evaluate_value(update: AnomalyDetectionUpdate, comparison: Any) -> DetectorPriorityLevel:
-        from sentry.seer.anomaly_detection.get_anomaly_data import get_anomaly_data_from_seer
-
+    def evaluate_value(update: DataPacket, comparison: Any) -> DetectorPriorityLevel:
         sensitivity = comparison["sensitivity"]
         seasonality = comparison["seasonality"]
         threshold_type = comparison["threshold_type"]
 
-        source_id = update.get("source_id")
-        assert source_id
+        subscription: QuerySubscription = QuerySubscription.objects.get(id=int(update.source_id))
 
-        subscription: QuerySubscription = QuerySubscription.objects.get(id=int(source_id))
+        subscription_update = update.packet
 
         anomaly_data = get_anomaly_data_from_seer(
             sensitivity=sensitivity,
             seasonality=seasonality,
             threshold_type=threshold_type,
             subscription=subscription,
-            subscription_update=update,
+            subscription_update=subscription_update,
         )
         # covers both None and []
         if not anomaly_data:

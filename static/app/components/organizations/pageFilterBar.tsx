@@ -88,7 +88,7 @@ const pageFilterBarStyles = (p: {theme: Theme; condensed?: boolean}) => css`
     except in mobile */
     &:first-child {
       flex-shrink: 0;
-      @media only screen and (max-width: ${p.theme.breakpoints.sm}) {
+      @media only screen and (max-width: ${p.theme.breakpoints.small}) {
         flex-shrink: 1;
       }
     }
@@ -145,7 +145,7 @@ const chonkPageFilterBarStyles = (p: {
 except in mobile */
     &:first-child {
       flex-shrink: 0;
-      @media only screen and (max-width: ${p.theme.breakpoints.sm}) {
+      @media only screen and (max-width: ${p.theme.breakpoints.small}) {
         flex-shrink: 1;
       }
     }

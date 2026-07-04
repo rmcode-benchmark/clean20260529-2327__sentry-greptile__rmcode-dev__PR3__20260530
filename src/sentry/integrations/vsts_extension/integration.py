@@ -7,22 +7,20 @@ from django.http.request import HttpRequest
 from django.http.response import HttpResponseBase
 
 from sentry.integrations.base import IntegrationData
-from sentry.integrations.pipeline import IntegrationPipeline
-from sentry.integrations.types import IntegrationProviderSlug
+from sentry.integrations.pipeline_types import IntegrationPipelineT, IntegrationPipelineViewT
 from sentry.integrations.vsts.integration import AccountConfigView, VstsIntegrationProvider
-from sentry.pipeline.views.base import PipelineView
 from sentry.utils.http import absolute_uri
 
 
 class VstsExtensionIntegrationProvider(VstsIntegrationProvider):
     key = "vsts-extension"
-    integration_key = IntegrationProviderSlug.AZURE_DEVOPS.value
+    integration_key = "vsts"
 
     # This is only to enable the VSTS -> Sentry installation flow, so we don't
     # want it to actually appear of the Integrations page.
     visible = False
 
-    def get_pipeline_views(self) -> list[PipelineView[IntegrationPipeline]]:
+    def get_pipeline_views(self) -> list[IntegrationPipelineViewT]:
         views = super().get_pipeline_views()
         views = [view for view in views if not isinstance(view, AccountConfigView)]
         views.append(VstsExtensionFinishedView())
@@ -33,15 +31,15 @@ class VstsExtensionIntegrationProvider(VstsIntegrationProvider):
             {
                 **state,
                 "account": {
-                    "accountId": state[IntegrationProviderSlug.AZURE_DEVOPS.value]["accountId"],
-                    "accountName": state[IntegrationProviderSlug.AZURE_DEVOPS.value]["accountName"],
+                    "accountId": state["vsts"]["accountId"],
+                    "accountName": state["vsts"]["accountName"],
                 },
             }
         )
 
 
-class VstsExtensionFinishedView:
-    def dispatch(self, request: HttpRequest, pipeline: IntegrationPipeline) -> HttpResponseBase:
+class VstsExtensionFinishedView(IntegrationPipelineViewT):
+    def dispatch(self, request: HttpRequest, pipeline: IntegrationPipelineT) -> HttpResponseBase:
         response = pipeline.finish_pipeline()
 
         integration = getattr(pipeline, "integration", None)

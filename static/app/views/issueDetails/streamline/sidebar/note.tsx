@@ -176,7 +176,7 @@ function StreamlinedNoteInput({
         />
       </MentionsInput>
       {(isSubmitVisible || existingItem) && (
-        <ButtonBar gap="xs">
+        <ButtonBar gap={0.5}>
           {existingItem && (
             <Button size="xs" onClick={onCancel}>
               {t('Cancel')}

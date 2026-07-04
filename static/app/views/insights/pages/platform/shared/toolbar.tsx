@@ -18,9 +18,7 @@ interface ToolbarProps {
   aliases?: Record<string, string>;
   exploreParams?: Omit<ExploreParams, 'organization' | 'selection'>;
   loaderSource?: LoadableChartWidgetProps['loaderSource'];
-  referrer?: string;
-  // TODO: this is temporary so we can slowly add create alert functionality, in the future all charts that can open in explore can be alerted
-  showCreateAlert?: boolean;
+  showCreateAlert?: boolean; // TODO: this is temporary so we can slowly add create alert functionality, in the future all charts that can open in explore can be alerted
 }
 
 export function Toolbar({
@@ -29,13 +27,12 @@ export function Toolbar({
   loaderSource,
   aliases,
   showCreateAlert = false,
-  referrer: referrerProp,
 }: ToolbarProps) {
   const organization = useOrganization();
   const {selection} = usePageFilters();
   const project = useAlertsProject();
 
-  const referrer = loaderSource || referrerProp || 'insights.platform.toolbar';
+  const referrer = loaderSource || 'insights.platform.toolbar';
 
   const exploreUrl =
     exploreParams && getExploreUrl({...exploreParams, organization, selection, referrer});

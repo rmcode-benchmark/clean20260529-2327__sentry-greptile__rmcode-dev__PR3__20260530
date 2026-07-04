@@ -30,17 +30,6 @@ describe('OrgStatsBanner', function () {
     expect(wrapper.container).toBeEmptyDOMElement();
   });
 
-  it('renders empty if business plan without usage exceeded', function () {
-    const organization = OrganizationFixture();
-    const subscription = SubscriptionFixture({
-      organization,
-      plan: 'am3_business',
-    });
-    SubscriptionStore.set(organization.slug, subscription);
-    wrapper = render(<OrgStatsBanner organization={organization} />);
-    expect(wrapper.container).toBeEmptyDOMElement();
-  });
-
   it('renders increase event limit CTA for billing user', function () {
     const organization = OrganizationFixture({
       access: ['org:billing'],
@@ -63,7 +52,7 @@ describe('OrgStatsBanner', function () {
   });
 
   it('renders request increase event limit CTA for non-billing user', function () {
-    const organization = OrganizationFixture();
+    const organization = OrganizationFixture({});
     const subscription = SubscriptionFixture({
       organization,
       plan: 'am1_team',
@@ -128,7 +117,7 @@ describe('OrgStatsBanner', function () {
   });
 
   it('renders request upgrade for non-billing user', function () {
-    const organization = OrganizationFixture();
+    const organization = OrganizationFixture({});
     const subscription = SubscriptionFixture({
       organization,
       plan: 'am1_f',

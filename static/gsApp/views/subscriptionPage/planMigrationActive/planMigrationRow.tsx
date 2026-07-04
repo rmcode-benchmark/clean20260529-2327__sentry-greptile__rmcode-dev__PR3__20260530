@@ -2,7 +2,8 @@ import styled from '@emotion/styled';
 
 import {DATA_CATEGORY_INFO} from 'sentry/constants';
 import {IconArrow} from 'sentry/icons';
-import {tct} from 'sentry/locale';
+import {t, tct} from 'sentry/locale';
+import {space} from 'sentry/styles/space';
 import type {DataCategory} from 'sentry/types/core';
 import {DataCategoryExact} from 'sentry/types/core';
 
@@ -16,8 +17,6 @@ type DataRow = {
   nextValue: number | null;
   type: DataCategoryExact;
   hasCredits?: boolean;
-  previousType?: DataCategoryExact;
-  titleOverride?: string;
 };
 
 type PriceRow = {
@@ -59,10 +58,7 @@ function formatCategoryRowString(
     DATA_CATEGORY_INFO[category].plural as DataCategory,
     options
   );
-  if (
-    category === DataCategoryExact.ATTACHMENT ||
-    category === DataCategoryExact.LOG_BYTE
-  ) {
+  if (category === DataCategoryExact.ATTACHMENT) {
     return reservedWithUnits;
   }
 
@@ -85,9 +81,11 @@ function PlanMigrationRow(props: Props) {
   let nextValue: React.ReactNode;
   let discountPrice: string | undefined;
   let currentTitle: React.ReactNode =
-    DATA_CATEGORY_INFO[props.type as DataCategoryExact]?.productName ?? props.type;
+    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+    DATA_CATEGORY_INFO[props.type]?.productName ?? props.type;
   const dataTestIdSuffix: string =
-    DATA_CATEGORY_INFO[props.type as DataCategoryExact]?.plural ?? props.type;
+    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+    DATA_CATEGORY_INFO[props.type]?.plural ?? props.type;
 
   const options = {isAbbreviated: true};
 
@@ -101,6 +99,33 @@ function PlanMigrationRow(props: Props) {
       currentValue = props.currentValue;
       nextValue = props.nextValue;
       break;
+    case 'error':
+      currentValue = formatCategoryRowString(props.type, props.currentValue, options);
+      // eslint-disable-next-line no-case-declarations
+      const formattedErrors = formatCategoryRowString(
+        props.type,
+        props.nextValue,
+        options
+      );
+      nextValue = props.hasCredits ? `${formattedErrors}*` : formattedErrors;
+      break;
+    case 'transaction':
+    case 'replay':
+    case 'monitorSeat':
+    case 'attachment':
+    case 'profileDuration':
+      currentValue = formatCategoryRowString(props.type, props.currentValue, options);
+      nextValue = formatCategoryRowString(props.type, props.nextValue, options);
+      break;
+    case 'span':
+      currentValue = formatCategoryRowString(
+        DataCategoryExact.TRANSACTION,
+        props.currentValue,
+        options
+      );
+      nextValue = formatCategoryRowString(props.type, props.nextValue, options);
+      currentTitle = t('Tracing and Performance Monitoring');
+      break;
     case 'price':
       currentValue = displayPrice({cents: props.currentValue});
       discountPrice = displayPrice({cents: props.discountPrice});
@@ -112,24 +137,8 @@ function PlanMigrationRow(props: Props) {
       nextValue = displayPrice({cents: props.nextValue});
       currentTitle = 'renewal price';
       break;
-    default: {
-      // assume DataCategoryExact
-      currentValue = formatCategoryRowString(
-        props.previousType ?? props.type,
-        props.currentValue,
-        options
-      );
-      const formattedNextValue = formatCategoryRowString(
-        props.type,
-        props.nextValue,
-        options
-      );
-      nextValue = props.hasCredits ? `${formattedNextValue}*` : formattedNextValue;
-      if (props.titleOverride) {
-        currentTitle = props.titleOverride;
-      }
-      break;
-    }
+    default:
+      return null;
   }
 
   const hasDiscount =
@@ -160,7 +169,7 @@ const Title = styled('td')`
 
 const DiscountCell = styled('td')`
   display: flex;
-  gap: ${p => p.theme.space.md};
+  gap: ${space(1)};
   justify-content: flex-end;
 `;
 

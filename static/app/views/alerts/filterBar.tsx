@@ -39,7 +39,7 @@ function FilterBar({
 
   return (
     <Wrapper>
-      <FilterButtons gap="lg">
+      <FilterButtons gap={1.5}>
         <TeamFilter selectedTeams={selectedTeams} handleChangeFilter={onChangeFilter} />
         <ProjectPageFilter />
         {hasTypeFilter && (
@@ -50,7 +50,7 @@ function FilterBar({
               prefix: t('Alert Type'),
             }}
             menuFooter={
-              <ButtonBar>
+              <ButtonBar gap={1}>
                 <LinkButton size="xs" icon={<IconOpen />} to="/insights/crons/">
                   {t('Crons Overview')}
                 </LinkButton>
@@ -121,20 +121,20 @@ const Wrapper = styled('div')`
   gap: ${space(1.5)};
   margin-bottom: ${space(2)};
 
-  @media (min-width: ${p => p.theme.breakpoints.lg}) {
+  @media (min-width: ${p => p.theme.breakpoints.large}) {
     grid-template-columns: min-content 1fr;
   }
 `;
 
 const FilterButtons = styled(ButtonBar)`
-  @media (max-width: ${p => p.theme.breakpoints.lg}) {
+  @media (max-width: ${p => p.theme.breakpoints.large}) {
     display: flex;
     align-items: flex-start;
     flex-wrap: wrap;
     gap: ${space(1.5)};
   }
 
-  @media (min-width: ${p => p.theme.breakpoints.lg}) {
+  @media (min-width: ${p => p.theme.breakpoints.large}) {
     display: grid;
     grid-auto-columns: max-content;
   }

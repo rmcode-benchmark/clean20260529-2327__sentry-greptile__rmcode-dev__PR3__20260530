@@ -43,7 +43,7 @@ function RecoveryCodes({className, isEnrolled, codes, onRegenerateBackupCodes}: 
       <PanelHeader hasButtons>
         {t('Unused Codes')}
 
-        <ButtonBar>
+        <ButtonBar gap={1}>
           <CopyToClipboardButton text={formattedCodes} size="xs" />
           <Button
             size="xs"

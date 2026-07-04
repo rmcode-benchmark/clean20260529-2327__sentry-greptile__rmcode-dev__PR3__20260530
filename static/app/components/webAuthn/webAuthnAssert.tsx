@@ -8,7 +8,7 @@ import deviceAnimation from 'sentry-images/spot/u2f-small.gif';
 
 import {Alert} from 'sentry/components/core/alert';
 import {Button} from 'sentry/components/core/button';
-import {ExternalLink} from 'sentry/components/core/link';
+import ExternalLink from 'sentry/components/links/externalLink';
 import {t, tct} from 'sentry/locale';
 import ConfigStore from 'sentry/stores/configStore';
 import {space} from 'sentry/styles/space';
@@ -182,7 +182,7 @@ function AuthenticatorError({error, triggerWebAuthn}: AuthenticatorErrorProps) {
 
   return (
     <Container>
-      <Alert type="error" trailingItems={retry}>
+      <Alert type="error" showIcon trailingItems={retry}>
         {errorMessages[error]}
       </Alert>
     </Container>
@@ -192,7 +192,7 @@ function AuthenticatorError({error, triggerWebAuthn}: AuthenticatorErrorProps) {
 function UnsupportedError() {
   return (
     <Container>
-      <Alert type="warning">
+      <Alert type="warning" showIcon>
         {t(
           'Your browser does not support WebAuthn (passkey). You need to use a different two-factor method or switch to a browser that supports it (Google Chrome or Microsoft Edge).'
         )}

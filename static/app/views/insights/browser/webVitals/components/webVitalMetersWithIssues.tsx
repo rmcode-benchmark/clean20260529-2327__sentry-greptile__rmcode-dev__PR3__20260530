@@ -5,8 +5,8 @@ import * as qs from 'query-string';
 
 import {LinkButton} from 'sentry/components/core/button/linkButton';
 import InteractionStateLayer from 'sentry/components/core/interactionStateLayer';
-import {ExternalLink} from 'sentry/components/core/link';
 import {Tooltip} from 'sentry/components/core/tooltip';
+import ExternalLink from 'sentry/components/links/externalLink';
 import {pageFiltersToQueryParams} from 'sentry/components/organizations/pageFilters/parse';
 import QuestionTooltip from 'sentry/components/questionTooltip';
 import {IconIssues} from 'sentry/icons';
@@ -266,14 +266,9 @@ const Flex = styled('div')<{gap?: number}>`
   flex-wrap: wrap;
 `;
 
-// Issues Button starts to overlap with meter text at 1500px
 const StyledIssuesButton = styled(LinkButton)`
   position: absolute;
   right: ${space(1)};
-
-  @media (max-width: 1500px) {
-    bottom: ${space(1)};
-  }
 `;
 
 // This style explicitly hides InteractionStateLayer when the Issues button is hovered
@@ -284,7 +279,7 @@ const MeterBarContainer = styled('div')<{clickable?: boolean}>`
   position: relative;
   padding: 0;
   cursor: ${p => (p.clickable ? 'pointer' : 'default')};
-  min-width: 180px;
+  min-width: 140px;
 
   :has(${StyledIssuesButton}:hover) > ${InteractionStateLayer} {
     display: none;
@@ -299,30 +294,24 @@ const MeterBarBody = styled('div')`
 
 const MeterHeader = styled('div')`
   font-size: ${p => p.theme.fontSize.sm};
-  font-weight: ${p => p.theme.fontWeight.bold};
+  font-weight: ${p => p.theme.fontWeightBold};
   color: ${p => p.theme.textColor};
   display: flex;
   width: 100%;
   padding: 0 ${space(1)};
   align-items: center;
-  white-space: nowrap;
 `;
 
 const MeterValueText = styled('div')`
   display: flex;
   align-items: center;
   font-size: ${p => p.theme.headerFontSize};
-  font-weight: ${p => p.theme.fontWeight.bold};
+  font-weight: ${p => p.theme.fontWeightBold};
   color: ${p => p.theme.textColor};
   flex: 1;
   text-align: center;
   padding: 0 ${space(1)};
   gap: ${space(1)};
-  height: 30px;
-
-  @media (max-width: 1500px) {
-    font-size: ${p => p.theme.fontSize.lg};
-  }
 `;
 
 const NoValueContainer = styled('span')`

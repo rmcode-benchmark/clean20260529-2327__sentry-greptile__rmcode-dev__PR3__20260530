@@ -1,22 +1,26 @@
 import {useMemo, useRef, useState} from 'react';
 import styled from '@emotion/styled';
-import type {LocationDescriptorObject} from 'history';
-import kebabCase from 'lodash/kebabCase';
+import * as qs from 'query-string';
 
-import {Flex} from 'sentry/components/core/layout';
-import {Link} from 'sentry/components/core/link';
-import {IconChevron} from 'sentry/icons';
+import Link from 'sentry/components/links/link';
+import {
+  IconChevron,
+  IconCircle,
+  IconCode,
+  IconExpand,
+  IconFile,
+  IconGrid,
+  IconNumber,
+} from 'sentry/icons';
+import type {SVGIconProps} from 'sentry/icons/svgIcon';
 import {space} from 'sentry/styles/space';
 import {fzf} from 'sentry/utils/profiling/fzf/fzf';
 import {useLocation} from 'sentry/utils/useLocation';
 
-export class StoryTreeNode {
+class StoryTreeNode {
   public name: string;
-  public label: string;
   public path: string;
   public filesystemPath: string;
-  public category: StoryCategory;
-  public location: LocationDescriptorObject;
 
   public visible = true;
   public expanded = false;
@@ -26,22 +30,8 @@ export class StoryTreeNode {
 
   constructor(name: string, path: string, filesystemPath: string) {
     this.name = name;
-    this.label = normalizeFilename(name);
     this.path = path;
     this.filesystemPath = filesystemPath;
-    this.category = inferFileCategory(filesystemPath);
-    this.location = this.getLocation();
-  }
-
-  private getLocation(): LocationDescriptorObject {
-    const state = {storyPath: this.filesystemPath};
-    if (this.category === 'shared') {
-      return {pathname: '/stories/', query: {name: this.filesystemPath}, state};
-    }
-    return {
-      pathname: `/stories/${this.category}/${kebabCase(this.label)}`,
-      state,
-    };
   }
 
   find(predicate: (node: StoryTreeNode) => boolean): StoryTreeNode | undefined {
@@ -75,16 +65,6 @@ export class StoryTreeNode {
     }
 
     yield* recurse(this, []);
-  }
-
-  flat() {
-    const flattened: StoryTreeNode[] = [];
-    for (const {node} of this) {
-      if (Object.keys(node.children).length === 0) {
-        flattened.push(node);
-      }
-    }
-    return flattened;
   }
 }
 
@@ -127,10 +107,10 @@ function folderOrSearchScoreFirst(
   return a[0].localeCompare(b[0]);
 }
 
-const order: StoryCategory[] = ['foundations', 'core', 'shared'];
+const order: FileCategory[] = ['components', 'hooks', 'views', 'assets', 'styles'];
 function rootCategorySort(
-  a: [StoryCategory | string, StoryTreeNode],
-  b: [StoryCategory | string, StoryTreeNode]
+  a: [FileCategory | string, StoryTreeNode],
+  b: [FileCategory | string, StoryTreeNode]
 ) {
   if (isFolderNode(a[1]) && isFolderNode(b[1])) {
     return a[0].localeCompare(b[0]);
@@ -144,8 +124,8 @@ function rootCategorySort(
     return -1;
   }
 
-  if (order.includes(a[0] as StoryCategory) && order.includes(b[0] as StoryCategory)) {
-    return order.indexOf(a[0] as StoryCategory) - order.indexOf(b[0] as StoryCategory);
+  if (order.includes(a[0] as FileCategory) && order.includes(b[0] as FileCategory)) {
+    return order.indexOf(a[0] as FileCategory) - order.indexOf(b[0] as FileCategory);
   }
 
   return a[0].localeCompare(b[0]);
@@ -164,26 +144,28 @@ function normalizeFilename(filename: string) {
   );
 }
 
-export type StoryCategory = 'foundations' | 'core' | 'shared';
+type FileCategory = 'hooks' | 'components' | 'views' | 'styles' | 'assets';
 
-function inferFileCategory(path: string): StoryCategory {
-  if (isCoreFile(path)) {
-    return 'core';
+function inferFileCategory(path: string): FileCategory {
+  const parts = path.split('/');
+  const filename = parts.at(-1);
+  if (filename?.startsWith('use')) {
+    return 'hooks';
   }
 
-  if (isFoundationFile(path)) {
-    return 'foundations';
+  if (parts[1]?.startsWith('icons') || path.endsWith('images.stories.tsx')) {
+    return 'assets';
   }
 
-  return 'shared';
-}
+  if (parts[1]?.startsWith('views')) {
+    return 'views';
+  }
 
-function isCoreFile(file: string) {
-  return file.includes('components/core');
-}
+  if (parts[1]?.startsWith('styles')) {
+    return 'styles';
+  }
 
-function isFoundationFile(file: string) {
-  return file.includes('app/styles') || file.includes('app/icons');
+  return 'components';
 }
 
 function inferComponentName(path: string): string {
@@ -214,14 +196,10 @@ function inferComponentPath(path: string): string {
 
 export function useStoryTree(
   files: string[],
-  options: {
-    query: string;
-    representation: 'filesystem' | 'category';
-    type?: 'flat' | 'nested';
-  }
+  options: {query: string; representation: 'filesystem' | 'category'}
 ) {
   const location = useLocation();
-  const initialName = useRef(location.state?.storyPath ?? location.query.name);
+  const initialName = useRef(location.query.name);
 
   const tree = useMemo(() => {
     const root = new StoryTreeNode('root', '', '');
@@ -386,14 +364,8 @@ export function useStoryTree(
 
     return Object.values(root.children);
   }, [tree, options.query, options.representation]);
-  const result = useMemo(() => {
-    if (options.type === 'flat') {
-      return nodes.flatMap(node => node.flat(), 1);
-    }
-    return nodes;
-  }, [nodes, options.type]);
 
-  return result;
+  return nodes;
 }
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
@@ -424,18 +396,6 @@ export function StoryTree({nodes, ...htmlProps}: Props) {
 
 function Folder(props: {node: StoryTreeNode}) {
   const [expanded, setExpanded] = useState(props.node.expanded);
-  const location = useLocation();
-  const hasActiveChild = useMemo(() => {
-    const child = props.node.find(
-      n => n.filesystemPath === (location.state?.storyPath ?? location.query.name)
-    );
-    return !!child;
-  }, [location, props.node]);
-
-  if (hasActiveChild && !props.node.expanded) {
-    props.node.expanded = true;
-    setExpanded(true);
-  }
 
   if (props.node.expanded !== expanded) {
     setExpanded(props.node.expanded);
@@ -458,8 +418,8 @@ function Folder(props: {node: StoryTreeNode}) {
           setExpanded(props.node.expanded);
         }}
       >
-        <Flex flex={1}>{normalizeFilename(props.node.name)}</Flex>
         <IconChevron size="xs" direction={expanded ? 'down' : 'right'} />
+        {normalizeFilename(props.node.name)}
       </FolderName>
       {expanded && Object.keys(props.node.children).length > 0 && (
         <StoryList>
@@ -481,26 +441,46 @@ function Folder(props: {node: StoryTreeNode}) {
 
 function File(props: {node: StoryTreeNode}) {
   const location = useLocation();
-  const {state, ...to} = props.node.location;
+  const query = qs.stringify({...location.query, name: props.node.filesystemPath});
+  const category = props.node.path.split('/').at(1) ?? 'default';
 
   return (
     <li>
       <FolderLink
-        to={to}
-        state={state}
-        active={
-          props.node.filesystemPath === (location.state?.storyPath ?? location.query.name)
-        }
+        to={`/stories/?${query}`}
+        active={location.query.name === props.node.filesystemPath}
       >
+        <StoryIcon category={category} />
+        {/* @TODO (JonasBadalic): Do we need to show the file extension? */}
         {normalizeFilename(props.node.name)}
       </FolderLink>
     </li>
   );
 }
 
+function StoryIcon(props: {
+  category: 'components' | 'icons' | 'styles' | 'utils' | 'views' | (string & {});
+}) {
+  const iconProps: SVGIconProps = {size: 'xs'};
+  switch (props.category) {
+    case 'components':
+      return <IconGrid {...iconProps} />;
+    case 'icons':
+      return <IconExpand {...iconProps} />;
+    case 'styles':
+      return <IconCircle {...iconProps} />;
+    case 'utils':
+      return <IconCode {...iconProps} />;
+    case 'views':
+      return <IconNumber {...iconProps} />;
+    default:
+      return <IconFile {...iconProps} />;
+  }
+}
+
 const StoryList = styled('ul')`
   list-style-type: none;
-  padding-left: 16px;
+  padding-left: 10px;
 
   &:first-child {
     padding-left: 0;
@@ -511,23 +491,20 @@ const FolderName = styled('div')`
   display: flex;
   align-items: center;
   gap: ${space(0.75)};
-  padding: ${space(1)} ${space(2)} ${space(1)} ${space(1)};
-  color: ${p => p.theme.tokens.content.muted};
+  padding: ${space(0.25)} 0 ${space(0.25)} ${space(0.5)};
   cursor: pointer;
   position: relative;
 
   &:before {
-    background: ${p => p.theme.gray100};
+    background: ${p => p.theme.surface100};
     content: '';
-    inset: 0 ${space(0.25)} 0 -${space(0.25)};
+    inset: 0px 0px 0px -100%;
     position: absolute;
     z-index: -1;
-    border-radius: ${p => p.theme.borderRadius};
     opacity: 0;
   }
 
   &:hover {
-    color: ${p => p.theme.tokens.content.primary};
     &:before {
       opacity: 1;
     }
@@ -539,53 +516,25 @@ const FolderLink = styled(Link, {
 })<{active: boolean}>`
   display: flex;
   align-items: center;
-  gap: ${space(0.5)};
-  color: ${p =>
-    p.active ? p.theme.tokens.content.accent : p.theme.tokens.content.muted};
-  padding: ${space(1)} ${space(1)} ${space(1)} ${space(0.75)};
+  margin-left: ${space(0.5)};
+  gap: ${space(0.75)};
+  color: ${p => p.theme.textColor};
+  padding: ${space(0.25)} 0 ${space(0.25)} ${space(0.5)};
   position: relative;
-  transition: none;
 
   &:before {
-    background: ${p =>
-      p.theme.isChonk ? (p.theme as any).colors.blue100 : p.theme.blue100};
+    background: ${p => p.theme.surface100};
     content: '';
-    inset: 0 ${space(1)} 0 -${space(0.25)};
+    inset: 0px 0px 0px -100%;
     position: absolute;
     z-index: -1;
-    border-radius: ${p => p.theme.borderRadius};
     opacity: ${p => (p.active ? 1 : 0)};
-    transition: none;
-  }
-
-  &:after {
-    content: '';
-    position: absolute;
-    left: -8px;
-    height: 20px;
-    background: ${p => p.theme.tokens.graphics.accent};
-    width: 4px;
-    border-radius: ${p => p.theme.borderRadius};
-    opacity: ${p => (p.active ? 1 : 0)};
-    transition: none;
   }
 
   &:hover {
-    color: ${p =>
-      p.active ? p.theme.tokens.content.accent : p.theme.tokens.content.primary};
+    color: ${p => p.theme.textColor};
 
     &:before {
-      background: ${p => (p.active ? p.theme.blue100 : p.theme.gray100)};
-      opacity: 1;
-    }
-  }
-
-  &:active {
-    color: ${p =>
-      p.active ? p.theme.tokens.content.accent : p.theme.tokens.content.primary};
-
-    &:before {
-      background: ${p => (p.active ? p.theme.blue200 : p.theme.gray200)};
       opacity: 1;
     }
   }

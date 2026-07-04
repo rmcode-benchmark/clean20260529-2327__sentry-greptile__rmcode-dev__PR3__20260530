@@ -55,6 +55,8 @@ export function BillingHistoryFixture(
       transactions: 10_000,
       attachments: 1,
     },
+    hasReservedBudgets: false,
+    reservedBudgetCategories: [],
     hadCustomDynamicSampling: false,
     ...params,
   };

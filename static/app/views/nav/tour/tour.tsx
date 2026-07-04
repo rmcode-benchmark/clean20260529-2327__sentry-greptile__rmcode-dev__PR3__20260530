@@ -1,7 +1,5 @@
 import {createContext, useCallback, useContext, useEffect, useMemo, useRef} from 'react';
 
-import stackedNavTourSvg from 'sentry-images/spot/stacked-nav-tour.svg';
-
 import {openModal} from 'sentry/actionCreators/modal';
 import {
   TourAction,
@@ -10,19 +8,18 @@ import {
   type TourElementProps,
   TourGuide,
 } from 'sentry/components/tours/components';
-import {StartTourModal, startTourModalCss} from 'sentry/components/tours/startTour';
 import type {TourContextType} from 'sentry/components/tours/tourContext';
 import {useAssistant, useMutateAssistant} from 'sentry/components/tours/useAssistant';
 import {t} from 'sentry/locale';
 import {trackAnalytics} from 'sentry/utils/analytics';
 import normalizeUrl from 'sentry/utils/url/normalizeUrl';
-import {useLocalStorageState} from 'sentry/utils/useLocalStorageState';
 import {useLocation} from 'sentry/utils/useLocation';
 import {useNavigate} from 'sentry/utils/useNavigate';
 import useOrganization from 'sentry/utils/useOrganization';
 import {useUser} from 'sentry/utils/useUser';
 import {getDefaultExploreRoute} from 'sentry/views/explore/utils';
 import {useNavContext} from 'sentry/views/nav/context';
+import {NavTourModal, navTourModalCss} from 'sentry/views/nav/tour/tourModal';
 import {PrimaryNavGroup} from 'sentry/views/nav/types';
 import {useActiveNavGroup} from 'sentry/views/nav/useActiveNavGroup';
 
@@ -259,10 +256,6 @@ export function useTourModal() {
   });
   const {mutate: mutateAssistant} = useMutateAssistant();
   const user = useUser();
-  const [localTourState, setLocalTourState] = useLocalStorageState(
-    STACKED_NAVIGATION_TOUR_GUIDE_KEY,
-    {hasSeen: false}
-  );
 
   const enforceStackedNav = organization.features.includes('enforce-stacked-navigation');
   // We don't want to show the tour modal for new users that were forced into the new stacked navigation.
@@ -271,19 +264,7 @@ export function useTourModal() {
 
   const shouldShowTourModal =
     assistantData?.find(item => item.guide === STACKED_NAVIGATION_TOUR_GUIDE_KEY)
-      ?.seen === false &&
-    !shouldSkipForNewUserEnforcedStackedNav &&
-    !localTourState.hasSeen;
-
-  const dismissTour = useCallback(() => {
-    trackAnalytics('navigation.tour_modal_dismissed', {organization});
-    mutateAssistant({
-      guide: STACKED_NAVIGATION_TOUR_GUIDE_KEY,
-      status: 'dismissed',
-    });
-    setLocalTourState({hasSeen: true});
-    endTour();
-  }, [mutateAssistant, organization, endTour, setLocalTourState]);
+      ?.seen === false && !shouldSkipForNewUserEnforcedStackedNav;
 
   useEffect(() => {
     if (shouldShowTourModal && !hasOpenedTourModal.current) {
@@ -291,37 +272,38 @@ export function useTourModal() {
       trackAnalytics('navigation.tour_modal_shown', {organization});
       openModal(
         props => (
-          <StartTourModal
-            img={{src: stackedNavTourSvg, alt: t('Stacked Navigation Tour')}}
-            header={t('Welcome to a simpler Sentry')}
-            description={t(
-              'Find what you need, faster. Our new navigation puts your top workflows front and center.'
-            )}
+          <NavTourModal
             closeModal={props.closeModal}
-            onDismissTour={dismissTour}
-            onStartTour={startTour}
+            handleDismissTour={() => {
+              trackAnalytics('navigation.tour_modal_dismissed', {organization});
+              mutateAssistant({
+                guide: STACKED_NAVIGATION_TOUR_GUIDE_KEY,
+                status: 'dismissed',
+              });
+              endTour();
+              props.closeModal();
+            }}
+            handleStartTour={startTour}
           />
         ),
         {
-          modalCss: startTourModalCss,
+          modalCss: navTourModalCss,
 
           // If user closes modal through other means, also prevent the modal from being shown again.
           onClose: reason => {
             if (reason) {
-              dismissTour();
+              trackAnalytics('navigation.tour_modal_dismissed', {organization});
+              mutateAssistant({
+                guide: STACKED_NAVIGATION_TOUR_GUIDE_KEY,
+                status: 'dismissed',
+              });
+              endTour();
             }
           },
         }
       );
     }
-  }, [
-    shouldShowTourModal,
-    startTour,
-    mutateAssistant,
-    endTour,
-    organization,
-    dismissTour,
-  ]);
+  }, [shouldShowTourModal, startTour, mutateAssistant, endTour, organization]);
 }
 
 const NAV_REFERRER = 'nav-tour';

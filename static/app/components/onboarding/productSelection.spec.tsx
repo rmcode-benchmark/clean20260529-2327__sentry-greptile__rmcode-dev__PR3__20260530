@@ -248,10 +248,7 @@ describe('Onboarding Product Selection', function () {
     );
 
     await userEvent.click(screen.getByRole('presentation', {name: 'Profiling'}));
-    expect(handleChange).toHaveBeenCalledWith({
-      previousProducts: ['performance-monitoring'],
-      products: ['performance-monitoring', 'profiling'],
-    });
+    expect(handleChange).toHaveBeenCalledWith(['performance-monitoring', 'profiling']);
   });
 
   it('does not overwrite URL products if others are present', function () {

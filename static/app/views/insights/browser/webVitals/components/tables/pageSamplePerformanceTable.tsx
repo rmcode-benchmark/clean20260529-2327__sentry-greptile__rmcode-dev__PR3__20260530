@@ -6,17 +6,15 @@ import {Button} from 'sentry/components/core/button';
 import {ButtonBar} from 'sentry/components/core/button/buttonBar';
 import {LinkButton} from 'sentry/components/core/button/linkButton';
 import {CompactSelect} from 'sentry/components/core/compactSelect';
-import {ExternalLink, Link} from 'sentry/components/core/link';
 import {SegmentedControl} from 'sentry/components/core/segmentedControl';
 import {Tooltip} from 'sentry/components/core/tooltip';
+import type {GridColumnHeader, GridColumnOrder} from 'sentry/components/gridEditable';
+import GridEditable, {COL_WIDTH_UNDEFINED} from 'sentry/components/gridEditable';
+import SortLink from 'sentry/components/gridEditable/sortLink';
+import ExternalLink from 'sentry/components/links/externalLink';
+import Link from 'sentry/components/links/link';
 import Pagination from 'sentry/components/pagination';
 import {TransactionSearchQueryBuilder} from 'sentry/components/performance/transactionSearchQueryBuilder';
-import type {
-  GridColumnHeader,
-  GridColumnOrder,
-} from 'sentry/components/tables/gridEditable';
-import GridEditable, {COL_WIDTH_UNDEFINED} from 'sentry/components/tables/gridEditable';
-import SortLink from 'sentry/components/tables/gridEditable/sortLink';
 import {IconChevron, IconPlay, IconProfiling} from 'sentry/icons';
 import {t, tct} from 'sentry/locale';
 import {space} from 'sentry/styles/space';
@@ -57,7 +55,12 @@ import decodeBrowserTypes from 'sentry/views/insights/browser/webVitals/utils/qu
 import useProfileExists from 'sentry/views/insights/browser/webVitals/utils/useProfileExists';
 import {useWebVitalsSort} from 'sentry/views/insights/browser/webVitals/utils/useWebVitalsSort';
 import {useDomainViewFilters} from 'sentry/views/insights/pages/useFilters';
-import {ModuleName, SpanFields, type SubregionCode} from 'sentry/views/insights/types';
+import {
+  ModuleName,
+  SpanIndexedField,
+  SpanMetricsField,
+  type SubregionCode,
+} from 'sentry/views/insights/types';
 import {TraceViewSources} from 'sentry/views/performance/newTraceDetails/traceHeader/breadcrumbs';
 import {generateReplayLink} from 'sentry/views/performance/transactionSummary/utils';
 
@@ -82,12 +85,12 @@ const INTERACTION_SAMPLES_COLUMN_ORDER: Array<
   GridColumnOrder<keyof SpanSampleRowWithScore>
 > = [
   {
-    key: SpanFields.SPAN_DESCRIPTION,
+    key: SpanIndexedField.SPAN_DESCRIPTION,
     width: COL_WIDTH_UNDEFINED,
     name: t('Description'),
   },
   {key: 'user.display', width: COL_WIDTH_UNDEFINED, name: t('User')},
-  {key: SpanFields.INP, width: COL_WIDTH_UNDEFINED, name: 'INP'},
+  {key: SpanIndexedField.INP, width: COL_WIDTH_UNDEFINED, name: 'INP'},
   {key: 'profile.id', width: COL_WIDTH_UNDEFINED, name: t('Profile')},
   {key: 'replayId', width: COL_WIDTH_UNDEFINED, name: t('Replay')},
   {key: 'totalScore', width: COL_WIDTH_UNDEFINED, name: t('Score')},
@@ -98,7 +101,7 @@ const SPANS_SAMPLES_WITH_DESCRIPTION_COLUMN_ORDER: Array<
 > = [
   {key: 'id', width: COL_WIDTH_UNDEFINED, name: t('Trace')},
   {
-    key: SpanFields.SPAN_DESCRIPTION,
+    key: SpanIndexedField.SPAN_DESCRIPTION,
     width: COL_WIDTH_UNDEFINED,
     name: t('Description'),
   },
@@ -162,9 +165,9 @@ export function PageSamplePerformanceTable({transaction, search, limit = 9}: Pro
     'performance-vitals-standalone-cls-lcp'
   );
 
-  const browserTypes = decodeBrowserTypes(location.query[SpanFields.BROWSER_NAME]);
+  const browserTypes = decodeBrowserTypes(location.query[SpanIndexedField.BROWSER_NAME]);
   const subregions = decodeList(
-    location.query[SpanFields.USER_GEO_SUBREGION]
+    location.query[SpanMetricsField.USER_GEO_SUBREGION]
   ) as SubregionCode[];
 
   const defaultDatatype = handleStandaloneClsLcp ? Datatype.LCP : Datatype.PAGELOADS;
@@ -339,7 +342,7 @@ export function PageSamplePerformanceTable({transaction, search, limit = 9}: Pro
       return <AlignRight>{datatype.toUpperCase()}</AlignRight>;
     }
 
-    if (col.key === SpanFields.SPAN_DESCRIPTION) {
+    if (col.key === SpanIndexedField.SPAN_DESCRIPTION) {
       if (datatype === Datatype.LCP) {
         return <span>{t('LCP Element')}</span>;
       }
@@ -452,7 +455,7 @@ export function PageSamplePerformanceTable({transaction, search, limit = 9}: Pro
         // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
         (row['transaction.duration'] !== undefined ||
           // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
-          row[SpanFields.SPAN_SELF_TIME] !== undefined) &&
+          row[SpanIndexedField.SPAN_SELF_TIME] !== undefined) &&
         replayLinkGenerator(
           organization,
           {
@@ -461,7 +464,7 @@ export function PageSamplePerformanceTable({transaction, search, limit = 9}: Pro
             'transaction.duration':
               datatype === Datatype.INTERACTIONS
                 ? // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
-                  row[SpanFields.SPAN_SELF_TIME]
+                  row[SpanIndexedField.SPAN_SELF_TIME]
                 : // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
                   row['transaction.duration'],
             timestamp: row.timestamp,
@@ -487,8 +490,9 @@ export function PageSamplePerformanceTable({transaction, search, limit = 9}: Pro
       );
     }
 
-    if (key === 'id' || key === SpanFields.SPAN_DESCRIPTION) {
+    if (key === 'id' || key === SpanIndexedField.SPAN_DESCRIPTION) {
       const traceViewLink = generateLinkToEventInTraceView({
+        projectSlug: row.project,
         traceSlug: row.trace,
         eventId: row.id,
         timestamp: row.timestamp,
@@ -508,14 +512,14 @@ export function PageSamplePerformanceTable({transaction, search, limit = 9}: Pro
         );
       }
 
-      if (key === SpanFields.SPAN_DESCRIPTION) {
+      if (key === SpanIndexedField.SPAN_DESCRIPTION) {
         const description =
           datatype === 'lcp' &&
-          (row as SpanSampleRowWithScore)[SpanFields.SPAN_OP] === 'pageload'
-            ? (row as SpanSampleRowWithScore)[SpanFields.LCP_ELEMENT]
+          (row as SpanSampleRowWithScore)[SpanIndexedField.SPAN_OP] === 'pageload'
+            ? (row as SpanSampleRowWithScore)[SpanIndexedField.LCP_ELEMENT]
             : datatype === 'cls' &&
-                (row as SpanSampleRowWithScore)[SpanFields.SPAN_OP] === 'pageload'
-              ? (row as SpanSampleRowWithScore)[SpanFields.CLS_SOURCE]
+                (row as SpanSampleRowWithScore)[SpanIndexedField.SPAN_OP] === 'pageload'
+              ? (row as SpanSampleRowWithScore)[SpanIndexedField.CLS_SOURCE]
               : (row as SpanSampleRowWithScore)[key];
 
         if (description) {
@@ -665,7 +669,7 @@ export function PageSamplePerformanceTable({transaction, search, limit = 9}: Pro
         disabled button bar if pageLinks is not defined to minimize ui shifting */}
       {!(isSpansBasedDatatype ? standaloneSpansPageLinks : pageLinks) && (
         <Wrapper>
-          <ButtonBar merged gap="none">
+          <ButtonBar merged>
             <Button
               icon={<IconChevron direction="left" />}
               disabled

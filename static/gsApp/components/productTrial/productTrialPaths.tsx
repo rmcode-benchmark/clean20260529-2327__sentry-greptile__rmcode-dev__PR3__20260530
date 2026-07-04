@@ -43,10 +43,6 @@ const PATHS_FOR_PRODUCT_TRIALS: Record<Path, Product> = {
     product: DataCategory.TRANSACTIONS,
     categories: [DataCategory.TRANSACTIONS],
   },
-  '/logs/': {
-    product: DataCategory.LOG_BYTE,
-    categories: [DataCategory.LOG_BYTE],
-  },
 };
 
 const PATHS_FOR_PRODUCT_TRIALS_AM3_OVERRIDES: Record<Path, Product> = {
@@ -80,8 +76,6 @@ function normalizePath(path: string): string {
       return '/profiling/';
     case '/explore/replays/':
       return '/replays/';
-    case '/explore/logs/':
-      return '/logs/';
     default:
       return path;
   }

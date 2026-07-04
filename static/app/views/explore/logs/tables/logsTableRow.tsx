@@ -239,6 +239,7 @@ export const LogRowContent = memo(function LogRowContent({
         data-test-id="log-table-row"
         {...rowInteractProps}
         onMouseEnter={() => setShouldRenderHoverElements(true)}
+        onMouseLeave={() => setShouldRenderHoverElements(false)}
       >
         <LogsTableBodyFirstCell key={'first'}>
           <LogFirstCellContent>
@@ -415,9 +416,8 @@ function LogRowDetails({
               </DetailsBody>
               <LogAttributeTreeWrapper>
                 <AttributesTree<RendererExtra>
-                  attributes={data.attributes.filter(
-                    attribute => !HiddenLogDetailFields.includes(attribute.name)
-                  )}
+                  attributes={data.attributes}
+                  hiddenAttributes={HiddenLogDetailFields}
                   getCustomActions={getActions}
                   getAdjustedAttributeKey={adjustAliases}
                   renderers={LogAttributesRendererMap}

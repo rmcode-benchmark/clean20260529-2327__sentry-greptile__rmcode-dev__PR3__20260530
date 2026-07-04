@@ -3,12 +3,9 @@ import {t} from 'sentry/locale';
 import type {TagCollection} from 'sentry/types/group';
 import type {FieldDefinition} from 'sentry/utils/fields';
 import {FieldKind} from 'sentry/utils/fields';
+import {useLocation} from 'sentry/utils/useLocation';
+import {useNavigate} from 'sentry/utils/useNavigate';
 import {AUTOMATION_FILTER_KEYS} from 'sentry/views/automations/constants';
-
-type AutomationSearchProps = {
-  initialQuery: string;
-  onSearch: (query: string) => void;
-};
 
 function getAutomationFilterKeyDefinition(filterKey: string): FieldDefinition | null {
   if (
@@ -45,12 +42,24 @@ const FILTER_KEYS: TagCollection = Object.fromEntries(
   })
 );
 
-export function AutomationSearch({initialQuery, onSearch}: AutomationSearchProps) {
+export function AutomationSearch() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const query = typeof location.query.query === 'string' ? location.query.query : '';
+
   return (
     <SearchQueryBuilder
-      initialQuery={initialQuery}
+      initialQuery={query}
       placeholder={t('Search for automations')}
-      onSearch={onSearch}
+      onSearch={searchQuery => {
+        navigate({
+          pathname: location.pathname,
+          query: {
+            ...location.query,
+            query: searchQuery,
+          },
+        });
+      }}
       filterKeys={FILTER_KEYS}
       getTagValues={() => Promise.resolve([])}
       searchSource="automations-list"
@@ -58,6 +67,7 @@ export function AutomationSearch({initialQuery, onSearch}: AutomationSearchProps
       disallowUnsupportedFilters
       disallowWildcard
       disallowLogicalOperators
+      searchOnChange
     />
   );
 }

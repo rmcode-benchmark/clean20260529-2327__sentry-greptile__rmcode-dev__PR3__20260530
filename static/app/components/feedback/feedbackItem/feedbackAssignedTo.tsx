@@ -50,7 +50,6 @@ export default function FeedbackAssignedTo({feedbackIssue, feedbackEvent}: Props
 
   return (
     <AssigneeSelector
-      showLabel
       group={feedbackIssue}
       owners={owners}
       assigneeLoading={assigneeLoading}

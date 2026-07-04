@@ -10,7 +10,6 @@ import GuideAnchor from 'sentry/components/assistant/guideAnchor';
 import GroupStatusChart from 'sentry/components/charts/groupStatusChart';
 import {Checkbox} from 'sentry/components/core/checkbox';
 import InteractionStateLayer from 'sentry/components/core/interactionStateLayer';
-import {Link} from 'sentry/components/core/link';
 import {Tooltip} from 'sentry/components/core/tooltip';
 import Count from 'sentry/components/count';
 import EventOrGroupExtraDetails from 'sentry/components/eventOrGroupExtraDetails';
@@ -18,6 +17,7 @@ import EventOrGroupHeader from 'sentry/components/eventOrGroupHeader';
 import {AssigneeSelector} from 'sentry/components/group/assigneeSelector';
 import {getBadgeProperties} from 'sentry/components/group/inboxBadges/statusBadge';
 import type {GroupListColumn} from 'sentry/components/issues/groupList';
+import Link from 'sentry/components/links/link';
 import PanelItem from 'sentry/components/panels/panelItem';
 import Placeholder from 'sentry/components/placeholder';
 import ProgressBar from 'sentry/components/progressBar';
@@ -71,6 +71,7 @@ type Props = {
   customStatsPeriod?: TimePeriodType;
   displayReprocessingLayout?: boolean;
   hasGuideAnchor?: boolean;
+  index?: number;
   memberList?: User[];
   onPriorityChange?: (newPriority: PriorityLevel) => void;
   query?: string;
@@ -185,6 +186,7 @@ function StreamGroup({
   customStatsPeriod,
   displayReprocessingLayout,
   hasGuideAnchor,
+  index,
   memberList,
   query,
   queryFilterDescription,
@@ -365,6 +367,7 @@ function StreamGroup({
       pathname: `/organizations/${organization.slug}/issues/${group.id}/events/`,
       query: {
         referrer,
+        stream_index: index,
         ...commonQuery,
         query: filteredQuery,
       },
@@ -556,6 +559,7 @@ function StreamGroup({
           data: group,
           organization,
           referrer,
+          streamIndex: index,
           location,
           query,
         })
@@ -579,7 +583,7 @@ function StreamGroup({
         />
       )}
       <GroupSummary canSelect={canSelect}>
-        <EventOrGroupHeader data={group} query={query} source={referrer} />
+        <EventOrGroupHeader index={index} data={group} query={query} source={referrer} />
         <EventOrGroupExtraDetails data={group} showLifetime={false} />
       </GroupSummary>
       {hasGuideAnchor && <GuideAnchor target="issue_stream" />}
@@ -914,7 +918,7 @@ const StartedColumn = styled('div')`
   ${p => p.theme.overflowEllipsis};
   width: 85px;
 
-  @media (min-width: ${p => p.theme.breakpoints.sm}) {
+  @media (min-width: ${p => p.theme.breakpoints.small}) {
     display: block;
     width: 140px;
   }
@@ -927,7 +931,7 @@ const EventsReprocessedColumn = styled('div')`
   ${p => p.theme.overflowEllipsis};
   width: 75px;
 
-  @media (min-width: ${p => p.theme.breakpoints.sm}) {
+  @media (min-width: ${p => p.theme.breakpoints.small}) {
     width: 140px;
   }
 `;
@@ -937,7 +941,7 @@ const ProgressColumn = styled('div')`
   align-self: center;
   display: none;
 
-  @media (min-width: ${p => p.theme.breakpoints.sm}) {
+  @media (min-width: ${p => p.theme.breakpoints.small}) {
     display: block;
     width: 160px;
   }

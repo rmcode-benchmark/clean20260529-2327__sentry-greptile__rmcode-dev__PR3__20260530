@@ -16,11 +16,11 @@ import {
   decodeScalar,
   decodeSorts,
 } from 'sentry/utils/queryString';
-import {useQueryParamState} from 'sentry/utils/url/useQueryParamState';
 import {getDatasetConfig} from 'sentry/views/dashboards/datasetConfig/base';
 import {DisplayType, WidgetType} from 'sentry/views/dashboards/types';
 import type {ThresholdsConfig} from 'sentry/views/dashboards/widgetBuilder/buildSteps/thresholdsStep/thresholdsStep';
 import {MAX_NUM_Y_AXES} from 'sentry/views/dashboards/widgetBuilder/buildSteps/yAxisStep/yAxisSelector';
+import {useQueryParamState} from 'sentry/views/dashboards/widgetBuilder/hooks/useQueryParamState';
 import {
   DISABLED_SORT,
   TAG_SORT_DENY_LIST,
@@ -31,10 +31,6 @@ import {
 } from 'sentry/views/dashboards/widgetBuilder/utils';
 import type {Thresholds} from 'sentry/views/dashboards/widgets/common/types';
 import {FieldValueKind} from 'sentry/views/discover/table/types';
-
-// For issues dataset, events and users are sorted descending and do not use '-'
-// All other issues fields are sorted ascending
-const REVERSED_ORDER_FIELD_SORT_LIST = ['freq', 'user'];
 
 export type WidgetBuilderStateQueryParams = {
   dataset?: WidgetType;
@@ -136,8 +132,7 @@ function useWidgetBuilderState(): {
   const [sort, setSort] = useQueryParamState<Sort[]>({
     fieldName: 'sort',
     decoder: decodeSorts,
-    deserializer: deserializeSorts(dataset),
-    serializer: serializeSorts(dataset),
+    serializer: serializeSorts,
   });
   const [limit, setLimit] = useQueryParamState<number>({
     fieldName: 'limit',
@@ -353,7 +348,6 @@ function useWidgetBuilderState(): {
         }
         case BuilderStateAction.SET_FIELDS: {
           setFields(action.payload);
-
           const isRemoved = action.payload.length < (fields?.length ?? 0);
           if (
             displayType === DisplayType.TABLE &&
@@ -484,21 +478,9 @@ function useWidgetBuilderState(): {
         case BuilderStateAction.SET_QUERY:
           setQuery(action.payload);
           break;
-        case BuilderStateAction.SET_SORT: {
-          if (dataset === WidgetType.ISSUE) {
-            setSort(
-              action.payload.map(
-                ({field}): Sort => ({
-                  field,
-                  kind: REVERSED_ORDER_FIELD_SORT_LIST.includes(field) ? 'desc' : 'asc',
-                })
-              )
-            );
-          } else {
-            setSort(action.payload);
-          }
+        case BuilderStateAction.SET_SORT:
+          setSort(action.payload);
           break;
-        }
         case BuilderStateAction.SET_LIMIT:
           setLimit(action.payload);
           break;
@@ -614,34 +596,11 @@ export function serializeFields(fields: Column[]): string[] {
   });
 }
 
-export function serializeSorts(dataset?: WidgetType) {
-  return function (sorts: Sort[]): string[] {
-    return sorts.map(sort => {
-      // All issue fields do not use '-' regardless of order
-      if (dataset === WidgetType.ISSUE) {
-        return sort.field;
-      }
-      const direction = sort.kind === 'desc' ? '-' : '';
-      return `${direction}${sort.field}`;
-    });
-  };
-}
-
-function deserializeSorts(dataset?: WidgetType) {
-  return function (sorts: Sort[]): Sort[] {
-    return sorts.map(sort => {
-      if (
-        dataset === WidgetType.ISSUE &&
-        REVERSED_ORDER_FIELD_SORT_LIST.includes(sort.field)
-      ) {
-        return {
-          field: sort.field,
-          kind: 'desc',
-        };
-      }
-      return sort;
-    });
-  };
+function serializeSorts(sorts: Sort[]): string[] {
+  return sorts.map(sort => {
+    const direction = sort.kind === 'desc' ? '-' : '';
+    return `${direction}${sort.field}`;
+  });
 }
 
 /**

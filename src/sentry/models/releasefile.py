@@ -11,8 +11,6 @@ from urllib.parse import urlunsplit
 
 import sentry_sdk
 from django.db import models, router
-from django.db.models.functions import Now
-from django.utils import timezone
 
 from sentry.backup.scopes import RelocationScope
 from sentry.db.models import (
@@ -76,8 +74,6 @@ class ReleaseFile(Model):
     name = models.TextField()
     dist_id = BoundedBigIntegerField(null=True, db_index=True)
 
-    date_accessed = models.DateTimeField(default=timezone.now, db_default=Now())
-
     #: For classic file uploads, this field is 1.
     #: For release archives, this field is 0.
     #: For artifact indexes, this field is the number of artifacts contained
@@ -115,7 +111,6 @@ class ReleaseFile(Model):
                     0
                 ]
             kwargs["ident"] = self.ident = type(self).get_ident(kwargs["name"], dist_name)
-            kwargs["date_accessed"] = timezone.now()
         return super().update(*args, **kwargs)
 
     @classmethod

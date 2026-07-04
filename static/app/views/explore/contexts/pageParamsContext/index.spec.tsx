@@ -78,12 +78,12 @@ describe('PageParamsProvider', function () {
         fields: ['id', 'timestamp'],
         mode: Mode.AGGREGATE,
         query: '',
-        sampleSortBys: [{field: 'timestamp', kind: 'asc'}],
-        aggregateSortBys: [{field: 'count(span.self_time)', kind: 'asc'}],
+        sortBys: [{field: 'count(span.self_time)', kind: 'asc'}],
         aggregateFields: [
           {groupBy: 'span.op'},
           {
             chartType: ChartType.AREA,
+            label: 'A',
             yAxes: ['count(span.self_time)'],
           },
         ],
@@ -112,9 +112,11 @@ describe('PageParamsProvider', function () {
         ],
         mode: Mode.SAMPLES,
         query: '',
-        sampleSortBys: [{field: 'timestamp', kind: 'desc'}],
-        aggregateSortBys: [{field: 'count(span.duration)', kind: 'desc'}],
-        aggregateFields: [{groupBy: ''}, new Visualize('count(span.duration)')],
+        sortBys: [{field: 'timestamp', kind: 'desc'}],
+        aggregateFields: [
+          {groupBy: ''},
+          new Visualize('count(span.duration)', {label: 'A'}),
+        ],
       })
     );
   });
@@ -130,11 +132,11 @@ describe('PageParamsProvider', function () {
         fields: ['id', 'span.op', 'timestamp'],
         mode: Mode.AGGREGATE,
         query: '',
-        sampleSortBys: [{field: 'timestamp', kind: 'asc'}],
-        aggregateSortBys: [{field: 'count(span.self_time)', kind: 'asc'}],
+        sortBys: [{field: 'count(span.self_time)', kind: 'asc'}],
         aggregateFields: [
           {groupBy: 'span.op'},
           new Visualize('count(span.self_time)', {
+            label: 'A',
             chartType: ChartType.AREA,
           }),
         ],
@@ -153,11 +155,11 @@ describe('PageParamsProvider', function () {
         fields: ['id', 'timestamp', 'span.self_time'],
         mode: Mode.AGGREGATE,
         query: '',
-        sampleSortBys: [{field: 'timestamp', kind: 'asc'}],
-        aggregateSortBys: [{field: 'count(span.self_time)', kind: 'asc'}],
+        sortBys: [{field: 'count(span.self_time)', kind: 'asc'}],
         aggregateFields: [
           {groupBy: 'browser.name'},
           new Visualize('count(span.self_time)', {
+            label: 'A',
             chartType: ChartType.AREA,
           }),
           {groupBy: 'sdk.name'},
@@ -177,10 +179,10 @@ describe('PageParamsProvider', function () {
         fields: ['id', 'timestamp', 'span.self_time'],
         mode: Mode.AGGREGATE,
         query: '',
-        sampleSortBys: [{field: 'timestamp', kind: 'asc'}],
-        aggregateSortBys: [{field: 'count(span.self_time)', kind: 'asc'}],
+        sortBys: [{field: 'count(span.self_time)', kind: 'asc'}],
         aggregateFields: [
           new Visualize('count(span.self_time)', {
+            label: 'A',
             chartType: ChartType.AREA,
           }),
           {groupBy: ''},
@@ -200,11 +202,11 @@ describe('PageParamsProvider', function () {
         fields: ['id', 'timestamp', 'span.self_time'],
         mode: Mode.AGGREGATE,
         query: '',
-        sampleSortBys: [{field: 'timestamp', kind: 'asc'}],
-        aggregateSortBys: [{field: 'count(span.self_time)', kind: 'asc'}],
+        sortBys: [{field: 'count(span.self_time)', kind: 'asc'}],
         aggregateFields: [
           {groupBy: ''},
           new Visualize('count(span.self_time)', {
+            label: 'A',
             chartType: ChartType.AREA,
           }),
         ],
@@ -223,11 +225,11 @@ describe('PageParamsProvider', function () {
         fields: ['id', 'timestamp', 'span.self_time'],
         mode: Mode.AGGREGATE,
         query: '',
-        sampleSortBys: [{field: 'timestamp', kind: 'asc'}],
-        aggregateSortBys: [{field: 'count(span.self_time)', kind: 'asc'}],
+        sortBys: [{field: 'count(span.self_time)', kind: 'asc'}],
         aggregateFields: [
           {groupBy: 'span.op'},
           new Visualize('count(span.self_time)', {
+            label: 'A',
             chartType: ChartType.AREA,
           }),
         ],
@@ -242,11 +244,11 @@ describe('PageParamsProvider', function () {
         {groupBy: ''},
         {
           chartType: ChartType.AREA,
+          label: 'A',
           yAxes: ['count(span.self_time)'],
         },
       ],
-      sampleSortBys: null,
-      aggregateSortBys: null,
+      sortBys: null,
     });
 
     act(() => setMode(Mode.SAMPLES));
@@ -257,11 +259,11 @@ describe('PageParamsProvider', function () {
         fields: ['id', 'timestamp', 'span.self_time'],
         mode: Mode.SAMPLES,
         query: '',
-        sampleSortBys: [{field: 'timestamp', kind: 'desc'}],
-        aggregateSortBys: [{field: 'count(span.self_time)', kind: 'desc'}],
+        sortBys: [{field: 'timestamp', kind: 'desc'}],
         aggregateFields: [
           {groupBy: ''},
           new Visualize('count(span.self_time)', {
+            label: 'A',
             chartType: ChartType.AREA,
           }),
         ],
@@ -272,8 +274,7 @@ describe('PageParamsProvider', function () {
   it('correctly updates mode from aggregates to sample with group bys', function () {
     renderTestComponent({
       mode: Mode.AGGREGATE,
-      sampleSortBys: null,
-      aggregateSortBys: null,
+      sortBys: null,
       fields: ['id', 'sdk.name', 'sdk.version', 'timestamp'],
       aggregateFields: [
         {groupBy: 'sdk.name'},
@@ -282,6 +283,7 @@ describe('PageParamsProvider', function () {
         {groupBy: ''},
         {
           chartType: ChartType.AREA,
+          label: 'A',
           yAxes: ['count(span.self_time)'],
         },
       ],
@@ -302,14 +304,14 @@ describe('PageParamsProvider', function () {
         ],
         mode: Mode.SAMPLES,
         query: '',
-        sampleSortBys: [{field: 'timestamp', kind: 'desc'}],
-        aggregateSortBys: [{field: 'count(span.self_time)', kind: 'desc'}],
+        sortBys: [{field: 'timestamp', kind: 'desc'}],
         aggregateFields: [
           {groupBy: 'sdk.name'},
           {groupBy: 'sdk.version'},
           {groupBy: 'span.op'},
           {groupBy: ''},
           new Visualize('count(span.self_time)', {
+            label: 'A',
             chartType: ChartType.AREA,
           }),
         ],
@@ -328,11 +330,11 @@ describe('PageParamsProvider', function () {
         fields: ['id', 'timestamp', 'span.self_time'],
         mode: Mode.AGGREGATE,
         query: 'foo:bar',
-        sampleSortBys: [{field: 'timestamp', kind: 'asc'}],
-        aggregateSortBys: [{field: 'count(span.self_time)', kind: 'asc'}],
+        sortBys: [{field: 'count(span.self_time)', kind: 'asc'}],
         aggregateFields: [
           {groupBy: 'span.op'},
           new Visualize('count(span.self_time)', {
+            label: 'A',
             chartType: ChartType.AREA,
           }),
         ],
@@ -351,11 +353,11 @@ describe('PageParamsProvider', function () {
         fields: ['id', 'timestamp', 'span.self_time'],
         mode: Mode.SAMPLES,
         query: '',
-        sampleSortBys: [{field: 'id', kind: 'desc'}],
-        aggregateSortBys: [{field: 'count(span.self_time)', kind: 'asc'}],
+        sortBys: [{field: 'id', kind: 'desc'}],
         aggregateFields: [
           {groupBy: 'span.op'},
           new Visualize('count(span.self_time)', {
+            label: 'A',
             chartType: ChartType.AREA,
           }),
         ],
@@ -374,11 +376,11 @@ describe('PageParamsProvider', function () {
         fields: ['id', 'timestamp', 'span.self_time'],
         mode: Mode.SAMPLES,
         query: '',
-        sampleSortBys: [{field: 'timestamp', kind: 'desc'}],
-        aggregateSortBys: [{field: 'count(span.self_time)', kind: 'asc'}],
+        sortBys: [{field: 'timestamp', kind: 'desc'}],
         aggregateFields: [
           {groupBy: 'span.op'},
           new Visualize('count(span.self_time)', {
+            label: 'A',
             chartType: ChartType.AREA,
           }),
         ],
@@ -393,6 +395,7 @@ describe('PageParamsProvider', function () {
         {groupBy: 'span.op'},
         {
           chartType: ChartType.AREA,
+          label: 'A',
           yAxes: ['min(span.self_time)', 'max(span.duration)'],
         },
       ],
@@ -406,14 +409,15 @@ describe('PageParamsProvider', function () {
         fields: ['id', 'timestamp', 'span.self_time'],
         mode: Mode.AGGREGATE,
         query: '',
-        sampleSortBys: [{field: 'timestamp', kind: 'asc'}],
-        aggregateSortBys: [{field: 'max(span.duration)', kind: 'desc'}],
+        sortBys: [{field: 'max(span.duration)', kind: 'desc'}],
         aggregateFields: [
           {groupBy: 'span.op'},
           new Visualize('min(span.self_time)', {
+            label: 'A',
             chartType: ChartType.AREA,
           }),
           new Visualize('max(span.duration)', {
+            label: 'B',
             chartType: ChartType.AREA,
           }),
         ],
@@ -428,6 +432,7 @@ describe('PageParamsProvider', function () {
         {groupBy: 'span.op'},
         {
           chartType: ChartType.AREA,
+          label: 'A',
           yAxes: ['min(span.self_time)', 'max(span.duration)'],
         },
       ],
@@ -441,14 +446,15 @@ describe('PageParamsProvider', function () {
         fields: ['id', 'timestamp', 'span.self_time'],
         mode: Mode.AGGREGATE,
         query: '',
-        sampleSortBys: [{field: 'timestamp', kind: 'asc'}],
-        aggregateSortBys: [{field: 'min(span.self_time)', kind: 'desc'}],
+        sortBys: [{field: 'min(span.self_time)', kind: 'desc'}],
         aggregateFields: [
           {groupBy: 'span.op'},
           new Visualize('min(span.self_time)', {
+            label: 'A',
             chartType: ChartType.AREA,
           }),
           new Visualize('max(span.duration)', {
+            label: 'B',
             chartType: ChartType.AREA,
           }),
         ],
@@ -463,6 +469,7 @@ describe('PageParamsProvider', function () {
         {groupBy: 'sdk.name'},
         {
           chartType: ChartType.AREA,
+          label: 'A',
           yAxes: ['count(span.self_time)'],
         },
       ],
@@ -476,11 +483,11 @@ describe('PageParamsProvider', function () {
         fields: ['id', 'timestamp', 'span.self_time'],
         mode: Mode.AGGREGATE,
         query: '',
-        sampleSortBys: [{field: 'timestamp', kind: 'asc'}],
-        aggregateSortBys: [{field: 'sdk.name', kind: 'desc'}],
+        sortBys: [{field: 'sdk.name', kind: 'desc'}],
         aggregateFields: [
           {groupBy: 'sdk.name'},
           new Visualize('count(span.self_time)', {
+            label: 'A',
             chartType: ChartType.AREA,
           }),
         ],
@@ -495,6 +502,7 @@ describe('PageParamsProvider', function () {
         {groupBy: 'sdk.name'},
         {
           chartType: ChartType.AREA,
+          label: 'A',
           yAxes: ['count(span.self_time)'],
         },
       ],
@@ -508,11 +516,11 @@ describe('PageParamsProvider', function () {
         fields: ['id', 'timestamp', 'span.self_time'],
         mode: Mode.AGGREGATE,
         query: '',
-        sampleSortBys: [{field: 'timestamp', kind: 'asc'}],
-        aggregateSortBys: [{field: 'count(span.self_time)', kind: 'desc'}],
+        sortBys: [{field: 'count(span.self_time)', kind: 'desc'}],
         aggregateFields: [
           {groupBy: 'sdk.name'},
           new Visualize('count(span.self_time)', {
+            label: 'A',
             chartType: ChartType.AREA,
           }),
         ],
@@ -531,9 +539,11 @@ describe('PageParamsProvider', function () {
         fields: ['id', 'timestamp'],
         mode: Mode.AGGREGATE,
         query: '',
-        sampleSortBys: [{field: 'timestamp', kind: 'asc'}],
-        aggregateSortBys: [{field: 'count(span.duration)', kind: 'desc'}],
-        aggregateFields: [{groupBy: 'span.op'}, new Visualize('count(span.duration)')],
+        sortBys: [{field: 'count(span.duration)', kind: 'desc'}],
+        aggregateFields: [
+          {groupBy: 'span.op'},
+          new Visualize('count(span.duration)', {label: 'A'}),
+        ],
       })
     );
   });
@@ -560,17 +570,19 @@ describe('PageParamsProvider', function () {
         fields: ['id', 'timestamp', 'span.self_time', 'span.duration'],
         mode: Mode.AGGREGATE,
         query: '',
-        sampleSortBys: [{field: 'timestamp', kind: 'asc'}],
-        aggregateSortBys: [{field: 'count(span.self_time)', kind: 'asc'}],
+        sortBys: [{field: 'count(span.self_time)', kind: 'asc'}],
         aggregateFields: [
           {groupBy: 'span.op'},
           new Visualize('count(span.self_time)', {
+            label: 'A',
             chartType: ChartType.AREA,
           }),
           new Visualize('avg(span.duration)', {
+            label: 'B',
             chartType: ChartType.LINE,
           }),
           new Visualize('avg(span.self_time)', {
+            label: 'C',
             chartType: ChartType.LINE,
           }),
         ],

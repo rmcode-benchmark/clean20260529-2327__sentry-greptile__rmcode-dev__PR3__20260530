@@ -41,7 +41,6 @@ export function ChartActionDropdown({
   const {selection} = usePageFilters();
 
   const exploreUrl = getExploreUrl({
-    selection,
     organization,
     visualize: [
       {
@@ -106,7 +105,7 @@ export function BaseChartActionDropdown({
       to: exploreUrl,
       onAction: () => {
         trackAnalytics('insights.open_in_explore', {
-          organization,
+          organization: organization.slug,
           referrer,
         });
       },
@@ -118,16 +117,7 @@ export function BaseChartActionDropdown({
       key: 'create-alert',
       label: t('Create Alert for'),
       isSubmenu: true,
-      children: alertMenuOptions.map(option => ({
-        ...option,
-        onAction: () => {
-          option.onAction?.();
-          trackAnalytics('insights.create_alert', {
-            organization,
-            referrer,
-          });
-        },
-      })),
+      children: alertMenuOptions,
     });
   }
 

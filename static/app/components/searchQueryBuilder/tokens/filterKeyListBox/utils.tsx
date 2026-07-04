@@ -1,19 +1,12 @@
 import styled from '@emotion/styled';
 
 import {getEscapedKey} from 'sentry/components/core/compactSelect/utils';
-import {
-  ASK_SEER_CONSENT_ITEM_KEY,
-  ASK_SEER_ITEM_KEY,
-} from 'sentry/components/searchQueryBuilder/askSeer';
 import {FormattedQuery} from 'sentry/components/searchQueryBuilder/formattedQuery';
 import {KeyDescription} from 'sentry/components/searchQueryBuilder/tokens/filterKeyListBox/keyDescription';
 import type {
-  AskSeerConsentItem,
-  AskSeerItem,
   FilterValueItem,
   KeyItem,
   KeySectionItem,
-  RawSearchFilterValueItem,
   RawSearchItem,
   RecentQueryItem,
 } from 'sentry/components/searchQueryBuilder/tokens/filterKeyListBox/types';
@@ -150,24 +143,6 @@ export function createFilterValueItem(key: string, value: string): FilterValueIt
   };
 }
 
-export function createRawSearchFilterValueItem(
-  key: string,
-  value: string
-): RawSearchFilterValueItem {
-  const filter = `${key}:${escapeFilterValue(value)}`;
-
-  return {
-    key: getEscapedKey(`${key}:${value}`),
-    label: <FormattedQuery query={filter} />,
-    value: filter,
-    textValue: filter,
-    hideCheck: true,
-    showDetailsInOverlay: true,
-    details: null,
-    type: 'raw-search-filter-value',
-  };
-}
-
 export function createRecentFilterItem({filter}: {filter: TokenResult<Token.FILTER>}) {
   const key = getKeyName(filter.key);
   return {
@@ -200,28 +175,6 @@ export function createRecentQueryItem({
         fieldDefinitionGetter={getFieldDefinition}
       />
     ),
-    hideCheck: true,
-  };
-}
-
-export function createAskSeerItem(): AskSeerItem {
-  return {
-    key: getEscapedKey(ASK_SEER_ITEM_KEY),
-    value: ASK_SEER_ITEM_KEY,
-    textValue: 'Ask Seer',
-    type: 'ask-seer' as const,
-    label: t('Ask Seer'),
-    hideCheck: true,
-  };
-}
-
-export function createAskSeerConsentItem(): AskSeerConsentItem {
-  return {
-    key: getEscapedKey(ASK_SEER_CONSENT_ITEM_KEY),
-    value: ASK_SEER_CONSENT_ITEM_KEY,
-    textValue: 'Enable Gen AI',
-    type: 'ask-seer-consent' as const,
-    label: t('Enable Gen AI'),
     hideCheck: true,
   };
 }

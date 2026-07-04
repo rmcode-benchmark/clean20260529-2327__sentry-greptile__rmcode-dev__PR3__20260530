@@ -1,10 +1,8 @@
-import type {ComponentProps} from 'react';
 import styled from '@emotion/styled';
 
 import LoadingError from 'sentry/components/loadingError';
-import {SimpleTable} from 'sentry/components/tables/simpleTable';
+import {SimpleTable} from 'sentry/components/workflowEngine/simpleTable';
 import {t} from 'sentry/locale';
-import {space} from 'sentry/styles/space';
 import type {Detector} from 'sentry/types/workflowEngine/detectors';
 import type {Sort} from 'sentry/utils/discover/fields';
 import {useLocation} from 'sentry/utils/useLocation';
@@ -31,15 +29,16 @@ function LoadingSkeletons() {
 
 function HeaderCell({
   children,
+  name,
   sortKey,
   sort,
-  ...props
 }: {
   children: React.ReactNode;
+  name: string;
   sort: Sort | undefined;
   divider?: boolean;
   sortKey?: string;
-} & Omit<ComponentProps<typeof SimpleTable.HeaderCell>, 'sort'>) {
+}) {
   const location = useLocation();
   const navigate = useNavigate();
   const isSortedByField = sort?.field === sortKey;
@@ -57,9 +56,10 @@ function HeaderCell({
 
   return (
     <SimpleTable.HeaderCell
-      {...props}
-      sort={sort && sortKey === sort?.field ? sort.kind : undefined}
-      handleSortClick={sortKey ? handleSort : undefined}
+      name={name}
+      sort={sort}
+      sortKey={sortKey}
+      handleSortClick={handleSort}
     >
       {children}
     </SimpleTable.HeaderCell>
@@ -77,20 +77,20 @@ function DetectorListTable({
     <Container>
       <DetectorListSimpleTable>
         <SimpleTable.Header>
-          <HeaderCell sortKey="name" sort={sort}>
+          <HeaderCell name="name" sortKey="name" sort={sort}>
             {t('Name')}
           </HeaderCell>
-          <HeaderCell data-column-name="type" divider sortKey="type" sort={sort}>
+          <HeaderCell name="type" divider sortKey="type" sort={sort}>
             {t('Type')}
           </HeaderCell>
-          <HeaderCell data-column-name="last-issue" divider sort={sort}>
+          <HeaderCell name="last-issue" divider sort={sort}>
             {t('Last Issue')}
           </HeaderCell>
-          <HeaderCell data-column-name="assignee" divider sort={sort}>
+          <HeaderCell name="assignee" divider sort={sort}>
             {t('Assignee')}
           </HeaderCell>
           <HeaderCell
-            data-column-name="connected-automations"
+            name="connected-automations"
             divider
             sortKey="connectedWorkflows"
             sort={sort}
@@ -119,43 +119,41 @@ const Container = styled('div')`
 const DetectorListSimpleTable = styled(SimpleTable)`
   grid-template-columns: 1fr;
 
-  margin-bottom: ${space(2)};
-
-  [data-column-name='type'],
-  [data-column-name='last-issue'],
-  [data-column-name='assignee'],
-  [data-column-name='connected-automations'] {
+  .type,
+  .last-issue,
+  .assignee,
+  .connected-automations {
     display: none;
   }
 
-  @container (min-width: ${p => p.theme.breakpoints.xs}) {
+  @container (min-width: ${p => p.theme.breakpoints.xsmall}) {
     grid-template-columns: 3fr 0.8fr;
 
-    [data-column-name='type'] {
+    .type {
       display: flex;
     }
   }
 
-  @container (min-width: ${p => p.theme.breakpoints.sm}) {
+  @container (min-width: ${p => p.theme.breakpoints.small}) {
     grid-template-columns: 3fr 0.8fr 1.5fr 0.8fr;
 
-    [data-column-name='last-issue'] {
+    .last-issue {
       display: flex;
     }
   }
 
-  @container (min-width: ${p => p.theme.breakpoints.md}) {
+  @container (min-width: ${p => p.theme.breakpoints.medium}) {
     grid-template-columns: 3fr 0.8fr 1.5fr 0.8fr;
 
-    [data-column-name='assignee'] {
+    .assignee {
       display: flex;
     }
   }
 
-  @container (min-width: ${p => p.theme.breakpoints.lg}) {
+  @container (min-width: ${p => p.theme.breakpoints.large}) {
     grid-template-columns: 4.5fr 0.8fr 1.5fr 0.8fr 2fr;
 
-    [data-column-name='connected-automations'] {
+    .connected-automations {
       display: flex;
     }
   }

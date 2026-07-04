@@ -1,16 +1,16 @@
 import {Fragment} from 'react';
 
 import {Alert} from 'sentry/components/core/alert';
-import {ExternalLink} from 'sentry/components/core/link';
+import ExternalLink from 'sentry/components/links/externalLink';
 import List from 'sentry/components/list';
 import ListItem from 'sentry/components/list/listItem';
+import {StepType} from 'sentry/components/onboarding/gettingStartedDoc/step';
 import type {
   BasePlatformOptions,
   Docs,
   DocsParams,
   OnboardingConfig,
 } from 'sentry/components/onboarding/gettingStartedDoc/types';
-import {StepType} from 'sentry/components/onboarding/gettingStartedDoc/types';
 import {
   getReplayMobileConfigureDescription,
   getReplayVerifyStep,
@@ -76,13 +76,6 @@ Future<void> main() async {
       // The sampling rate for profiling is relative to tracesSampleRate
       // Setting to 1.0 will profile 100% of sampled transactions:
       options.profilesSampleRate = 1.0;`
-          : ''
-      }${
-        params.isReplaySelected
-          ? `
-      // Set sessionSampleRate to 0.1 to capture 10% of sessions and onErrorSampleRate to 1.0 to capture 100% of errors.
-      options.replay.sessionSampleRate = 0.1;
-      options.replay.onErrorSampleRate = 1.0;`
           : ''
       }
     },
@@ -175,8 +168,8 @@ const getInstallReplaySnippet = () => `
 await SentryFlutter.init(
   (options) {
     ...
-    options.replay.sessionSampleRate = 1.0;
-    options.replay.onErrorSampleRate = 1.0;
+    options.experimental.replay.sessionSampleRate = 1.0;
+    options.experimental.replay.onErrorSampleRate = 1.0;
   },
   appRunner: () => runApp(
       SentryWidget(
@@ -187,8 +180,8 @@ await SentryFlutter.init(
 `;
 
 const getConfigureReplaySnippet = () => `
-options.replay.maskAllText = true;
-options.replay.maskAllImages = true;`;
+options.experimental.replay.maskAllText = true;
+options.experimental.replay.maskAllImages = true;`;
 
 const onboarding: OnboardingConfig<PlatformOptions> = {
   install: params =>
@@ -307,7 +300,7 @@ const onboarding: OnboardingConfig<PlatformOptions> = {
                 additionalInfo: params.isPerformanceSelected ? (
                   <Fragment>
                     <p>{configureAdditionalInfo}</p>
-                    <Alert type="info" showIcon={false}>
+                    <Alert type="info">
                       {t(
                         'To monitor performance, you need to add extra instrumentation as described in the Tracing section below.'
                       )}
@@ -459,8 +452,10 @@ const replayOnboarding: OnboardingConfig<PlatformOptions> = {
     },
   ],
   verify: getReplayVerifyStep({
-    replayOnErrorSampleRateName: 'options\u200b.replay\u200b.onErrorSampleRate',
-    replaySessionSampleRateName: 'options\u200b.replay\u200b.sessionSampleRate',
+    replayOnErrorSampleRateName:
+      'options\u200b.experimental\u200b.sessionReplay\u200b.onErrorSampleRate',
+    replaySessionSampleRateName:
+      'options\u200b.experimental\u200b.sessionReplay\u200b.sessionSampleRate',
   }),
   nextSteps: () => [],
 };

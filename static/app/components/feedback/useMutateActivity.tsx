@@ -61,12 +61,12 @@ export default function useMutateActivity({
           ? `/organizations/${organization.slug}/issues/${group.id}/comments/${noteId}/`
           : `/organizations/${organization.slug}/issues/${group.id}/comments/`;
 
-      return fetchMutation({
+      return fetchMutation([
         method,
         url,
-        options: {},
-        data: {text: note?.text, mentions: note?.mentions},
-      });
+        {},
+        {text: note?.text, mentions: note?.mentions},
+      ]);
     },
     onSettled: onSettled ?? undefined,
     gcTime: 0,

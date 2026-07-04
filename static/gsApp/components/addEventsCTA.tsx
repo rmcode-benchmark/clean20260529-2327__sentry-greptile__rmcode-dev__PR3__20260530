@@ -10,8 +10,7 @@ import withApi from 'sentry/utils/withApi';
 
 import {sendAddEventsRequest, sendUpgradeRequest} from 'getsentry/actionCreators/upsell';
 import StartTrialButton from 'getsentry/components/startTrialButton';
-import {BILLED_DATA_CATEGORY_INFO} from 'getsentry/constants';
-import type {BilledDataCategoryInfo, Subscription} from 'getsentry/types';
+import type {Subscription} from 'getsentry/types';
 import {
   displayBudgetName,
   getBestActionToIncreaseEventLimits,
@@ -27,22 +26,9 @@ import {openOnDemandBudgetEditModal} from 'getsentry/views/onDemandBudgets/editO
  */
 export type EventType = {
   [K in keyof typeof DATA_CATEGORY_INFO]: (typeof DATA_CATEGORY_INFO)[K]['isBilledCategory'] extends true
-    ? (typeof DATA_CATEGORY_INFO)[K]['singular']
+    ? (typeof DATA_CATEGORY_INFO)[K]['name']
     : never;
 }[keyof typeof DATA_CATEGORY_INFO];
-
-// TODO(data categories): move this and EventType to dataCategory.tsx
-export function getCategoryInfoFromEventType(
-  eventType: EventType
-): BilledDataCategoryInfo | null {
-  const info = Object.values(BILLED_DATA_CATEGORY_INFO).find(
-    c => c.singular === eventType
-  );
-  if (!info) {
-    return null;
-  }
-  return info;
-}
 
 type Props = {
   api: Client;

@@ -10,7 +10,6 @@ from sentry.api.base import control_silo_endpoint
 from sentry.integrations.api.bases.integration import IntegrationEndpoint
 from sentry.integrations.jira_server.integration import JiraServerIntegration
 from sentry.integrations.models.integration import Integration
-from sentry.integrations.types import IntegrationProviderSlug
 from sentry.organizations.services.organization import RpcOrganization
 from sentry.shared_integrations.exceptions import ApiError, ApiUnauthorized, IntegrationError
 
@@ -23,7 +22,7 @@ class JiraServerSearchEndpoint(IntegrationEndpoint):
     publish_status = {
         "GET": ApiPublishStatus.PRIVATE,
     }
-    provider = IntegrationProviderSlug.JIRA_SERVER.value
+    provider = "jira_server"
 
     def _get_integration(self, organization, integration_id) -> Integration:
         return Integration.objects.get(

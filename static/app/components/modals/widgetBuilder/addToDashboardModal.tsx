@@ -350,7 +350,7 @@ function AddToDashboardModal({
       </Body>
 
       <Footer>
-        <StyledButtonBar gap="lg">
+        <StyledButtonBar gap={1.5}>
           {actions.includes('add-and-stay-on-current-page') && (
             <Button
               onClick={handleAddAndStayOnCurrentPage}
@@ -392,7 +392,7 @@ const Wrapper = styled('div')`
 `;
 
 const StyledButtonBar = styled(ButtonBar)`
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+  @media (max-width: ${props => props.theme.breakpoints.small}) {
     grid-template-rows: repeat(2, 1fr);
     gap: ${space(1.5)};
     width: 100%;

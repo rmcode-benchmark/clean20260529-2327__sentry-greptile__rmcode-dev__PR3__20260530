@@ -1,4 +1,5 @@
 export type {
+  Aliases,
   Color,
   ColorOrAlias,
   FormSize,
