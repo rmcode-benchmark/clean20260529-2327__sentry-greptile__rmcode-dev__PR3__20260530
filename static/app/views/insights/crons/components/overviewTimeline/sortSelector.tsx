@@ -1,10 +1,8 @@
-import {
-  CompositeSelect,
-  type CompositeSelectProps,
-} from 'sentry/components/core/compactSelect/composite';
+import {CompositeSelect} from 'sentry/components/core/compactSelect/composite';
 import type {SelectOption} from 'sentry/components/core/compactSelect/types';
 import {IconSort} from 'sentry/icons';
 import {t} from 'sentry/locale';
+import type {FormSize} from 'sentry/utils/theme';
 import {useLocation} from 'sentry/utils/useLocation';
 import {useNavigate} from 'sentry/utils/useNavigate';
 
@@ -44,7 +42,7 @@ interface Props {
   onChangeOrder?: (order: SelectOption<MonitorSortOrder>) => void;
   onChangeSort?: (sort: SelectOption<MonitorSortOption>) => void;
   order?: MonitorSortOrder;
-  size?: CompositeSelectProps['size'];
+  size?: FormSize;
   sort?: MonitorSortOption;
 }
 

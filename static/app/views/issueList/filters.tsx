@@ -63,14 +63,14 @@ const FiltersContainer = styled('div')<{prefersStackedNav: boolean}>`
             'search'
             'sort-save';
 
-          @media (min-width: ${p.theme.breakpoints.xs}) {
+          @media (min-width: ${p.theme.breakpoints.xsmall}) {
             grid-template-columns: 1fr auto;
             grid-template-areas:
               'page-filters sort-save'
               'search search';
           }
 
-          @media (min-width: ${p.theme.breakpoints.xl}) {
+          @media (min-width: ${p.theme.breakpoints.xlarge}) {
             grid-template-columns: auto 1fr auto;
             grid-template-areas: 'page-filters search sort-save';
           }
@@ -82,14 +82,14 @@ const FiltersContainer = styled('div')<{prefersStackedNav: boolean}>`
             'search'
             'sort-save';
 
-          @media (min-width: ${p.theme.breakpoints.xs}) {
+          @media (min-width: ${p.theme.breakpoints.xsmall}) {
             grid-template-columns: auto 1fr;
             grid-template-areas:
               'page-filters sort-save'
               'search search';
           }
 
-          @media (min-width: ${p.theme.breakpoints.lg}) {
+          @media (min-width: ${p.theme.breakpoints.large}) {
             grid-template-columns: auto 1fr auto;
             grid-template-areas: 'page-filters search sort-save';
           }

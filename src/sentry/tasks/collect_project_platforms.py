@@ -31,7 +31,6 @@ def paginate_project_ids(paginate):
     silo_mode=SiloMode.REGION,
     taskworker_config=TaskworkerConfig(
         namespace=issues_tasks,
-        processing_deadline_duration=30,
     ),
 )
 def collect_project_platforms(paginate=1000, **kwargs):
@@ -55,8 +54,8 @@ def collect_project_platforms(paginate=1000, **kwargs):
             platform = platform.lower()
             if platform not in VALID_PLATFORMS:
                 continue
-            ProjectPlatform.objects.update_or_create(
-                project_id=project_id, platform=platform, defaults={"last_seen": now}
+            ProjectPlatform.objects.create_or_update(
+                project_id=project_id, platform=platform, values={"last_seen": now}
             )
 
     # remove (likely) unused platform associations

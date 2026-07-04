@@ -34,13 +34,6 @@ describe('vaidateTokens', function () {
   });
 
   it.each([
-    '1',
-    '(1)',
-    '((1))',
-    '1 + 1',
-    '(1 + 1)',
-    '(1 + 1) / 1',
-    '(1 + 1) / (1 - 1)',
     'avg(span.duration)',
     '(avg(span.duration))',
     '((avg(span.duration)))',
@@ -48,10 +41,6 @@ describe('vaidateTokens', function () {
     '(avg(span.duration) + avg(span.duration))',
     '(avg(span.duration) + avg(span.duration)) / avg(span.duration)',
     '(avg(span.duration) + avg(span.duration)) / (avg(span.duration) - avg(span.duration))',
-    'avg(span.duration) + 1',
-    '(avg(span.duration) + 1)',
-    '1 + avg(span.duration)',
-    '(1 + avg(span.duration))',
   ])('passes %s', function (expression) {
     const tokens = tokenizeExpression(expression);
     expect(validateTokens(tokens)).toBe(true);
@@ -60,29 +49,25 @@ describe('vaidateTokens', function () {
 
 describe('computeNextAllowedTokenKinds', function () {
   it.each([
-    ['', [[TokenKind.OPEN_PARENTHESIS, TokenKind.FUNCTION, TokenKind.LITERAL]]],
+    ['', [[TokenKind.OPEN_PARENTHESIS, TokenKind.FUNCTION]]],
     [
       '(',
       [
-        [TokenKind.OPEN_PARENTHESIS, TokenKind.FUNCTION, TokenKind.LITERAL],
+        [TokenKind.OPEN_PARENTHESIS, TokenKind.FUNCTION],
         [],
-        [TokenKind.OPEN_PARENTHESIS, TokenKind.FUNCTION, TokenKind.LITERAL],
+        [TokenKind.OPEN_PARENTHESIS, TokenKind.FUNCTION],
       ],
     ],
     [
       'avg(span.duration)',
-      [
-        [TokenKind.OPEN_PARENTHESIS, TokenKind.FUNCTION, TokenKind.LITERAL],
-        [],
-        [TokenKind.OPERATOR],
-      ],
+      [[TokenKind.OPEN_PARENTHESIS, TokenKind.FUNCTION], [], [TokenKind.OPERATOR]],
     ],
     [
       '(avg(span.duration)',
       [
-        [TokenKind.OPEN_PARENTHESIS, TokenKind.FUNCTION, TokenKind.LITERAL],
+        [TokenKind.OPEN_PARENTHESIS, TokenKind.FUNCTION],
         [],
-        [TokenKind.OPEN_PARENTHESIS, TokenKind.FUNCTION, TokenKind.LITERAL],
+        [TokenKind.OPEN_PARENTHESIS, TokenKind.FUNCTION],
         [],
         [TokenKind.CLOSE_PARENTHESIS, TokenKind.OPERATOR],
       ],
@@ -90,24 +75,14 @@ describe('computeNextAllowedTokenKinds', function () {
     [
       'avg(span.duration) (',
       [
-        [TokenKind.OPEN_PARENTHESIS, TokenKind.FUNCTION, TokenKind.LITERAL],
+        [TokenKind.OPEN_PARENTHESIS, TokenKind.FUNCTION],
         [],
         [TokenKind.OPERATOR],
         [],
-        [TokenKind.OPEN_PARENTHESIS, TokenKind.FUNCTION, TokenKind.LITERAL],
+        [TokenKind.OPEN_PARENTHESIS, TokenKind.FUNCTION],
       ],
     ],
-    [
-      '1 1',
-      [
-        [TokenKind.OPEN_PARENTHESIS, TokenKind.FUNCTION, TokenKind.LITERAL],
-        [],
-        [TokenKind.OPERATOR],
-        [],
-        [TokenKind.OPERATOR],
-      ],
-    ],
-  ])('suggests next token %s', function (expression, expected) {
+  ])('suggests next token', function (expression, expected) {
     const tokens = tokenizeExpression(expression);
     expect(computeNextAllowedTokenKinds(tokens)).toEqual(expected);
   });

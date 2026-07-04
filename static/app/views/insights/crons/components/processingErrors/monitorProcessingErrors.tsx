@@ -153,6 +153,7 @@ export function MonitorProcessingErrors({
     <Alert.Container>
       <ScrollableAlert
         type="error"
+        showIcon
         expand={
           showingMultipleProjects ? (
             <ProjectGroupsList>{accordionErrors}</ProjectGroupsList>
@@ -215,5 +216,5 @@ const StyledStructuredEventData = styled(StructuredEventData)`
 `;
 
 const StyledProjectBadge = styled(ProjectBadge)`
-  font-weight: ${p => p.theme.fontWeight.bold};
+  font-weight: ${p => p.theme.fontWeightBold};
 `;

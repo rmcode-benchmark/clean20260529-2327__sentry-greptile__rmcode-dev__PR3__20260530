@@ -90,6 +90,7 @@ export default function AnomalyDetectionFeedbackBanner({
           </Button>
         </Fragment>
       }
+      showIcon
     >
       {t('Was the anomaly correctly identified?')}
     </Alert>

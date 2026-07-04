@@ -184,9 +184,7 @@ class PluginSettings<
       return (
         <div className="m-b-1">
           <Alert.Container>
-            <Alert type="warning" showIcon={false}>
-              {data.config_error}
-            </Alert>
+            <Alert type="warning">{data.config_error}</Alert>
           </Alert.Container>
           <LinkButton priority="primary" href={authUrl}>
             {t('Associate Identity')}
@@ -198,7 +196,7 @@ class PluginSettings<
     if (this.state.state === FormState.ERROR && !this.state.fieldList) {
       return (
         <Alert.Container>
-          <Alert type="error" showIcon={false}>
+          <Alert type="error">
             {tct(
               'An unknown error occurred. Need help with this? [link:Contact support]',
               {
@@ -225,11 +223,11 @@ class PluginSettings<
       >
         <Flex>
           {this.state.errors.__all__ && (
-            <Alert type="error" showIcon={false}>
+            <div className="alert alert-block alert-error">
               <ul>
                 <li>{this.state.errors.__all__}</li>
               </ul>
-            </Alert>
+            </div>
           )}
           {this.state.fieldList?.map(f =>
             this.renderField({

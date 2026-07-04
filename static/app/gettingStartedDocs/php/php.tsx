@@ -1,11 +1,11 @@
 import {Alert} from 'sentry/components/core/alert';
-import {ExternalLink} from 'sentry/components/core/link';
+import ExternalLink from 'sentry/components/links/externalLink';
+import {StepType} from 'sentry/components/onboarding/gettingStartedDoc/step';
 import type {
   Docs,
   DocsParams,
   OnboardingConfig,
 } from 'sentry/components/onboarding/gettingStartedDoc/types';
-import {StepType} from 'sentry/components/onboarding/gettingStartedDoc/types';
 import {
   getCrashReportModalConfigDescription,
   getCrashReportModalIntroduction,
@@ -105,7 +105,7 @@ const onboarding: OnboardingConfig = {
         {
           description: (
             <Alert.Container>
-              <Alert type="warning" showIcon={false}>
+              <Alert type="warning">
                 {tct(
                   'In order to receive stack trace arguments in your errors, make sure to set [code:zend.exception_ignore_args: Off] in your php.ini',
                   {
@@ -160,22 +160,15 @@ const performanceOnboarding: OnboardingConfig = {
   configure: params => [
     {
       type: StepType.CONFIGURE,
-      content: [
+      description: t(
+        'To capture all errors and transactions, even the one during the startup of your application, you should initialize the Sentry PHP SDK as soon as possible.'
+      ),
+      configurations: [
         {
-          type: 'text',
-          text: t(
-            'To capture all errors and transactions, even the one during the startup of your application, you should initialize the Sentry PHP SDK as soon as possible.'
-          ),
-        },
-        {
-          type: 'text',
-          text: tct(
+          description: tct(
             'To initialize the SDK before everything else, create an external file called [code:instrument.js/mjs] and make sure to import it in your apps entrypoint before anything else.',
             {code: <code />}
           ),
-        },
-        {
-          type: 'code',
           language: 'php',
           code: `
 \\Sentry\\init([
@@ -186,10 +179,7 @@ const performanceOnboarding: OnboardingConfig = {
   'traces_sample_rate' => 1.0,
 ]);
 `,
-        },
-        {
-          type: 'text',
-          text: tct(
+          additionalInfo: tct(
             'We recommend adjusting the value of [code:tracesSampleRate] in production. Learn more about tracing [linkTracingOptions:options], how to use the [linkTracesSampler:traces_sampler] function, or how to do [linkSampleTransactions:sampling].',
             {
               code: <code />,
@@ -211,19 +201,14 @@ const performanceOnboarding: OnboardingConfig = {
   verify: () => [
     {
       type: StepType.VERIFY,
-      content: [
+      description: tct(
+        'Verify that performance monitoring is working correctly with our [link:automatic instrumentation] by simply using your Node application.',
         {
-          type: 'text',
-          text: tct(
-            'Verify that performance monitoring is working correctly with our [link:automatic instrumentation] by simply using your Node application.',
-            {
-              link: (
-                <ExternalLink href="https://docs.sentry.io/platforms/php/tracing/instrumentation/automatic-instrumentation/" />
-              ),
-            }
+          link: (
+            <ExternalLink href="https://docs.sentry.io/platforms/php/tracing/instrumentation/automatic-instrumentation/" />
           ),
-        },
-      ],
+        }
+      ),
     },
   ],
   nextSteps: () => [],

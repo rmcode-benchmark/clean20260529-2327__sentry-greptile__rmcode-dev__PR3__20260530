@@ -10,6 +10,7 @@ import ProjectBadge from 'sentry/components/idBadge/projectBadge';
 import TextOverflow from 'sentry/components/textOverflow';
 import {IconChevron} from 'sentry/icons';
 import {t} from 'sentry/locale';
+import {space} from 'sentry/styles/space';
 import type {FeedbackIssue} from 'sentry/utils/feedback/types';
 import useCopyToClipboard from 'sentry/utils/useCopyToClipboard';
 import useOrganization from 'sentry/utils/useOrganization';
@@ -72,8 +73,14 @@ export default function FeedbackShortId({className, feedbackItem, style}: Props)
   });
 
   return (
-    <Flex gap="md" align="center" className={className} style={style} css={hideDropdown}>
-      <Flex gap="sm" align="center">
+    <Flex
+      gap={space(1)}
+      align="center"
+      className={className}
+      style={style}
+      css={hideDropdown}
+    >
+      <Flex gap={space(0.75)} align="center">
         {feedbackItem.project ? (
           <ProjectBadge
             project={feedbackItem.project}

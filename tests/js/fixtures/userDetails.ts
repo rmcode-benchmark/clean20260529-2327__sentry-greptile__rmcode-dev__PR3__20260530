@@ -36,6 +36,7 @@ export function UserDetailsFixture(params: Partial<User> = {}): User {
       prefersAgentsInsightsModule: false,
       prefersStackedNavigation: false,
       prefersChonkUI: false,
+      quickStartDisplay: {},
     },
     avatar: {avatarUuid: null, avatarType: 'letter_avatar'},
     lastLogin: '2018-01-25T19:57:46.973Z',

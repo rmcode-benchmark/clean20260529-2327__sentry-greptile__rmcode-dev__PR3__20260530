@@ -20,7 +20,7 @@ import {useHttpLandingChartFilter} from 'sentry/views/insights/common/components
 import HttpDurationChartWidget from 'sentry/views/insights/common/components/widgets/httpDurationChartWidget';
 import HttpResponseCodesChartWidget from 'sentry/views/insights/common/components/widgets/httpResponseCodesChartWidget';
 import HttpThroughputChartWidget from 'sentry/views/insights/common/components/widgets/httpThroughputChartWidget';
-import {useSpans} from 'sentry/views/insights/common/queries/useDiscover';
+import {useSpanMetrics} from 'sentry/views/insights/common/queries/useDiscover';
 import {QueryParameterNames} from 'sentry/views/insights/common/views/queryParameters';
 import SubregionSelector from 'sentry/views/insights/common/views/spans/selectors/subregionSelector';
 import {
@@ -78,7 +78,7 @@ export function HTTPLandingPage() {
     });
   };
 
-  const domainsListResponse = useSpans(
+  const domainsListResponse = useSpanMetrics(
     {
       search: MutableSearch.fromQueryObject(tableFilters),
       fields: [

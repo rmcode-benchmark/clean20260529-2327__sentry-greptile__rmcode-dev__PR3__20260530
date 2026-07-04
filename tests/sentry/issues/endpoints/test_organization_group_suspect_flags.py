@@ -69,7 +69,6 @@ class OrganizationGroupSuspectFlagsTestCase(APITestCase, SnubaTestCase):
                             "true": 1,
                         },
                     },
-                    "is_filtered": True,
                 },
                 {
                     "flag": "other",
@@ -83,7 +82,6 @@ class OrganizationGroupSuspectFlagsTestCase(APITestCase, SnubaTestCase):
                             "false": 1,
                         },
                     },
-                    "is_filtered": True,
                 },
             ]
         }

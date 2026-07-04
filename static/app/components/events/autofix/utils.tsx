@@ -129,13 +129,11 @@ export const getCodeChangesIsLoading = (autofixData: AutofixData) => {
   return changesStep?.status === AutofixStatus.PROCESSING;
 };
 
-const supportedProviders = ['integrations:github'];
-
-export const isSupportedAutofixProvider = (provider?: {id: string; name: string}) => {
-  if (!provider) {
-    return false;
-  }
-  return supportedProviders.includes(provider.id);
+export const isSupportedAutofixProvider = (provider: string) => {
+  return (
+    provider.toLowerCase() === 'github' ||
+    provider.toLowerCase() === 'integrations:github'
+  );
 };
 
 export interface AutofixProgressDetails {

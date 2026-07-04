@@ -356,6 +356,7 @@ function TagsHeatMap(
                       const target = generateLinkToEventInTraceView({
                         eventId: row.id,
                         traceSlug: row.trace?.toString()!,
+                        projectSlug: (row.project || row['project.name'])!.toString(),
                         timestamp: row.timestamp!,
                         location: {
                           ...location,
@@ -365,6 +366,7 @@ function TagsHeatMap(
                           },
                         },
                         organization,
+                        transactionName,
                         source: TraceViewSources.PERFORMANCE_TRANSACTION_SUMMARY,
                         view,
                       });

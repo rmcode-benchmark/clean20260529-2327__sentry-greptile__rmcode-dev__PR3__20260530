@@ -8,9 +8,9 @@ import moment from 'moment-timezone';
 import Collapsible from 'sentry/components/collapsible';
 import {Tag} from 'sentry/components/core/badge/tag';
 import {Button} from 'sentry/components/core/button';
-import {ExternalLink} from 'sentry/components/core/link';
 import {Tooltip} from 'sentry/components/core/tooltip';
 import GlobalSelectionLink from 'sentry/components/globalSelectionLink';
+import ExternalLink from 'sentry/components/links/externalLink';
 import Panel from 'sentry/components/panels/panel';
 import PanelHeader from 'sentry/components/panels/panelHeader';
 import TextOverflow from 'sentry/components/textOverflow';
@@ -304,7 +304,7 @@ const StyledPanel = styled(Panel)<{reloading: number}>`
   opacity: ${p => (p.reloading ? 0.5 : 1)};
   pointer-events: ${p => (p.reloading ? 'none' : 'auto')};
 
-  @media (min-width: ${p => p.theme.breakpoints.md}) {
+  @media (min-width: ${p => p.theme.breakpoints.medium}) {
     display: flex;
   }
 `;
@@ -316,7 +316,7 @@ const ReleaseInfo = styled('div')`
   flex-direction: column;
   justify-content: stretch;
 
-  @media (min-width: ${p => p.theme.breakpoints.md}) {
+  @media (min-width: ${p => p.theme.breakpoints.medium}) {
     border-right: 1px solid ${p => p.theme.border};
     min-width: 260px;
     width: 22%;
@@ -374,7 +374,7 @@ const ReleaseProjects = styled('div')`
   flex-grow: 1;
   display: grid;
 
-  @media (min-width: ${p => p.theme.breakpoints.md}) {
+  @media (min-width: ${p => p.theme.breakpoints.medium}) {
     border-top: none;
   }
 `;
@@ -413,7 +413,7 @@ const ExpandButtonWrapper = styled('div')`
   border-bottom: ${space(1)} solid ${p => p.theme.background};
   border-top: ${space(1)} solid transparent;
   border-bottom-right-radius: ${p => p.theme.borderRadius};
-  @media (max-width: ${p => p.theme.breakpoints.md}) {
+  @media (max-width: ${p => p.theme.breakpoints.medium}) {
     border-bottom-left-radius: ${p => p.theme.borderRadius};
   }
 `;
@@ -435,15 +435,15 @@ export const ReleaseProjectsLayout = styled('div')<{
   align-items: center;
   width: 100%;
 
-  @media (min-width: ${p => p.theme.breakpoints.sm}) {
+  @media (min-width: ${p => p.theme.breakpoints.small}) {
     grid-template-columns: 1fr 1fr 1fr 0.5fr 0.5fr 0.5fr;
   }
 
-  @media (min-width: ${p => p.theme.breakpoints.md}) {
+  @media (min-width: ${p => p.theme.breakpoints.medium}) {
     grid-template-columns: 1fr 1fr 1fr 0.5fr 0.5fr 0.5fr;
   }
 
-  @media (min-width: ${p => p.theme.breakpoints.xl}) {
+  @media (min-width: ${p => p.theme.breakpoints.xlarge}) {
     ${p => {
       const adoptionStagesSize = p.showReleaseAdoptionStages ? '0.7fr' : '';
       return `grid-template-columns: 1fr ${adoptionStagesSize} 1fr 1fr 0.7fr 0.7fr 0.5fr`;
@@ -459,7 +459,7 @@ export const ReleaseProjectColumn = styled('div')`
 export const NewIssuesColumn = styled(ReleaseProjectColumn)`
   font-variant-numeric: tabular-nums;
 
-  @media (min-width: ${p => p.theme.breakpoints.sm}) {
+  @media (min-width: ${p => p.theme.breakpoints.small}) {
     text-align: right;
   }
 `;
@@ -468,7 +468,7 @@ export const AdoptionColumn = styled(ReleaseProjectColumn)`
   display: none;
   font-variant-numeric: tabular-nums;
 
-  @media (min-width: ${p => p.theme.breakpoints.sm}) {
+  @media (min-width: ${p => p.theme.breakpoints.small}) {
     display: flex;
     /* Chart tooltips need overflow */
     overflow: visible;
@@ -483,7 +483,7 @@ export const AdoptionStageColumn = styled(ReleaseProjectColumn)`
   display: none;
   font-variant-numeric: tabular-nums;
 
-  @media (min-width: ${p => p.theme.breakpoints.xl}) {
+  @media (min-width: ${p => p.theme.breakpoints.xlarge}) {
     display: flex;
 
     /* Need to show the edges of the tags */
@@ -494,11 +494,11 @@ export const AdoptionStageColumn = styled(ReleaseProjectColumn)`
 export const CrashFreeRateColumn = styled(ReleaseProjectColumn)`
   font-variant-numeric: tabular-nums;
 
-  @media (min-width: ${p => p.theme.breakpoints.sm}) {
+  @media (min-width: ${p => p.theme.breakpoints.small}) {
     text-align: center;
   }
 
-  @media (min-width: ${p => p.theme.breakpoints.xl}) {
+  @media (min-width: ${p => p.theme.breakpoints.xlarge}) {
     text-align: right;
   }
 `;
@@ -507,7 +507,7 @@ export const DisplaySmallCol = styled(ReleaseProjectColumn)`
   display: none;
   font-variant-numeric: tabular-nums;
 
-  @media (min-width: ${p => p.theme.breakpoints.sm}) {
+  @media (min-width: ${p => p.theme.breakpoints.small}) {
     display: block;
     text-align: right;
   }
@@ -525,7 +525,7 @@ const HiddenProjectsMessage = styled('div')`
   color: ${p => p.theme.subText};
   background-color: ${p => p.theme.backgroundSecondary};
   border-bottom-right-radius: ${p => p.theme.borderRadius};
-  @media (max-width: ${p => p.theme.breakpoints.md}) {
+  @media (max-width: ${p => p.theme.breakpoints.medium}) {
     border-bottom-left-radius: ${p => p.theme.borderRadius};
   }
 `;

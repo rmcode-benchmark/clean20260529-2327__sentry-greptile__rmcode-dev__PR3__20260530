@@ -11,12 +11,18 @@ import {SQLishFormatter} from 'sentry/utils/sqlish/SQLishFormatter';
 import {MutableSearch} from 'sentry/utils/tokenizeSearch';
 import {useLocation} from 'sentry/utils/useLocation';
 import {useNavigate} from 'sentry/utils/useNavigate';
-import {useSpans} from 'sentry/views/insights/common/queries/useDiscover';
+import {useSpansIndexed} from 'sentry/views/insights/common/queries/useDiscover';
+import {useFullSpanFromTrace} from 'sentry/views/insights/common/queries/useFullSpanFromTrace';
 import {useModuleURL} from 'sentry/views/insights/common/utils/useModuleURL';
 import {prettyPrintJsonString} from 'sentry/views/insights/database/utils/jsonUtils';
-import {ModuleName, SpanFields} from 'sentry/views/insights/types';
+import {ModuleName, SpanIndexedField} from 'sentry/views/insights/types';
 
 const formatter = new SQLishFormatter();
+
+const INDEXED_SPAN_SORT = {
+  field: 'span.self_time',
+  kind: 'desc' as const,
+};
 
 interface Props {
   moduleName: ModuleName;
@@ -28,29 +34,35 @@ interface Props {
 export function FullSpanDescription({
   group,
   shortDescription,
-  filters = {},
+  filters,
   moduleName,
 }: Props) {
-  const {data: indexedSpans, isFetching: areIndexedSpansLoading} = useSpans(
+  const {data: indexedSpans, isFetching: areIndexedSpansLoading} = useSpansIndexed(
     {
-      search: MutableSearch.fromQueryObject({'span.group': group, ...filters}),
+      search: MutableSearch.fromQueryObject({'span.group': group}),
       limit: 1,
       fields: [
-        SpanFields.PROJECT_ID,
-        SpanFields.TRANSACTION_SPAN_ID,
-        SpanFields.SPAN_DESCRIPTION,
-        SpanFields.DB_SYSTEM,
+        SpanIndexedField.PROJECT_ID,
+        SpanIndexedField.TRANSACTION_ID,
+        SpanIndexedField.SPAN_DESCRIPTION,
       ],
     },
     'api.starfish.span-description'
   );
-
   const indexedSpan = indexedSpans?.[0];
 
-  const description = indexedSpan?.['span.description'] ?? shortDescription;
-  const system = indexedSpan?.['db.system'];
+  // This is used as backup in case we don't have the necessary data available in the indexed span
+  const {
+    data: fullSpan,
+    isLoading,
+    isFetching,
+  } = useFullSpanFromTrace(group, [INDEXED_SPAN_SORT], Boolean(indexedSpan), filters);
 
-  if (areIndexedSpansLoading) {
+  const description =
+    indexedSpan?.['span.description'] ?? fullSpan?.description ?? shortDescription;
+  const system = fullSpan?.data?.['db.system'];
+
+  if (areIndexedSpansLoading || (isLoading && isFetching)) {
     return (
       <PaddedSpinner>
         <LoadingIndicator mini relative />
@@ -71,8 +83,10 @@ export function FullSpanDescription({
         result = prettyPrintJsonString(indexedSpan?.['span.description']);
       } else if (description) {
         result = prettyPrintJsonString(description);
+      } else if (fullSpan?.sentry_tags?.description) {
+        result = prettyPrintJsonString(fullSpan?.sentry_tags.description);
       } else {
-        stringifiedQuery = description || 'N/A';
+        stringifiedQuery = description || fullSpan?.sentry_tags?.description || 'N/A';
       }
 
       if (result) {

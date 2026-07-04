@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import type {LocationDescriptor} from 'history';
 
 import {Tag} from 'sentry/components/core/badge/tag';
-import {ExternalLink} from 'sentry/components/core/link';
+import ExternalLink from 'sentry/components/links/externalLink';
 import MenuItem from 'sentry/components/menuItem';
 import Truncate from 'sentry/components/truncate';
 import {space} from 'sentry/styles/space';
@@ -74,7 +74,7 @@ export const DropdownContainer = styled('span')`
 
 export const DropdownMenuHeader = styled(MenuItem)<{first?: boolean}>`
   text-transform: uppercase;
-  font-weight: ${p => p.theme.fontWeight.bold};
+  font-weight: ${p => p.theme.fontWeightBold};
   color: ${p => p.theme.gray400};
   border-bottom: 1px solid ${p => p.theme.innerBorder};
   background: ${p => p.theme.backgroundSecondary};

@@ -1,18 +1,13 @@
-from __future__ import annotations
-
 import abc
 import logging
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
+from sentry.identity.pipeline_types import IdentityPipelineProviderT
 from sentry.identity.services.identity.model import RpcIdentity
-from sentry.pipeline.provider import PipelineProvider
 from sentry.users.models.identity import Identity
 
-if TYPE_CHECKING:
-    from sentry.identity.pipeline import IdentityPipeline  # noqa: F401
 
-
-class Provider(PipelineProvider["IdentityPipeline"], abc.ABC):
+class Provider(IdentityPipelineProviderT, abc.ABC):
     """
     A provider indicates how identity authenticate should happen for a given service.
     """

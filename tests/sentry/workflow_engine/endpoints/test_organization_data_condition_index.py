@@ -48,7 +48,7 @@ class OrganizationDataConditionAPITestCase(APITestCase):
             comparison_json_schema = {"type": "boolean"}
 
         # This legacy condition should not be included in the response
-        @self.registry.register(Condition.EXISTING_HIGH_PRIORITY_ISSUE)
+        @self.registry.register(Condition.EVERY_EVENT)
         @dataclass(frozen=True)
         class TestIgnoredCondition(DataConditionHandler):
             group = DataConditionHandler.Group.WORKFLOW_TRIGGER

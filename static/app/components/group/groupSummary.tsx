@@ -32,7 +32,7 @@ export interface GroupSummaryData {
   whatsWrong?: string | null;
 }
 
-const makeGroupSummaryQueryKey = (
+export const makeGroupSummaryQueryKey = (
   organizationSlug: string,
   groupId: string,
   eventId?: string
@@ -59,7 +59,7 @@ export function useGroupSummaryData(group: Group) {
   return {data, isPending};
 }
 
-function useGroupSummary(
+export function useGroupSummary(
   group: Group,
   event: Event | null | undefined,
   project: Project,
@@ -369,7 +369,7 @@ const CardTitle = styled('div')`
 const CardTitleText = styled('p')`
   margin: 0;
   font-size: ${p => p.theme.fontSize.md};
-  font-weight: ${p => p.theme.fontWeight.bold};
+  font-weight: ${p => p.theme.fontWeightBold};
 `;
 
 const CardTitleIcon = styled('div')`

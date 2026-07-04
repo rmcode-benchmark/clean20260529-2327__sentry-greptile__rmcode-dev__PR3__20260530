@@ -24,6 +24,7 @@ import type {TraceTree} from 'sentry/views/performance/newTraceDetails/traceMode
 import {getTransactionSummaryBaseUrl} from 'sentry/views/performance/transactionSummary/utils';
 import {getPerformanceBaseUrl} from 'sentry/views/performance/utils';
 
+import {DEFAULT_TRACE_ROWS_LIMIT} from './limitExceededMessage';
 import type {TraceInfo} from './types';
 
 function getBaseTraceUrl(
@@ -100,21 +101,32 @@ export function getTraceDetailsUrl({
     };
   }
 
-  if (spanId) {
-    const path: TraceTree.NodePath[] = [`span-${spanId}`, `txn-${targetId ?? eventId}`];
-    queryParams.node = path;
+  if (organization.features.includes('trace-view-v1')) {
+    if (spanId) {
+      const path: TraceTree.NodePath[] = [`span-${spanId}`, `txn-${targetId ?? eventId}`];
+      queryParams.node = path;
+    }
+
+    return {
+      pathname: normalizeUrl(`${baseUrl}/trace/${traceSlug}/`),
+      query: {
+        ...queryParams,
+        timestamp: getTimeStampFromTableDateField(timestamp),
+        eventId,
+        targetId,
+        demo,
+        source,
+      },
+    };
+  }
+
+  if (organization.features.includes('trace-view-load-more')) {
+    queryParams.limit = DEFAULT_TRACE_ROWS_LIMIT;
   }
 
   return {
     pathname: normalizeUrl(`${baseUrl}/trace/${traceSlug}/`),
-    query: {
-      ...queryParams,
-      timestamp: getTimeStampFromTableDateField(timestamp),
-      eventId,
-      targetId,
-      demo,
-      source,
-    },
+    query: queryParams,
   };
 }
 

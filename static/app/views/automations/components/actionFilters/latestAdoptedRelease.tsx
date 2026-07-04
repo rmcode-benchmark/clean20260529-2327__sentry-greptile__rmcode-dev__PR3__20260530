@@ -1,6 +1,5 @@
-import {AutomationBuilderSelect} from 'sentry/components/workflowEngine/form/automationBuilderSelect';
+import AutomationBuilderSelectField from 'sentry/components/workflowEngine/form/automationBuilderSelectField';
 import {t, tct} from 'sentry/locale';
-import type {SelectValue} from 'sentry/types/core';
 import type {Environment} from 'sentry/types/project';
 import type {DataCondition} from 'sentry/types/workflowEngine/dataConditions';
 import {useApiQuery} from 'sentry/utils/queryClient';
@@ -11,8 +10,6 @@ import {
   MODEL_AGE_CHOICES,
   type ModelAge,
 } from 'sentry/views/automations/components/actionFilters/constants';
-import {useAutomationBuilderErrorContext} from 'sentry/views/automations/components/automationBuilderErrorContext';
-import type {ValidateDataConditionProps} from 'sentry/views/automations/components/automationFormData';
 import {useDataConditionNodeContext} from 'sentry/views/automations/components/dataConditionNodes';
 
 export function LatestAdoptedReleaseDetails({condition}: {condition: DataCondition}) {
@@ -46,13 +43,14 @@ export function LatestAdoptedReleaseNode() {
 function ReleaseAgeTypeField() {
   const {condition, condition_id, onUpdate} = useDataConditionNodeContext();
   return (
-    <AutomationBuilderSelect
+    <AutomationBuilderSelectField
       name={`${condition_id}.comparison.release_age_type`}
-      aria-label={t('Release age type')}
       value={condition.comparison.release_age_type}
       options={MODEL_AGE_CHOICES}
-      onChange={(option: SelectValue<ModelAge>) => {
-        onUpdate({comparison: {...condition.comparison, release_age_type: option.value}});
+      onChange={(value: ModelAge) => {
+        onUpdate({
+          match: value,
+        });
       }}
     />
   );
@@ -61,13 +59,14 @@ function ReleaseAgeTypeField() {
 function AgeComparisonField() {
   const {condition, condition_id, onUpdate} = useDataConditionNodeContext();
   return (
-    <AutomationBuilderSelect
+    <AutomationBuilderSelectField
       name={`${condition_id}.comparison.age_comparison`}
-      aria-label={t('Age comparison')}
       value={condition.comparison.age_comparison}
       options={AGE_COMPARISON_CHOICES}
-      onChange={(option: SelectValue<AgeComparison>) => {
-        onUpdate({comparison: {...condition.comparison, age_comparison: option.value}});
+      onChange={(value: AgeComparison) => {
+        onUpdate({
+          match: value,
+        });
       }}
     />
   );
@@ -75,7 +74,6 @@ function AgeComparisonField() {
 
 function EnvironmentField() {
   const {condition, condition_id, onUpdate} = useDataConditionNodeContext();
-  const {removeError} = useAutomationBuilderErrorContext();
 
   const {environments} = useOrganizationEnvironments();
   const environmentOptions = environments.map(({id, name}) => ({
@@ -84,17 +82,15 @@ function EnvironmentField() {
   }));
 
   return (
-    <AutomationBuilderSelect
+    <AutomationBuilderSelectField
       name={`${condition_id}.comparison.environment`}
-      aria-label={t('Environment')}
       value={condition.comparison.environment}
       options={environmentOptions}
       placeholder={t('environment')}
-      onChange={(option: SelectValue<string>) => {
-        onUpdate({comparison: {...condition.comparison, environment: option.value}});
-        // We only remove the error when `environment` is changed since
-        // other fields have default values and should not trigger an error
-        removeError(condition.id);
+      onChange={(value: string) => {
+        onUpdate({
+          environment: value,
+        });
       }}
     />
   );
@@ -112,17 +108,4 @@ function useOrganizationEnvironments() {
     }
   );
   return {environments, isLoading};
-}
-
-export function validateLatestAdoptedReleaseCondition({
-  condition,
-}: ValidateDataConditionProps): string | undefined {
-  if (
-    !condition.comparison.release_age_type ||
-    !condition.comparison.age_comparison ||
-    !condition.comparison.environment
-  ) {
-    return t('Ensure all fields are filled in.');
-  }
-  return undefined;
 }

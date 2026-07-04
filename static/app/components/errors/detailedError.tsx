@@ -47,7 +47,7 @@ function DetailedError({className, heading, message, onRetry, hideSupportLinks}:
           <div>{onRetry && <Button onClick={onRetry}>{t('Retry')}</Button>}</div>
 
           {!hideSupportLinks && (
-            <ButtonBar gap="lg">
+            <ButtonBar gap={1.5}>
               {lastEventId && (
                 <Button
                   priority="link"

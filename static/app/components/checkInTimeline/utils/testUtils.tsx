@@ -29,31 +29,31 @@ export const testStatusLabel = {
   in_progress: 'In Progress',
 };
 
-export const testStatusStyle: TickStyle<string> = theme => ({
+export const testStatusStyle: Record<string, TickStyle> = {
   error: {
-    labelColor: theme.red400,
-    tickColor: theme.red300,
+    labelColor: 'red400',
+    tickColor: 'red300',
   },
   timeout: {
-    labelColor: theme.red400,
-    tickColor: theme.red300,
-    hatchTick: theme.red200,
+    labelColor: 'red400',
+    tickColor: 'red300',
+    hatchTick: 'red200',
   },
   ok: {
-    labelColor: theme.green400,
-    tickColor: theme.green300,
+    labelColor: 'green400',
+    tickColor: 'green300',
   },
   missed: {
-    labelColor: theme.yellow400,
-    tickColor: theme.yellow300,
+    labelColor: 'yellow400',
+    tickColor: 'yellow300',
   },
   in_progress: {
-    labelColor: theme.disabled,
-    tickColor: theme.disabled,
+    labelColor: 'disabled',
+    tickColor: 'disabled',
   },
   unknown: {
-    labelColor: theme.gray400,
-    tickColor: theme.gray300,
-    hatchTick: theme.gray200,
+    labelColor: 'gray400',
+    tickColor: 'gray300',
+    hatchTick: 'gray200',
   },
-});
+};

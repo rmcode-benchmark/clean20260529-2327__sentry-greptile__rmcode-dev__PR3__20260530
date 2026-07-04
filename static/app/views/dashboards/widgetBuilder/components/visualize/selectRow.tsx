@@ -59,7 +59,6 @@ interface SelectRowProps {
     option: FieldValueOption,
     fieldValue?: QueryFieldValue | undefined
   ) => boolean;
-  disabled?: boolean;
   error?: Record<string, any>;
   setError?: (error: Record<string, any>) => void;
   stringFields?: string[];
@@ -109,7 +108,6 @@ export function SelectRow({
   fieldOptions,
   columnFilterMethod,
   aggregates,
-  disabled,
 }: SelectRowProps) {
   const organization = useOrganization();
   const {state, dispatch} = useWidgetBuilderContext();
@@ -152,7 +150,7 @@ export function SelectRow({
       <AggregateCompactSelect
         searchable
         hasColumnParameter={hasColumnParameter}
-        disabled={disabled || aggregateOptions.length <= 1}
+        disabled={aggregateOptions.length <= 1}
         options={aggregateOptions}
         value={
           parseFunction(stringFields?.[index] ?? '')?.name
@@ -446,7 +444,7 @@ export function SelectRow({
             triggerProps={{
               'aria-label': t('Column Selection'),
             }}
-            disabled={disabled || lockOptions}
+            disabled={lockOptions}
           />
         </SelectWrapper>
       )}

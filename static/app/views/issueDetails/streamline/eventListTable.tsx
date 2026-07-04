@@ -3,14 +3,14 @@ import styled from '@emotion/styled';
 
 import {ButtonBar} from 'sentry/components/core/button/buttonBar';
 import {LinkButton} from 'sentry/components/core/button/linkButton';
-import Panel from 'sentry/components/panels/panel';
 import {
   GridBodyCell,
   GridHead,
   GridHeadCell,
   GridResizer,
   GridRow,
-} from 'sentry/components/tables/gridEditable/styles';
+} from 'sentry/components/gridEditable/styles';
+import Panel from 'sentry/components/panels/panel';
 import {IconChevron} from 'sentry/icons';
 import {t, tct} from 'sentry/locale';
 import {space} from 'sentry/styles/space';
@@ -90,7 +90,7 @@ export function EventListTable({children, pagination, title}: EventListTableProp
                 />
               </HeaderItem>
               <HeaderItem>
-                <ButtonBar gap="2xs">
+                <ButtonBar gap={0.25}>
                   <PaginationButton
                     aria-label={t('Previous Page')}
                     borderless
@@ -146,13 +146,13 @@ export const Header = styled('div')`
 
 export const Title = styled('div')`
   color: ${p => p.theme.textColor};
-  font-weight: ${p => p.theme.fontWeight.bold};
+  font-weight: ${p => p.theme.fontWeightBold};
   font-size: ${p => p.theme.fontSize.md};
 `;
 
 export const HeaderItem = styled('div')`
   color: ${p => p.theme.subText};
-  font-weight: ${p => p.theme.fontWeight.normal};
+  font-weight: ${p => p.theme.fontWeightNormal};
   font-size: ${p => p.theme.fontSize.sm};
 `;
 
@@ -225,7 +225,7 @@ const StreamlineGridEditable = styled('div')`
 
 export const PaginationButton = styled(LinkButton)`
   color: ${p => p.theme.subText};
-  font-weight: ${p => p.theme.fontWeight.normal};
+  font-weight: ${p => p.theme.fontWeightNormal};
 `;
 
 export function PaginationText({

@@ -34,7 +34,7 @@ export default ReleasesDisplayOptions;
 
 const StyledReleasesDropdown = styled(ReleasesDropdown)`
   z-index: 1;
-  @media (max-width: ${p => p.theme.breakpoints.lg}) {
+  @media (max-width: ${p => p.theme.breakpoints.large}) {
     order: 3;
   }
 `;

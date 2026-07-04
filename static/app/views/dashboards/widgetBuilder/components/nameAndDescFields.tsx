@@ -32,16 +32,13 @@ function WidgetBuilderNameAndDescription({
 
   return (
     <Fragment>
-      <SectionHeader
-        title={t('Display Name')}
-        tooltipText={t('This will appear in the header of your widget.')}
-      />
+      <SectionHeader title={t('Widget Name & Description')} />
       <StyledTextField
-        name={t('Name')}
+        name={t('Widget Name')}
         size="md"
         placeholder={t('Name')}
-        title={t('Name')}
-        aria-label={t('Name')}
+        title={t('Widget Name')}
+        aria-label={t('Widget Name')}
         value={state.title}
         onChange={(newTitle: any) => {
           // clear error once user starts typing
@@ -66,19 +63,19 @@ function WidgetBuilderNameAndDescription({
       {!isDescSelected && (
         <Button
           priority="link"
-          aria-label={t('Add Description')}
+          aria-label={t('Add Widget Description')}
           onClick={() => {
             setIsDescSelected(true);
           }}
           data-test-id={'add-description'}
         >
-          {t('+ Add Description')}
+          {t('+ Add Widget Description')}
         </Button>
       )}
       {isDescSelected && (
-        <TextArea
+        <DescriptionTextArea
           placeholder={t('Description')}
-          aria-label={t('Description')}
+          aria-label={t('Widget Description')}
           autosize
           rows={4}
           value={state.description}
@@ -108,4 +105,8 @@ const StyledTextField = styled(TextField)`
   margin-bottom: ${space(1)};
   padding: 0;
   border: none;
+`;
+
+const DescriptionTextArea = styled(TextArea)`
+  margin: ${space(2)} 0;
 `;

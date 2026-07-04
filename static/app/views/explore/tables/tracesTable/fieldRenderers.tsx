@@ -4,9 +4,9 @@ import styled from '@emotion/styled';
 import type {Location} from 'history';
 
 import {Tag} from 'sentry/components/core/badge/tag';
-import {Link} from 'sentry/components/core/link';
 import {Tooltip} from 'sentry/components/core/tooltip';
 import ProjectBadge from 'sentry/components/idBadge/projectBadge';
+import Link from 'sentry/components/links/link';
 import {RowRectangle} from 'sentry/components/performance/waterfall/rowBar';
 import {pickBarColor} from 'sentry/components/performance/waterfall/utils';
 import PerformanceDuration from 'sentry/components/performanceDuration';
@@ -23,7 +23,7 @@ import useProjects from 'sentry/utils/useProjects';
 import type {TraceResult} from 'sentry/views/explore/hooks/useTraces';
 import {BREAKDOWN_SLICES} from 'sentry/views/explore/hooks/useTraces';
 import type {SpanResult} from 'sentry/views/explore/hooks/useTraceSpans';
-import type {SpanFields, SpanResponse} from 'sentry/views/insights/types';
+import type {SpanIndexedField, SpanIndexedResponse} from 'sentry/views/insights/types';
 import {TraceViewSources} from 'sentry/views/performance/newTraceDetails/traceHeader/breadcrumbs';
 import {getTraceDetailsUrl} from 'sentry/views/performance/traceDetails/utils';
 
@@ -155,7 +155,7 @@ const CollapsedBadge = styled('div')<{fontSize: number; size: number}>`
   justify-content: center;
   position: relative;
   text-align: center;
-  font-weight: ${p => p.theme.fontWeight.bold};
+  font-weight: ${p => p.theme.fontWeightBold};
   background-color: ${p => p.theme.gray200};
   color: ${p => p.theme.subText};
   font-size: ${p => p.fontSize}px;
@@ -369,7 +369,7 @@ export function SpanBreakdownSliceRenderer({
 }
 
 const Subtext = styled('span')`
-  font-weight: ${p => p.theme.fontWeight.normal};
+  font-weight: ${p => p.theme.fontWeightNormal};
   color: ${p => p.theme.subText};
 `;
 const FlexContainer = styled('div')`
@@ -392,6 +392,7 @@ const BreakdownSlice = styled('div')<{
 `;
 
 interface SpanIdRendererProps {
+  projectSlug: string;
   spanId: string;
   timestamp: string;
   traceId: string;
@@ -400,6 +401,7 @@ interface SpanIdRendererProps {
 }
 
 export function SpanIdRenderer({
+  projectSlug,
   spanId,
   timestamp,
   traceId,
@@ -410,6 +412,7 @@ export function SpanIdRenderer({
   const organization = useOrganization();
 
   const target = generateLinkToEventInTraceView({
+    projectSlug,
     traceSlug: traceId,
     timestamp,
     eventId: transactionId,
@@ -482,7 +485,7 @@ export function SpanTimeRenderer({
   );
 }
 
-type SpanStatus = SpanResponse[SpanFields.SPAN_STATUS];
+type SpanStatus = SpanIndexedResponse[SpanIndexedField.SPAN_STATUS];
 
 const STATUS_TO_TAG_TYPE: Record<SpanStatus, keyof Theme['tag']> = {
   ok: 'success',

@@ -265,6 +265,7 @@ describe('Performance > VitalDetail', function () {
       await screen.findByPlaceholderText('Search for events, users, tags, and more')
     );
     await userEvent.paste('user.email:uhoh*');
+    await userEvent.keyboard('{enter}');
 
     // Check the navigation.
     await waitFor(() => {
@@ -347,7 +348,7 @@ describe('Performance > VitalDetail', function () {
     expect(await screen.findByText('Cumulative Layout Shift')).toBeInTheDocument();
 
     await userEvent.click(
-      await screen.findByLabelText('See transaction summary of the transaction something')
+      screen.getByLabelText('See transaction summary of the transaction something')
     );
 
     expect(newRouter.push).toHaveBeenCalledWith({

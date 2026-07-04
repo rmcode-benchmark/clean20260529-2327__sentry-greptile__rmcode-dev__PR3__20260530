@@ -1,5 +1,8 @@
+import styled from '@emotion/styled';
+
 import type {ViewerProps} from 'sentry/components/events/attachmentViewers/utils';
 import {getAttachmentUrl} from 'sentry/components/events/attachmentViewers/utils';
+import PanelItem from 'sentry/components/panels/panelItem';
 
 type Props = Omit<ViewerProps, 'attachment'> & {
   attachment: ViewerProps['attachment'];
@@ -7,16 +10,21 @@ type Props = Omit<ViewerProps, 'attachment'> & {
   onLoad?: React.ReactEventHandler<HTMLImageElement>;
 };
 
-function ImageViewer({onLoad, onError, className, ...props}: Props) {
+function ImageViewer({className, onLoad, onError, ...props}: Props) {
   return (
-    <img
-      className={className}
-      data-test-id="image-viewer"
-      src={getAttachmentUrl(props, true)}
-      onLoad={onLoad}
-      onError={onError}
-    />
+    <Container className={className}>
+      <img
+        data-test-id="image-viewer"
+        src={getAttachmentUrl(props, true)}
+        onLoad={onLoad}
+        onError={onError}
+      />
+    </Container>
   );
 }
 
 export default ImageViewer;
+
+const Container = styled(PanelItem)`
+  justify-content: center;
+`;

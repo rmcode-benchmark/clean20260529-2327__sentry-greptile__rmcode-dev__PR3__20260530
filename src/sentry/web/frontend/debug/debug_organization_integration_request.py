@@ -1,7 +1,6 @@
 from django.http import HttpRequest, HttpResponse
 from django.views.generic import View
 
-from sentry.integrations.types import IntegrationProviderSlug
 from sentry.models.organization import Organization
 from sentry.models.organizationmember import OrganizationMember
 from sentry.notifications.notifications.organization_request.integration_request import (
@@ -23,7 +22,7 @@ class DebugOrganizationIntegrationRequestEmailView(View):
             org,
             requester,
             provider_type="first_party",
-            provider_slug=IntegrationProviderSlug.SLACK.value,
+            provider_slug="slack",
             provider_name="Slack",
         )
 

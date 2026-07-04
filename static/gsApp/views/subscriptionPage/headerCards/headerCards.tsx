@@ -32,7 +32,7 @@ const HeaderCardWrapper = styled(Panel)`
   display: grid;
   margin-bottom: ${space(2)};
 
-  @media (min-width: ${p => p.theme.breakpoints.lg}) {
+  @media (min-width: ${p => p.theme.breakpoints.large}) {
     grid-template-columns: auto minmax(0, 600px);
     gap: ${space(2)};
   }

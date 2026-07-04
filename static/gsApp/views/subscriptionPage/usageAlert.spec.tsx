@@ -26,15 +26,12 @@ describe('Subscription > UsageAlert', function () {
     expect(screen.queryByTestId('usage-alert')).not.toBeInTheDocument();
   });
 
-  it('renders request add events CTA if business, non-billing member, and usage exceeded', function () {
+  it('renders request add events CTA if am1 business and a member', function () {
     const organization = OrganizationFixture({access: []});
     const subscription = SubscriptionFixture({
       organization,
       plan: 'am1_business',
       canSelfServe: true,
-      categories: {
-        errors: MetricHistoryFixture({usageExceeded: true}),
-      },
     });
 
     SubscriptionStore.set(organization.slug, subscription);
@@ -42,6 +39,7 @@ describe('Subscription > UsageAlert', function () {
       organization,
     });
 
+    expect(screen.queryByTestId('usage-alert')).not.toBeInTheDocument();
     expect(screen.getByLabelText('Request Additional Quota')).toBeInTheDocument();
   });
 
@@ -500,6 +498,7 @@ describe('Subscription > UsageAlert', function () {
           subscription={{
             ...subscription,
             plan: 'am1_f',
+            reservedErrors: 5000,
             categories: {
               errors: MetricHistoryFixture({prepaid: 5_000, reserved: 5_000}),
             },

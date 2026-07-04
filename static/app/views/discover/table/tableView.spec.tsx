@@ -336,7 +336,7 @@ describe('TableView > CellActions', function () {
 
   it('renders trace view link', function () {
     const org = OrganizationFixture({
-      features: ['discover-basic'],
+      features: ['discover-basic', 'trace-view-v1'],
     });
 
     rows = {

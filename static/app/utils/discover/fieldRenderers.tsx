@@ -6,18 +6,18 @@ import partial from 'lodash/partial';
 
 import {Tag} from 'sentry/components/core/badge/tag';
 import {Button} from 'sentry/components/core/button';
-import {ExternalLink, Link} from 'sentry/components/core/link';
 import {Tooltip} from 'sentry/components/core/tooltip';
 import Count from 'sentry/components/count';
 import {deviceNameMapper} from 'sentry/components/deviceName';
 import type {MenuItemProps} from 'sentry/components/dropdownMenu';
 import {DropdownMenu} from 'sentry/components/dropdownMenu';
 import Duration from 'sentry/components/duration';
-import {ContextIcon} from 'sentry/components/events/contexts/contextIcon';
 import FileSize from 'sentry/components/fileSize';
 import BadgeDisplayName from 'sentry/components/idBadge/badgeDisplayName';
 import ProjectBadge from 'sentry/components/idBadge/projectBadge';
 import UserBadge from 'sentry/components/idBadge/userBadge';
+import ExternalLink from 'sentry/components/links/externalLink';
+import Link from 'sentry/components/links/link';
 import {RowRectangle} from 'sentry/components/performance/waterfall/rowBar';
 import {pickBarColor} from 'sentry/components/performance/waterfall/utils';
 import UserMisery from 'sentry/components/userMisery';
@@ -45,7 +45,6 @@ import {
   SPAN_OP_BREAKDOWN_FIELDS,
   SPAN_OP_RELATIVE_BREAKDOWN_FIELD,
 } from 'sentry/utils/discover/fields';
-import ViewReplayLink from 'sentry/utils/discover/viewReplayLink';
 import {getShortEventId} from 'sentry/utils/events';
 import {formatRate} from 'sentry/utils/formatters';
 import getDynamicText from 'sentry/utils/getDynamicText';
@@ -61,18 +60,15 @@ import {ContextType} from 'sentry/views/discover/table/quickContext/utils';
 import {PerformanceBadge} from 'sentry/views/insights/browser/webVitals/components/performanceBadge';
 import {PercentChangeCell} from 'sentry/views/insights/common/components/tableCells/percentChangeCell';
 import {ResponseStatusCodeCell} from 'sentry/views/insights/common/components/tableCells/responseStatusCodeCell';
-import {SpanDescriptionCell} from 'sentry/views/insights/common/components/tableCells/spanDescriptionCell';
 import {StarredSegmentCell} from 'sentry/views/insights/common/components/tableCells/starredSegmentCell';
 import {TimeSpentCell} from 'sentry/views/insights/common/components/tableCells/timeSpentCell';
-import {ModuleName, SpanFields} from 'sentry/views/insights/types';
+import {SpanFields, SpanMetricsField} from 'sentry/views/insights/types';
 import {
   filterToLocationQuery,
   SpanOperationBreakdownFilter,
   stringToFilter,
 } from 'sentry/views/performance/transactionSummary/filter';
-import {makeProjectsPathname} from 'sentry/views/projects/pathname';
 import {ADOPTION_STAGE_LABELS} from 'sentry/views/releases/utils';
-import {makeReplaysPathname} from 'sentry/views/replays/pathnames';
 
 import ArrayValue from './arrayValue';
 import {
@@ -81,7 +77,6 @@ import {
   FieldDateTime,
   FieldShortId,
   FlexContainer,
-  IconContainer,
   NumberContainer,
   OverflowFieldShortId,
   OverflowLink,
@@ -111,7 +106,7 @@ type FieldFormatterRenderFunction = (
   baggage?: RenderFunctionBaggage
 ) => React.ReactNode;
 
-export type FieldFormatterRenderFunctionPartial = (
+type FieldFormatterRenderFunctionPartial = (
   data: EventData,
   baggage: RenderFunctionBaggage
 ) => React.ReactNode;
@@ -139,9 +134,7 @@ const EmptyValueContainer = styled('span')`
   color: ${p => p.theme.subText};
 `;
 const emptyValue = <EmptyValueContainer>{t('(no value)')}</EmptyValueContainer>;
-export const emptyStringValue = (
-  <EmptyValueContainer>{t('(empty string)')}</EmptyValueContainer>
-);
+const emptyStringValue = <EmptyValueContainer>{t('(empty string)')}</EmptyValueContainer>;
 const missingUserMisery = tct(
   'We were unable to calculate User Misery. A likely cause of this is that the user was not set. [link:Read the docs]',
   {
@@ -149,9 +142,6 @@ const missingUserMisery = tct(
       <ExternalLink href="https://docs.sentry.io/platforms/javascript/enriching-events/identify-user/" />
     ),
   }
-);
-const userAgentLocking = t(
-  'This operating system does not provide detailed version information in the User-Agent HTTP header. The exact operating system version is unknown.'
 );
 
 export function nullableValue(value: string | null): string | React.ReactElement {
@@ -377,6 +367,35 @@ type SpecialField = {
   sortField: string | null;
 };
 
+type SpecialFields = {
+  adoption_stage: SpecialField;
+  'apdex()': SpecialField;
+  attachments: SpecialField;
+  'count_unique(user)': SpecialField;
+  device: SpecialField;
+  'error.handled': SpecialField;
+  id: SpecialField;
+  [SpanFields.IS_STARRED_TRANSACTION]: SpecialField;
+  issue: SpecialField;
+  'issue.id': SpecialField;
+  minidump: SpecialField;
+  'performance_score(measurements.score.total)': SpecialField;
+  'profile.id': SpecialField;
+  project: SpecialField;
+  release: SpecialField;
+  replayId: SpecialField;
+  'span.description': SpecialField;
+  'span.status_code': SpecialField;
+  span_id: SpecialField;
+  team_key_transaction: SpecialField;
+  'timestamp.to_day': SpecialField;
+  'timestamp.to_hour': SpecialField;
+  trace: SpecialField;
+  'trend_percentage()': SpecialField;
+  user: SpecialField;
+  'user.display': SpecialField;
+};
+
 const DownloadCount = styled('span')`
   padding-left: ${space(0.75)};
 `;
@@ -390,7 +409,7 @@ const RightAlignedContainer = styled('span')`
  * "Special fields" either do not map 1:1 to an single column in the event database,
  * or they require custom UI formatting that can't be handled by the datatype formatters.
  */
-const SPECIAL_FIELDS: Record<string, SpecialField> = {
+const SPECIAL_FIELDS: SpecialFields = {
   // This is a custom renderer for a field outside discover
   // TODO - refactor code and remove from this file or add ability to query for attachments in Discover
   'apdex()': {
@@ -477,8 +496,9 @@ const SPECIAL_FIELDS: Record<string, SpecialField> = {
     renderFunc: data => {
       const id: string | unknown = data?.id;
       if (typeof id !== 'string') {
-        return <Container>{emptyStringValue}</Container>;
+        return null;
       }
+
       return <Container>{getShortEventId(id)}</Container>;
     },
   },
@@ -496,24 +516,7 @@ const SPECIAL_FIELDS: Record<string, SpecialField> = {
   'span.description': {
     sortField: 'span.description',
     renderFunc: data => {
-      const value = data[SpanFields.SPAN_DESCRIPTION];
-      const op: string = data[SpanFields.SPAN_OP];
-      const projectId =
-        typeof data[SpanFields.PROJECT_ID] === 'number'
-          ? data[SpanFields.PROJECT_ID]
-          : parseInt(data[SpanFields.PROJECT_ID], 10) || -1;
-      const spanGroup: string | undefined = data[SpanFields.SPAN_GROUP];
-
-      if (op === ModuleName.DB || op === ModuleName.RESOURCE) {
-        return (
-          <SpanDescriptionCell
-            description={value}
-            moduleName={op}
-            projectId={projectId}
-            group={spanGroup}
-          />
-        );
-      }
+      const value = data['span.description'];
 
       return (
         <Tooltip
@@ -562,24 +565,13 @@ const SPECIAL_FIELDS: Record<string, SpecialField> = {
   },
   replayId: {
     sortField: 'replayId',
-    renderFunc: (data, {organization}) => {
+    renderFunc: data => {
       const replayId = data?.replayId;
       if (typeof replayId !== 'string' || !replayId) {
         return emptyValue;
       }
 
-      const target = makeReplaysPathname({
-        path: `/${replayId}/`,
-        organization,
-      });
-
-      return (
-        <Container>
-          <ViewReplayLink replayId={replayId} to={target}>
-            {getShortEventId(replayId)}
-          </ViewReplayLink>
-        </Container>
-      );
+      return <Container>{getShortEventId(replayId)}</Container>;
     },
   },
   'profile.id': {
@@ -655,21 +647,6 @@ const SPECIAL_FIELDS: Record<string, SpecialField> = {
           </Projects>
         </Container>
       );
-    },
-  },
-  // Two different project ID fields are being used right now. `project_id` is shared between all datasets, but `project.id` is the new one used in spans
-  project_id: {
-    sortField: 'project_id',
-    renderFunc: (data, baggage) => {
-      const projectId = data.project_id;
-      return getProjectIdLink(projectId, baggage);
-    },
-  },
-  'project.id': {
-    sortField: 'project.id',
-    renderFunc: (data, baggage) => {
-      const projectId = data['project.id'];
-      return getProjectIdLink(projectId, baggage);
     },
   },
   user: {
@@ -818,23 +795,6 @@ const SPECIAL_FIELDS: Record<string, SpecialField> = {
       </NumberContainer>
     ),
   },
-  timestamp: {
-    sortField: 'timestamp',
-    renderFunc: data => {
-      const timestamp = data.timestamp;
-      if (!timestamp) {
-        return <Container>{emptyStringValue}</Container>;
-      }
-      const date = new Date(data.timestamp);
-      return (
-        <Container>
-          <Tooltip title={timestamp}>
-            <FieldDateTime date={date} seconds year timeZone />
-          </Tooltip>
-        </Container>
-      );
-    },
-  },
   'timestamp.to_hour': {
     sortField: 'timestamp.to_hour',
     renderFunc: data => (
@@ -883,130 +843,6 @@ const SPECIAL_FIELDS: Record<string, SpecialField> = {
       );
     },
   },
-  'browser.name': {
-    sortField: 'browser.name',
-    renderFunc: data => {
-      const browserName = data['browser.name'];
-      if (typeof browserName !== 'string' || !browserName) {
-        return <Container>{emptyStringValue}</Container>;
-      }
-
-      return (
-        <IconContainer>
-          {getContextIcon(browserName)}
-          {browserName}
-        </IconContainer>
-      );
-    },
-  },
-  browser: {
-    sortField: 'browser',
-    renderFunc: data => {
-      const browser = data.browser;
-      if (typeof browser !== 'string' || !browser) {
-        return <Container>{emptyStringValue}</Container>;
-      }
-
-      return (
-        <IconContainer>
-          {getContextIcon(dropVersion(browser))}
-          {browser}
-        </IconContainer>
-      );
-    },
-  },
-  'os.name': {
-    sortField: 'os.name',
-    renderFunc: data => {
-      const osName = data['os.name'];
-      if (typeof osName !== 'string' || !osName) {
-        return <Container>{emptyStringValue}</Container>;
-      }
-
-      return (
-        <IconContainer>
-          {getContextIcon(osName)}
-          {osName}
-        </IconContainer>
-      );
-    },
-  },
-  os: {
-    sortField: 'os',
-    renderFunc: data => {
-      const os = data.os;
-      if (typeof os !== 'string' || !os) {
-        return <Container>{emptyStringValue}</Container>;
-      }
-
-      const hasUserAgentLocking = os.includes('>=');
-
-      return (
-        <IconContainer>
-          {getContextIcon(dropVersion(os))}
-          {hasUserAgentLocking ? (
-            <Tooltip title={userAgentLocking} showUnderline>
-              {os}
-            </Tooltip>
-          ) : (
-            os
-          )}
-        </IconContainer>
-      );
-    },
-  },
-};
-
-/**
- * Returns a logo icon component for operating system (OS) and browser related fields
- * @param value OS or browser string. E.g., 'Safari', 'Mac OS X'
- */
-const getContextIcon = (value: string) => {
-  const valueArray = value.split(' ');
-  const formattedValue = valueArray.join('-').toLocaleLowerCase();
-
-  return <ContextIcon name={formattedValue} size="md" />;
-};
-
-/**
- * Drops the last part of an operating system or browser string that contains version appended at the end
- * @param value The string that contains the version to be dropped. E.g., 'Safari 9.1.2'
- * @returns E.g., 'Safari 9.1.2' -> 'Safari'
- */
-const dropVersion = (value: string) => {
-  const valueArray = value.split(' ');
-  valueArray.pop();
-  return valueArray.join(' ');
-};
-
-const getProjectIdLink = (
-  projectId: number | string | undefined,
-  {organization}: RenderFunctionBaggage
-) => {
-  const parsedId = typeof projectId === 'string' ? parseInt(projectId, 10) : projectId;
-  if (!defined(parsedId) || isNaN(parsedId)) {
-    return <NumberContainer>{emptyValue}</NumberContainer>;
-  }
-
-  // TODO: Component has been deprecated in favour of hook, need to refactor this
-  return (
-    <NumberContainer>
-      <Projects orgId={organization.slug} slugs={[]} projectIds={[parsedId]}>
-        {({projects}) => {
-          const project = projects.find(p => p.id === parsedId?.toString());
-          if (!project) {
-            return emptyValue;
-          }
-          const target = makeProjectsPathname({
-            path: `/${project?.slug}/?project=${parsedId}/`,
-            organization,
-          });
-
-          return <Link to={target}>{parsedId}</Link>;
-        }}
-      </Projects>
-    </NumberContainer>
-  );
 };
 
 type SpecialFunctionFieldRenderer = (
@@ -1092,10 +928,10 @@ const SPECIAL_FUNCTIONS: SpecialFunctions = {
   },
   time_spent_percentage: fieldName => data => {
     const parsedFunction = parseFunction(fieldName);
-    let column = parsedFunction?.arguments?.[1] ?? SpanFields.SPAN_SELF_TIME;
+    let column = parsedFunction?.arguments?.[1] ?? SpanMetricsField.SPAN_SELF_TIME;
     // TODO - remove with eap, in eap this function only has one arg
-    if (parsedFunction?.arguments?.[0] === SpanFields.SPAN_DURATION) {
-      column = SpanFields.SPAN_DURATION;
+    if (parsedFunction?.arguments?.[0] === SpanMetricsField.SPAN_DURATION) {
+      column = SpanMetricsField.SPAN_DURATION;
     }
     return (
       <TimeSpentCell
@@ -1115,8 +951,8 @@ export function getSortField(
   field: string,
   tableMeta: MetaType | undefined
 ): string | null {
-  if (Object.hasOwn(SPECIAL_FIELDS, field)) {
-    return SPECIAL_FIELDS[field]!.sortField;
+  if (SPECIAL_FIELDS.hasOwnProperty(field)) {
+    return SPECIAL_FIELDS[field as keyof typeof SPECIAL_FIELDS].sortField;
   }
 
   if (!tableMeta) {
@@ -1135,7 +971,7 @@ export function getSortField(
   }
 
   const fieldType = tableMeta[field];
-  if (Object.hasOwn(FIELD_FORMATTERS, fieldType)) {
+  if (FIELD_FORMATTERS.hasOwnProperty(fieldType)) {
     return FIELD_FORMATTERS[fieldType as keyof typeof FIELD_FORMATTERS].isSortable
       ? field
       : null;

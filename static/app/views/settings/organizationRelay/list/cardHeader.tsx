@@ -46,7 +46,7 @@ function CardHeader({
       <DateCreated>
         {tct('Created on [date]', {date: <DateTime date={created} />})}
       </DateCreated>
-      <StyledButtonBar>
+      <StyledButtonBar gap={1}>
         <Button size="sm" icon={<IconCopy />} onClick={onClick}>
           {t('Copy Key')}
         </Button>
@@ -93,7 +93,7 @@ const DateCreated = styled('div')`
 `;
 
 const StyledButtonBar = styled(ButtonBar)`
-  @media (min-width: ${p => p.theme.breakpoints.md}) {
+  @media (min-width: ${p => p.theme.breakpoints.medium}) {
     grid-row: 1/3;
   }
 `;
@@ -103,7 +103,7 @@ const Header = styled('div')`
   grid-row-gap: ${space(0.25)};
   margin-bottom: ${space(1)};
 
-  @media (min-width: ${p => p.theme.breakpoints.md}) {
+  @media (min-width: ${p => p.theme.breakpoints.medium}) {
     grid-template-columns: 1fr max-content;
     grid-template-rows: repeat(2, max-content);
   }

@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 from io import BytesIO
-from typing import Any
 
 import sentry_sdk
+import sentry_sdk.tracing
 from django.http import StreamingHttpResponse
 from django.http.response import HttpResponseBase
 from drf_spectacular.utils import extend_schema
@@ -17,6 +19,7 @@ from sentry.apidocs.examples.replay_examples import ReplayExamples
 from sentry.apidocs.parameters import GlobalParams, ReplayParams
 from sentry.apidocs.utils import inline_sentry_response_serializer
 from sentry.replays.lib.storage import RecordingSegmentStorageMeta, make_recording_filename
+from sentry.replays.types import ReplayRecordingSegment
 from sentry.replays.usecases.reader import download_segment, fetch_segment_metadata
 
 
@@ -38,7 +41,7 @@ class ProjectReplayRecordingSegmentDetailsEndpoint(ProjectEndpoint):
         ],
         responses={
             200: inline_sentry_response_serializer(
-                "GetReplayRecordingSegment", list[dict[str, Any]]
+                "GetReplayRecordingSegment", ReplayRecordingSegment
             ),
             400: RESPONSE_BAD_REQUEST,
             403: RESPONSE_FORBIDDEN,

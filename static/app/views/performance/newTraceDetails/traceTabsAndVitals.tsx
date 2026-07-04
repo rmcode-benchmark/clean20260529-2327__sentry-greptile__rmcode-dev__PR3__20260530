@@ -18,8 +18,8 @@ type TraceTabsAndVitalsProps = {
 
 function Placeholder() {
   return (
-    <Flex justify="space-between" align="center" gap="md">
-      <Flex align="center" gap="md">
+    <Flex justify="space-between" align="center" gap={space(1)}>
+      <Flex align="center" gap={space(1)}>
         <StyledPlaceholder _width={75} _height={28} />
         <StyledPlaceholder _width={75} _height={28} />
         <StyledPlaceholder _width={75} _height={28} />

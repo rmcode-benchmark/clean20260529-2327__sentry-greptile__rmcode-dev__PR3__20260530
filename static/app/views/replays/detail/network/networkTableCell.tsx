@@ -16,7 +16,7 @@ import {
   getResponseBodySize,
 } from 'sentry/utils/replays/resourceFrame';
 import type {SpanFrame} from 'sentry/utils/replays/types';
-import useUrlParams from 'sentry/utils/url/useUrlParams';
+import useUrlParams from 'sentry/utils/useUrlParams';
 import type useSortNetwork from 'sentry/views/replays/detail/network/useSortNetwork';
 import TimestampButton from 'sentry/views/replays/detail/timestampButton';
 import {operationName} from 'sentry/views/replays/detail/utils';
@@ -36,7 +36,7 @@ interface Props extends ReturnType<typeof useCrumbHandlers> {
   ref?: React.Ref<HTMLDivElement>;
 }
 
-export default function NetworkTableCell({
+const NetworkTableCell = ({
   columnIndex,
   currentHoverTime,
   currentTime,
@@ -50,7 +50,7 @@ export default function NetworkTableCell({
   startTimestampMs,
   style,
   ref,
-}: Props) {
+}: Props) => {
   // Rows include the sortable header, the dataIndex does not
   const dataIndex = rowIndex - 1;
 
@@ -117,10 +117,9 @@ export default function NetworkTableCell({
       <Cell {...columnProps}>
         <Tooltip
           title={frame.description}
-          delay={750}
           isHoverable
-          maxWidth={10_000}
           showOnlyOnOverflow
+          overlayStyle={{maxWidth: '500px !important'}}
         >
           <Text>{frame.description || EMPTY_CELL}</Text>
         </Tooltip>
@@ -163,4 +162,6 @@ export default function NetworkTableCell({
   ];
 
   return renderFns[columnIndex]!();
-}
+};
+
+export default NetworkTableCell;

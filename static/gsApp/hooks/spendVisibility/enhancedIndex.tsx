@@ -22,7 +22,7 @@ class EnhancedOrganizationStats extends OrganizationStats {
         chartTransform={this.chartTransform}
         handleChangeState={this.setStateOnUrl}
         spikeCursor={this.spikeCursor}
-        dataCategoryApiName={this.dataCategoryApiName}
+        dataCategoryApiName={this.dataCategoryInfo.apiName}
         clientDiscard={this.clientDiscard}
       />
     );

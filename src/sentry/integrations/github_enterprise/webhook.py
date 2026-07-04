@@ -32,7 +32,6 @@ logger = logging.getLogger("sentry.webhooks")
 from sentry.api.base import Endpoint, region_silo_endpoint
 from sentry.integrations.services.integration import integration_service
 from sentry.integrations.services.integration.model import RpcIntegration
-from sentry.integrations.types import IntegrationProviderSlug
 
 SHA1_PATTERN = r"^sha1=[0-9a-fA-F]{40}$"
 SHA256_PATTERN = r"^sha256=[0-9a-fA-F]{64}$"
@@ -78,7 +77,7 @@ def get_installation_metadata(event, host):
     external_id = get_github_external_id(event=event, host=host)
     integration = integration_service.get_integration(
         external_id=external_id,
-        provider=IntegrationProviderSlug.GITHUB_ENTERPRISE.value,
+        provider="github_enterprise",
         status=ObjectStatus.ACTIVE,
     )
     if integration is None:
@@ -90,7 +89,7 @@ def get_installation_metadata(event, host):
 class GitHubEnterpriseWebhook:
     @property
     def provider(self) -> str:
-        return IntegrationProviderSlug.GITHUB_ENTERPRISE.value
+        return "github_enterprise"
 
     def get_external_id(self, username: str) -> str:
         return f"github_enterprise:{username}"

@@ -18,7 +18,7 @@ from sentry.uptime.models import (
     UptimeSubscriptionRegion,
     get_detector,
 )
-from sentry.uptime.types import CheckConfig, UptimeMonitorMode
+from sentry.uptime.types import CheckConfig, ProjectUptimeSubscriptionMode
 from sentry.utils import metrics
 from sentry.utils.query import RangeQuerySetWrapper
 
@@ -85,13 +85,6 @@ def update_remote_uptime_subscription(uptime_subscription_id, **kwargs):
         metrics.incr("uptime.subscriptions.update.subscription_does_not_exist", sample_rate=1.0)
         return
     if subscription.status != UptimeSubscription.Status.UPDATING.value:
-        logger.info(
-            "uptime.subscriptions.update_remote_uptime_subscription.incorrect_status",
-            extra={
-                "subscription_id": subscription.subscription_id,
-                "subscription_status": subscription.status,
-            },
-        )
         metrics.incr("uptime.subscriptions.update.incorrect_status", sample_rate=1.0)
         return
 
@@ -238,11 +231,8 @@ def broken_monitor_checker(**kwargs):
     ):
         detector = get_detector(uptime_subscription)
         assert detector
-        if detector.config["mode"] == UptimeMonitorMode.AUTO_DETECTED_ACTIVE:
-            try:
-                disable_uptime_detector(detector)
-                count += 1
-            except Exception:
-                logger.exception("uptime.subscriptions.disable_broken_failed")
+        if detector.config["mode"] == ProjectUptimeSubscriptionMode.AUTO_DETECTED_ACTIVE:
+            disable_uptime_detector(detector)
+            count += 1
 
     metrics.incr("uptime.subscriptions.disable_broken", amount=count, sample_rate=1.0)

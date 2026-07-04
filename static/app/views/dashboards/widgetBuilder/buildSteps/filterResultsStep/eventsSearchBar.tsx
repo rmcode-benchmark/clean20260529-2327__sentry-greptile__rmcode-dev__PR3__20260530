@@ -13,7 +13,6 @@ interface Props {
   pageFilters: PageFilters;
   widgetQuery: WidgetQuery;
   dataset?: DiscoverDatasets;
-  disabled?: boolean;
   portalTarget?: HTMLElement | null;
 }
 
@@ -23,7 +22,6 @@ export function EventsSearchBar({
   widgetQuery,
   dataset,
   portalTarget,
-  disabled,
 }: Props) {
   const organization = useOrganization();
   const {customMeasurements} = useCustomMeasurements();
@@ -40,7 +38,6 @@ export function EventsSearchBar({
       onChange={(query, state) => {
         onClose?.(query, {validSearch: state.queryIsValid});
       }}
-      disabled={disabled}
       customMeasurements={customMeasurements}
       dataset={dataset}
       includeTransactions={hasDatasetSelector(organization) ? false : true}

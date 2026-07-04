@@ -12,8 +12,7 @@ import {t} from 'sentry/locale';
 import {
   type Aggregate,
   ModuleName,
-  SpanFunction,
-  type SpanProperty,
+  type SpanMetricsProperty,
 } from 'sentry/views/insights/types';
 
 export const MODULE_TITLE = t('Queries');
@@ -41,7 +40,7 @@ export const MIN_SDK_VERSION_BY_PLATFORM: Record<string, string> = {
   'sentry.android': '6.30.0',
 };
 
-export const DEFAULT_DURATION_AGGREGATE: Aggregate = SpanFunction.AVG;
+export const DEFAULT_DURATION_AGGREGATE: Aggregate = 'avg';
 
 export const CHART_HEIGHT = 160;
 
@@ -70,4 +69,4 @@ export const MODULE_FEATURES = ['insights-initial-modules'];
 
 export const FIELD_ALIASES = {
   'epm()': t('Queries Per Minute'),
-} satisfies Partial<Record<SpanProperty, string>>;
+} satisfies Partial<Record<SpanMetricsProperty, string>>;

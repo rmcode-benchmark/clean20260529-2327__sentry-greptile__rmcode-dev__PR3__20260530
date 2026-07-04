@@ -6,11 +6,17 @@ from typing import TYPE_CHECKING, Any
 from django.http.request import HttpRequest
 from django.http.response import HttpResponseBase
 
+from sentry.db.models.base import Model
+from sentry.pipeline.store import PipelineSessionStore
+from sentry.pipeline.views.base import PipelineView
+
 if TYPE_CHECKING:
     from sentry.pipeline.base import Pipeline
 
 
-class NestedPipelineView[P1: Pipeline[Any, Any], P2: Pipeline[Any, Any]]:
+class NestedPipelineView[M: Model, S: PipelineSessionStore, U: Model, V: PipelineSessionStore](
+    PipelineView[M, S]
+):
     """
     A NestedPipelineView can be used within other pipelines to process another
     pipeline within a pipeline. Note that the nested pipelines finish_pipeline
@@ -23,7 +29,7 @@ class NestedPipelineView[P1: Pipeline[Any, Any], P2: Pipeline[Any, Any]]:
     def __init__(
         self,
         bind_key: str,
-        pipeline_cls: type[P2],
+        pipeline_cls: type[Pipeline[U, V]],
         provider_key: str,
         config: Mapping[str, Any] | None = None,
     ) -> None:
@@ -32,7 +38,7 @@ class NestedPipelineView[P1: Pipeline[Any, Any], P2: Pipeline[Any, Any]]:
         self.config = config or {}
 
         class NestedPipeline(pipeline_cls):  # type: ignore[misc, valid-type]
-            def set_parent_pipeline(self, parent_pipeline: P1) -> None:
+            def set_parent_pipeline(self, parent_pipeline: Pipeline[M, S]) -> None:
                 self.parent_pipeline = parent_pipeline
 
             def finish_pipeline(self) -> HttpResponseBase:
@@ -43,7 +49,7 @@ class NestedPipelineView[P1: Pipeline[Any, Any], P2: Pipeline[Any, Any]]:
 
         self.pipeline_cls = NestedPipeline
 
-    def dispatch(self, request: HttpRequest, pipeline: P1) -> HttpResponseBase:
+    def dispatch(self, request: HttpRequest, pipeline: Pipeline[M, S]) -> HttpResponseBase:
         nested_pipeline = self.pipeline_cls(
             organization=pipeline.organization,
             request=request,

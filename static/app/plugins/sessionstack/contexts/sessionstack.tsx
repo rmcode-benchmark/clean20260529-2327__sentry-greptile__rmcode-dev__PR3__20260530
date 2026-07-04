@@ -1,6 +1,5 @@
 import {Component} from 'react';
 
-import {Button} from 'sentry/components/core/button';
 import {uniqueId} from 'sentry/utils/guid';
 
 const ASPECT_RATIO = 16 / 9;
@@ -73,9 +72,13 @@ class SessionStackContextType extends Component<Props, State> {
             height={this.state.height}
           />
         ) : (
-          <Button type="button" onClick={() => this.playSession()}>
+          <button
+            className="btn btn-default"
+            type="button"
+            onClick={() => this.playSession()}
+          >
             Play session
-          </Button>
+          </button>
         )}
       </div>
     );

@@ -1,7 +1,6 @@
-import {AutomationBuilderSelect} from 'sentry/components/workflowEngine/form/automationBuilderSelect';
+import AutomationBuilderSelectField from 'sentry/components/workflowEngine/form/automationBuilderSelectField';
 import {ActionMetadata} from 'sentry/components/workflowEngine/ui/actionMetadata';
-import {t, tct} from 'sentry/locale';
-import type {SelectValue} from 'sentry/types/core';
+import {tct} from 'sentry/locale';
 import type {Action, ActionHandler} from 'sentry/types/workflowEngine/actions';
 import {ActionType} from 'sentry/types/workflowEngine/actions';
 import {useActionNodeContext} from 'sentry/views/automations/components/actionNodes';
@@ -48,32 +47,18 @@ export function PagerdutyNode() {
 function SeverityField() {
   const {action, actionId, onUpdate} = useActionNodeContext();
   return (
-    <AutomationBuilderSelect
+    <AutomationBuilderSelectField
       name={`${actionId}.data.priority`}
-      aria-label={t('Severity')}
       value={action.data.priority}
       options={PAGERDUTY_SEVERITIES.map(severity => ({
         label: severity,
         value: severity,
       }))}
-      onChange={(option: SelectValue<string>) => {
+      onChange={(value: string) => {
         onUpdate({
-          data: {priority: option.value},
+          data: {priority: value},
         });
       }}
     />
   );
-}
-
-export function validatePagerdutyAction(action: Action): string | undefined {
-  if (!action.integrationId) {
-    return t('You must specify a PagerDuty integration.');
-  }
-  if (!action.config.target_identifier) {
-    return t('You must specify a service.');
-  }
-  if (!action.data.priority) {
-    return t('You must specify a severity.');
-  }
-  return undefined;
 }

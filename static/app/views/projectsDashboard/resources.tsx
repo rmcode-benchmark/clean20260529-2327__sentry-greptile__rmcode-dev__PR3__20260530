@@ -47,7 +47,7 @@ const ResourceCards = styled('div')`
   grid-template-columns: minmax(100px, 1fr);
   gap: ${space(3)};
 
-  @media (min-width: ${p => p.theme.breakpoints.md}) {
+  @media (min-width: ${p => p.theme.breakpoints.medium}) {
     grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   }
 `;

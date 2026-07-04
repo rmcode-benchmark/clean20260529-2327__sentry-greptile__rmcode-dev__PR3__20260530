@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import campingImg from 'sentry-images/spot/onboarding-preview.svg';
 
 import {navigateTo} from 'sentry/actionCreators/navigation';
-import {ExternalLink} from 'sentry/components/core/link';
+import ExternalLink from 'sentry/components/links/externalLink';
 import {t, tct} from 'sentry/locale';
 import {space} from 'sentry/styles/space';
 import {useLocation} from 'sentry/utils/useLocation';
@@ -101,7 +101,7 @@ const Wrapper = styled('div')`
   padding: 40px ${space(3)};
   min-height: 260px;
 
-  @media (max-width: ${p => p.theme.breakpoints.sm}) {
+  @media (max-width: ${p => p.theme.breakpoints.small}) {
     flex-direction: column;
     align-items: center;
     padding: ${space(3)};
@@ -114,7 +114,7 @@ const MessageContainer = styled('div')`
   max-width: 480px;
   margin-left: 40px;
 
-  @media (max-width: ${p => p.theme.breakpoints.sm}) {
+  @media (max-width: ${p => p.theme.breakpoints.small}) {
     margin: 0;
   }
 `;

@@ -1,9 +1,6 @@
-from typing import Any
-
 from sentry.integrations.types import IntegrationProviderSlug
 from sentry.organizations.services.organization.model import RpcOrganization
 from sentry.plugins.providers import IntegrationRepositoryProvider
-from sentry.plugins.providers.integration_repository import RepositoryConfig
 from sentry.shared_integrations.exceptions import ApiError
 
 
@@ -34,9 +31,7 @@ class GitlabRepositoryProvider(IntegrationRepositoryProvider):
         )
         return config
 
-    def build_repository_config(
-        self, organization: RpcOrganization, data: dict[str, Any]
-    ) -> RepositoryConfig:
+    def build_repository_config(self, organization: RpcOrganization, data):
 
         installation = self.get_installation(data.get("installation"), organization.id)
         client = installation.get_client()

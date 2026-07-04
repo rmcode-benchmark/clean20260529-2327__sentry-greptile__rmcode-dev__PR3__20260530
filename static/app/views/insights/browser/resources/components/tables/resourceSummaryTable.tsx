@@ -1,14 +1,11 @@
 import {Fragment} from 'react';
 import styled from '@emotion/styled';
 
-import {Link} from 'sentry/components/core/link';
+import type {GridColumnHeader, GridColumnOrder} from 'sentry/components/gridEditable';
+import GridEditable, {COL_WIDTH_UNDEFINED} from 'sentry/components/gridEditable';
+import Link from 'sentry/components/links/link';
 import type {CursorHandler} from 'sentry/components/pagination';
 import Pagination from 'sentry/components/pagination';
-import type {
-  GridColumnHeader,
-  GridColumnOrder,
-} from 'sentry/components/tables/gridEditable';
-import GridEditable, {COL_WIDTH_UNDEFINED} from 'sentry/components/tables/gridEditable';
 import {t} from 'sentry/locale';
 import {space} from 'sentry/styles/space';
 import {decodeScalar} from 'sentry/utils/queryString';
@@ -30,7 +27,12 @@ import {
   DataTitles,
   getThroughputTitle,
 } from 'sentry/views/insights/common/views/spans/types';
-import {ModuleName, SpanFields, type SpanResponse} from 'sentry/views/insights/types';
+import {
+  ModuleName,
+  SpanIndexedField,
+  SpanMetricsField,
+  type SpanMetricsResponse,
+} from 'sentry/views/insights/types';
 
 const {
   RESOURCE_RENDER_BLOCKING_STATUS,
@@ -38,10 +40,10 @@ const {
   HTTP_RESPONSE_CONTENT_LENGTH,
   TRANSACTION,
   USER_GEO_SUBREGION,
-} = SpanFields;
+} = SpanMetricsField;
 
 type Row = Pick<
-  SpanResponse,
+  SpanMetricsResponse,
   | 'avg(http.response_content_length)'
   | 'avg(span.self_time)'
   | 'epm()'
@@ -133,9 +135,9 @@ function ResourceSummaryTable() {
                   group={groupId}
                   moduleName={ModuleName.RESOURCE}
                   filters={{
-                    [SpanFields.RESOURCE_RENDER_BLOCKING_STATUS]:
+                    [SpanIndexedField.RESOURCE_RENDER_BLOCKING_STATUS]:
                       row[RESOURCE_RENDER_BLOCKING_STATUS],
-                    [SpanFields.TRANSACTION]: row[TRANSACTION],
+                    [SpanIndexedField.TRANSACTION]: row[TRANSACTION],
                   }}
                 />
               </Fragment>

@@ -48,8 +48,7 @@ def should_call_seer_for_grouping(
 
     project = event.project
 
-    # Check both of these before returning based on either so we can always gather metrics on the
-    # results of both
+    # Check both of these before returning based on either so we can gather metrics on their results
     content_is_eligible = _event_content_is_seer_eligible(event)
     seer_enabled_for_project = _project_has_similarity_grouping_enabled(project)
     if not (content_is_eligible and seer_enabled_for_project):

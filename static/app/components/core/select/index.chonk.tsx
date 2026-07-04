@@ -28,8 +28,6 @@ const multiValueSizeMapping = {
   },
 } satisfies Record<FormSize, {height: string; spacing: string}>;
 
-const chonk = '2px';
-
 export const getChonkStylesConfig = ({
   theme,
   size = 'md',
@@ -66,10 +64,10 @@ export const getChonkStylesConfig = ({
     control: (_, state) => ({
       display: 'flex',
       color: state.isDisabled ? theme.disabled : theme.textColor,
-      background: theme.tokens.background.secondary,
+      background: theme.background,
       border: `1px solid ${theme.border}`,
-      boxShadow: `0px ${chonk} 0px 0px ${theme.tokens.border.primary} inset`,
-      ...theme.formRadius[size],
+      boxShadow: 'none',
+      borderRadius: theme.formRadius[size].borderRadius,
       transition: 'border 0.1s, box-shadow 0.1s',
       alignItems: 'center',
       ...(state.isFocused && theme.focusRing),
@@ -161,10 +159,9 @@ export const getChonkStylesConfig = ({
       backgroundColor: theme.background,
       borderRadius: '4px',
       border: `1px solid ${theme.border}`,
-      boxShadow: `0px 1px 0px 0px ${theme.tokens.border.primary}`,
       display: 'flex',
       margin: 0,
-      marginTop: `calc(${multiValueSizeMapping[size].spacing} + ${chonk})`,
+      marginTop: multiValueSizeMapping[size].spacing,
       marginBottom: multiValueSizeMapping[size].spacing,
       marginRight: multiValueSizeMapping[size].spacing,
     }),
@@ -180,7 +177,7 @@ export const getChonkStylesConfig = ({
     multiValueRemove: () => ({
       alignItems: 'center',
       display: 'flex',
-      margin: '4px 4px',
+      padding: '0 4px',
 
       ...(isDisabled
         ? {
@@ -188,7 +185,6 @@ export const getChonkStylesConfig = ({
           }
         : {
             '&:hover': {
-              cursor: 'pointer',
               background: theme.hover,
             },
           }),

@@ -23,14 +23,12 @@ interface Props {
   startTimestampMs: number;
   style: CSSProperties;
   breadcrumbIndex?: number[][];
-  className?: string;
   expandPaths?: string[];
   ref?: React.Ref<HTMLDivElement>;
   updateDimensions?: () => void;
 }
 
 function BreadcrumbRow({
-  className,
   expandPaths,
   frame,
   index,
@@ -65,7 +63,7 @@ function BreadcrumbRow({
   return (
     <BreadcrumbItem
       ref={ref}
-      className={classNames(className, {
+      className={classNames({
         beforeCurrentTime: hasOccurred,
         afterCurrentTime: !hasOccurred,
         beforeHoverTime: currentHoverTime === undefined ? undefined : isBeforeHover,

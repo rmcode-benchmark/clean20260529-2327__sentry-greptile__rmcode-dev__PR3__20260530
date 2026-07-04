@@ -10,10 +10,10 @@ import Carousel from 'sentry/components/carousel';
 import {openConfirmModal} from 'sentry/components/confirm';
 import {Button} from 'sentry/components/core/button';
 import {ButtonBar} from 'sentry/components/core/button/buttonBar';
-import {ExternalLink} from 'sentry/components/core/link';
 import type {MenuItemProps} from 'sentry/components/dropdownMenu';
 import {DropdownMenu} from 'sentry/components/dropdownMenu';
 import FloatingFeedbackWidget from 'sentry/components/feedback/widget/floatingFeedbackWidget';
+import ExternalLink from 'sentry/components/links/externalLink';
 import QuestionTooltip from 'sentry/components/questionTooltip';
 import {IconCommit, IconEllipsis, IconGithub, IconMail} from 'sentry/icons';
 import {t, tct} from 'sentry/locale';
@@ -185,7 +185,7 @@ export function InviteBanner({
               />
             </Subtitle>
           </CardTitleContent>
-          <ButtonBar>
+          <ButtonBar gap={1}>
             <Button
               priority="primary"
               size="xs"
@@ -320,7 +320,7 @@ const CardTitleContent = styled('div')`
 const CardTitle = styled('h6')`
   margin: 0;
   font-size: ${p => p.theme.fontSize.lg};
-  font-weight: ${p => p.theme.fontWeight.bold};
+  font-weight: ${p => p.theme.fontWeightBold};
   color: ${p => p.theme.gray400};
 `;
 
@@ -328,7 +328,7 @@ const Subtitle = styled('div')`
   display: flex;
   align-items: center;
   font-size: ${p => p.theme.fontSize.sm};
-  font-weight: ${p => p.theme.fontWeight.normal};
+  font-weight: ${p => p.theme.fontWeightNormal};
   color: ${p => p.theme.subText};
   gap: ${space(0.5)};
 `;
@@ -337,7 +337,7 @@ const MemberEmail = styled('div')`
   display: block;
   max-width: 70%;
   font-size: ${p => p.theme.fontSize.sm};
-  font-weight: ${p => p.theme.fontWeight.normal};
+  font-weight: ${p => p.theme.fontWeightNormal};
   color: ${p => p.theme.subText};
   text-overflow: ellipsis;
   overflow: hidden;

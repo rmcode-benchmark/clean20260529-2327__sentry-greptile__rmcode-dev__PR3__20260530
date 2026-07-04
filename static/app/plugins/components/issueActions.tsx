@@ -1,8 +1,3 @@
-import {Fragment} from 'react';
-
-import {Alert} from 'sentry/components/core/alert';
-import {Button} from 'sentry/components/core/button';
-import {LinkButton} from 'sentry/components/core/button/linkButton';
 import Form from 'sentry/components/deprecatedforms/form';
 import FormState from 'sentry/components/forms/state';
 import LoadingError from 'sentry/components/loadingError';
@@ -467,9 +462,9 @@ class IssueActions extends PluginComponentBase<Props, State> {
         return (
           <div>
             <p>{t('Are you sure you want to unlink this issue?')}</p>
-            <Button onClick={this.unlinkIssue} priority="danger">
+            <button onClick={this.unlinkIssue} className="btn btn-danger">
               {t('Unlink Issue')}
-            </Button>
+            </button>
           </div>
         );
       default:
@@ -498,27 +493,27 @@ class IssueActions extends PluginComponentBase<Props, State> {
         authUrl += '&next=' + encodeURIComponent(document.location.pathname);
       }
       return (
-        <Fragment>
-          <Alert.Container>
-            <Alert type="info" showIcon={false}>
-              {'You need to associate an identity with ' +
-                this.props.plugin.name +
-                ' before you can create issues with this service.'}
-            </Alert>
-          </Alert.Container>
-          <LinkButton href={authUrl ?? '#'}>{t('Associate Identity')}</LinkButton>
-        </Fragment>
+        <div>
+          <div className="alert alert-warning m-b-1">
+            {'You need to associate an identity with ' +
+              this.props.plugin.name +
+              ' before you can create issues with this service.'}
+          </div>
+          <a className="btn btn-primary" href={authUrl}>
+            Associate Identity
+          </a>
+        </div>
       );
     }
     if (error.error_type === 'config') {
       return (
-        <Alert type="info" showIcon={false}>
+        <div className="alert alert-block">
           {error.has_auth_configured ? (
-            <Fragment>
+            <p>
               You still need to{' '}
               <a href={this.getPluginConfigureUrl()}>configure this plugin</a> before you
               can use it.
-            </Fragment>
+            </p>
           ) : (
             <div>
               <p>
@@ -536,7 +531,7 @@ class IssueActions extends PluginComponentBase<Props, State> {
               </ul>
             </div>
           )}
-        </Alert>
+        </div>
       );
     }
     if (error.error_type === 'validation') {
@@ -544,17 +539,13 @@ class IssueActions extends PluginComponentBase<Props, State> {
       for (const name in error.errors) {
         errors.push(<p key={name}>{error.errors[name]}</p>);
       }
-      return (
-        <Alert type="error" showIcon={false}>
-          {errors}
-        </Alert>
-      );
+      return <div className="alert alert-error alert-block">{errors}</div>;
     }
     if (error.message) {
       return (
-        <Alert type="error" showIcon={false}>
-          {error.message}
-        </Alert>
+        <div className="alert alert-error alert-block">
+          <p>{error.message}</p>
+        </div>
       );
     }
     return <LoadingError />;

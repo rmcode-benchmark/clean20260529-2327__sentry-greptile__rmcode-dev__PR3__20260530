@@ -1,4 +1,4 @@
-import {memo, useCallback, useEffect} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import styled from '@emotion/styled';
 
 import {LinkButton} from 'sentry/components/core/button/linkButton';
@@ -7,18 +7,14 @@ import {DrawerBody, DrawerHeader} from 'sentry/components/globalDrawer/component
 import LoadingIndicator from 'sentry/components/loadingIndicator';
 import {t} from 'sentry/locale';
 import {space} from 'sentry/styles/space';
-import {trackAnalytics} from 'sentry/utils/analytics';
-import {decodeScalar} from 'sentry/utils/queryString';
 import useOrganization from 'sentry/utils/useOrganization';
 import {AISpanList} from 'sentry/views/insights/agentMonitoring/components/aiSpanList';
 import {useAITrace} from 'sentry/views/insights/agentMonitoring/hooks/useAITrace';
-import {useLocationSyncedState} from 'sentry/views/insights/agentMonitoring/hooks/useLocationSyncedState';
 import {useNodeDetailsLink} from 'sentry/views/insights/agentMonitoring/hooks/useNodeDetailsLink';
 import {useUrlTraceDrawer} from 'sentry/views/insights/agentMonitoring/hooks/useUrlTraceDrawer';
 import {getDefaultSelectedNode} from 'sentry/views/insights/agentMonitoring/utils/getDefaultSelectedNode';
 import {getNodeId} from 'sentry/views/insights/agentMonitoring/utils/getNodeId';
 import type {AITraceSpanNode} from 'sentry/views/insights/agentMonitoring/utils/types';
-import {DrawerUrlParams} from 'sentry/views/insights/agentMonitoring/utils/urlParams';
 import {TraceTreeNodeDetails} from 'sentry/views/performance/newTraceDetails/traceDrawer/tabs/traceTreeNodeDetails';
 import {TraceViewSources} from 'sentry/views/performance/newTraceDetails/traceHeader/breadcrumbs';
 import {DEFAULT_TRACE_VIEW_PREFERENCES} from 'sentry/views/performance/newTraceDetails/traceState/tracePreferences';
@@ -32,36 +28,20 @@ interface UseTraceViewDrawerProps {
   onClose?: () => void;
 }
 
-const TraceViewDrawer = memo(function TraceViewDrawer({
+function TraceViewDrawer({
   traceSlug,
   closeDrawer,
 }: {
   closeDrawer: () => void;
   traceSlug: string;
 }) {
-  const organization = useOrganization();
   const {nodes, isLoading, error} = useAITrace(traceSlug);
-  const [selectedNodeKey, setSelectedNodeKey, removeSelectedNodeParam] =
-    useLocationSyncedState(DrawerUrlParams.SELECTED_SPAN, decodeScalar);
+  const [selectedNodeKey, setSelectedNodeKey] = useState<string | null>(null);
 
-  useEffect(() => {
-    return () => {
-      removeSelectedNodeParam();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- only run on mount
+  const handleSelectNode = useCallback((node: AITraceSpanNode) => {
+    const uniqueKey = getNodeId(node);
+    setSelectedNodeKey(uniqueKey);
   }, []);
-
-  const handleSelectNode = useCallback(
-    (node: AITraceSpanNode) => {
-      const uniqueKey = getNodeId(node);
-      setSelectedNodeKey(uniqueKey);
-
-      trackAnalytics('agent-monitoring.drawer.span-select', {
-        organization,
-      });
-    },
-    [setSelectedNodeKey, organization]
-  );
 
   const selectedNode =
     (selectedNodeKey && nodes.find(node => getNodeId(node) === selectedNodeKey)) ||
@@ -73,19 +53,12 @@ const TraceViewDrawer = memo(function TraceViewDrawer({
     source: TraceViewSources.AGENT_MONITORING,
   });
 
-  const handleViewFullTraceClick = useCallback(() => {
-    trackAnalytics('agent-monitoring.drawer.view-full-trace-click', {
-      organization,
-    });
-    closeDrawer();
-  }, [organization, closeDrawer]);
-
   return (
     <DrawerWrapper>
       <StyledDrawerHeader>
         <HeaderContent>
           {t('Abbreviated Trace')}
-          <LinkButton size="xs" onClick={handleViewFullTraceClick} to={nodeDetailsLink}>
+          <LinkButton size="xs" onMouseDown={closeDrawer} to={nodeDetailsLink}>
             {t('View in Full Trace')}
           </LinkButton>
         </HeaderContent>
@@ -104,19 +77,14 @@ const TraceViewDrawer = memo(function TraceViewDrawer({
       </StyledDrawerBody>
     </DrawerWrapper>
   );
-});
+}
 
 export function useTraceViewDrawer({onClose = undefined}: UseTraceViewDrawerProps) {
-  const organization = useOrganization();
   const {openDrawer, isDrawerOpen, drawerUrlState, closeDrawer} = useUrlTraceDrawer();
 
   const openTraceViewDrawer = useCallback(
-    (traceSlug: string) => {
-      trackAnalytics('agent-monitoring.drawer.open', {
-        organization,
-      });
-
-      return openDrawer(
+    (traceSlug: string) =>
+      openDrawer(
         () => <TraceViewDrawer traceSlug={traceSlug} closeDrawer={closeDrawer} />,
         {
           ariaLabel: t('Abbreviated Trace'),
@@ -127,17 +95,15 @@ export function useTraceViewDrawer({onClose = undefined}: UseTraceViewDrawerProp
           traceSlug,
           drawerKey: 'abbreviated-trace-view-drawer',
         }
-      );
-    },
-    [openDrawer, onClose, closeDrawer, organization]
+      ),
+    [openDrawer, onClose, closeDrawer]
   );
 
   useEffect(() => {
     if (drawerUrlState.trace && !isDrawerOpen) {
       openTraceViewDrawer(drawerUrlState.trace);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- only run on mount
-  }, []);
+  }, [drawerUrlState.trace, isDrawerOpen, openTraceViewDrawer]);
 
   return {
     openTraceViewDrawer,

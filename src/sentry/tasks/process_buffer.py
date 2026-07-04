@@ -23,7 +23,9 @@ def get_process_lock(lock_name: str) -> Lock:
 @instrumented_task(
     name="sentry.tasks.process_buffer.process_pending",
     queue="buffers.process_pending",
-    taskworker_config=TaskworkerConfig(namespace=buffer_tasks, processing_deadline_duration=60),
+    taskworker_config=TaskworkerConfig(
+        namespace=buffer_tasks,
+    ),
 )
 def process_pending() -> None:
     """
@@ -45,7 +47,6 @@ def process_pending() -> None:
     queue="buffers.process_pending_batch",
     taskworker_config=TaskworkerConfig(
         namespace=buffer_tasks,
-        processing_deadline_duration=40,
     ),
 )
 def process_pending_batch() -> None:

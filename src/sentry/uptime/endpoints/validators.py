@@ -21,7 +21,7 @@ from sentry.uptime.subscriptions.subscriptions import (
     create_project_uptime_subscription,
     update_project_uptime_subscription,
 )
-from sentry.uptime.types import UptimeMonitorMode
+from sentry.uptime.types import ProjectUptimeSubscriptionMode
 from sentry.utils.audit import create_audit_entry
 
 """
@@ -170,10 +170,11 @@ class UptimeMonitorValidator(CamelSnakeSerializer):
         if not is_active_superuser(self.context["request"]):
             raise serializers.ValidationError("Only superusers can modify `mode`")
         try:
-            return UptimeMonitorMode(mode)
+            return ProjectUptimeSubscriptionMode(mode)
         except ValueError:
             raise serializers.ValidationError(
-                "Invalid mode, valid values are %s" % [item.value for item in UptimeMonitorMode]
+                "Invalid mode, valid values are %s"
+                % [item.value for item in ProjectUptimeSubscriptionMode]
             )
 
     def create(self, validated_data):
@@ -197,7 +198,7 @@ class UptimeMonitorValidator(CamelSnakeSerializer):
                 timeout_ms=validated_data["timeout_ms"],
                 name=validated_data["name"],
                 status=validated_data.get("status"),
-                mode=validated_data.get("mode", UptimeMonitorMode.MANUAL),
+                mode=validated_data.get("mode", ProjectUptimeSubscriptionMode.MANUAL),
                 owner=validated_data.get("owner"),
                 trace_sampling=validated_data.get("trace_sampling", False),
                 **method_headers_body,

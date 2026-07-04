@@ -159,7 +159,7 @@ from sentry.uptime.models import (
     UptimeSubscription,
     UptimeSubscriptionRegion,
 )
-from sentry.uptime.types import UptimeMonitorMode
+from sentry.uptime.types import ProjectUptimeSubscriptionMode
 from sentry.users.models.identity import Identity, IdentityProvider, IdentityStatus
 from sentry.users.models.user import User
 from sentry.users.models.user_avatar import UserAvatar
@@ -2042,7 +2042,7 @@ class Factories:
         env: Environment | None,
         uptime_subscription: UptimeSubscription,
         status: int,
-        mode: UptimeMonitorMode,
+        mode: ProjectUptimeSubscriptionMode,
         name: str | None,
         owner: Actor | None,
         id: int | None,

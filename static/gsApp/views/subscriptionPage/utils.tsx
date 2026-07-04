@@ -9,7 +9,6 @@ import {
   type Subscription,
 } from 'getsentry/types';
 import {isAmPlan, isDeveloperPlan} from 'getsentry/utils/billing';
-import {isPartOfReservedBudget} from 'getsentry/utils/dataCategory';
 import trackGetsentryAnalytics from 'getsentry/utils/trackGetsentryAnalytics';
 import {getBucket} from 'getsentry/views/amCheckout/utils';
 
@@ -98,7 +97,7 @@ export function calculateTotalSpend(subscription: Subscription): {
     prepaidTotalSpent += prepaidSpent;
     onDemandTotalSpent += onDemandSpent;
     prepaidTotalPrice += prepaidPrice;
-    if (isPartOfReservedBudget(category, subscription.reservedBudgets ?? [])) {
+    if (subscription.reservedBudgetCategories?.includes(category)) {
       prepaidReservedBudgetPrice += prepaidPrice;
     }
   }

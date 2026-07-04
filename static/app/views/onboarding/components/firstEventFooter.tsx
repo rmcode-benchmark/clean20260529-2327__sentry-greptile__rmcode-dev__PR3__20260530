@@ -6,7 +6,7 @@ import {motion} from 'framer-motion';
 import {Button} from 'sentry/components/core/button';
 import {ButtonBar} from 'sentry/components/core/button/buttonBar';
 import {LinkButton} from 'sentry/components/core/button/linkButton';
-import {Link} from 'sentry/components/core/link';
+import Link from 'sentry/components/links/link';
 import {IconCheckmark} from 'sentry/icons';
 import {t} from 'sentry/locale';
 import pulsingIndicatorStyles from 'sentry/styles/pulsingIndicator';
@@ -142,7 +142,7 @@ export default function FirstEventFooter({
           {project?.firstEvent ? t('Error Received') : t('Waiting for error')}
         </AnimatedText>
       </StatusWrapper>
-      <OnboardingButtonBar gap="xl">
+      <OnboardingButtonBar gap={2}>
         {getSecondaryCta()}
         {getPrimaryCta()}
       </OnboardingButtonBar>
@@ -180,7 +180,7 @@ const StatusWrapper = styled(motion.div)`
   font-size: ${p => p.theme.fontSize.md};
   justify-content: center;
 
-  @media (max-width: ${p => p.theme.breakpoints.sm}) {
+  @media (max-width: ${p => p.theme.breakpoints.small}) {
     display: none;
   }
 `;
@@ -188,7 +188,7 @@ const StatusWrapper = styled(motion.div)`
 const SkipOnboardingLink = styled(Link)`
   margin: auto ${space(4)};
   white-space: nowrap;
-  @media (max-width: ${p => p.theme.breakpoints.sm}) {
+  @media (max-width: ${p => p.theme.breakpoints.small}) {
     display: none;
   }
 `;
@@ -196,7 +196,7 @@ const SkipOnboardingLink = styled(Link)`
 const GridFooter = styled(GenericFooter)`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  @media (max-width: ${p => p.theme.breakpoints.sm}) {
+  @media (max-width: ${p => p.theme.breakpoints.small}) {
     display: flex;
     flex-direction: row;
     justify-content: end;

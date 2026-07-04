@@ -1,5 +1,3 @@
-from enum import Enum
-
 DEFAULT_PROCESSING_DEADLINE = 10
 """
 The fallback/default processing_deadline that tasks
@@ -34,12 +32,3 @@ DEFAULT_CHILD_TASK_COUNT = 10000
 The number of tasks a worker child process will process
 before being restarted.
 """
-
-
-class CompressionType(Enum):
-    """
-    The type of compression used for task parameters.
-    """
-
-    ZSTD = "zstd"
-    PLAINTEXT = "plaintext"

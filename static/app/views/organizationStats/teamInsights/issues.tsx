@@ -171,7 +171,7 @@ function TeamStatsIssues({location, router}: Props) {
 export default TeamStatsIssues;
 
 const Body = styled(Layout.Body)`
-  @media (min-width: ${p => p.theme.breakpoints.md}) {
+  @media (min-width: ${p => p.theme.breakpoints.medium}) {
     display: block;
   }
 `;

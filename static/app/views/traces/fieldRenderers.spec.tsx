@@ -21,7 +21,9 @@ import type {SpanResult} from 'sentry/views/traces/hooks/useTraceSpans';
 describe('Renderers', function () {
   let context: ReturnType<typeof initializeOrg>;
 
-  const organization = OrganizationFixture();
+  const organization = OrganizationFixture({
+    features: ['trace-view-v1'], // only testing against new trace view
+  });
 
   const projects = [
     ProjectFixture({
@@ -145,6 +147,7 @@ describe('Renderers', function () {
 
       render(
         <SpanIdRenderer
+          projectSlug={span.project}
           spanId={span.id}
           timestamp={span.timestamp}
           traceId={traceId}

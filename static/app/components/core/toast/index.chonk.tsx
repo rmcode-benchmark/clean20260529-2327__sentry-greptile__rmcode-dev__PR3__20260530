@@ -3,7 +3,6 @@ import {type HTMLMotionProps, motion} from 'framer-motion';
 
 import type {Indicator} from 'sentry/actionCreators/indicator';
 import {Button} from 'sentry/components/core/button';
-import {chonkFor} from 'sentry/components/core/chonk';
 import LoadingIndicator from 'sentry/components/loadingIndicator';
 import {chonkStyled} from 'sentry/utils/theme/theme.chonk';
 
@@ -16,22 +15,22 @@ function getChonkContainerTheme(
       return {
         background: theme.colors.green100,
         borderBottom: `2px solid ${theme.colors.border.success}`,
-        border: `1px solid ${chonkFor(theme, theme.colors.chonk.green400)}`,
-        boxShadow: `0 3px 0 0px ${chonkFor(theme, theme.colors.chonk.green400)}`,
+        border: `1px solid ${theme.colors.chonk.green100}`,
+        boxShadow: `0 3px 0 0px ${theme.colors.chonk.green100}`,
       };
     case 'error':
       return {
         background: theme.colors.red100,
         borderBottom: `2px solid ${theme.colors.border.danger}`,
-        border: `1px solid ${chonkFor(theme, theme.colors.chonk.red400)}`,
-        boxShadow: `0 3px 0 0px ${chonkFor(theme, theme.colors.chonk.red400)}`,
+        border: `1px solid ${theme.colors.chonk.red100}`,
+        boxShadow: `0 3px 0 0px ${theme.colors.chonk.red100}`,
       };
     default:
       return {
         background: theme.colors.background.primary,
         borderBottom: `2px solid ${theme.colors.border.accent}`,
-        border: `1px solid ${chonkFor(theme, theme.colors.chonk.blue400)}`,
-        boxShadow: `0 3px 0 0px ${chonkFor(theme, theme.colors.chonk.blue400)}`,
+        border: `1px solid ${theme.colors.chonk.blue100}`,
+        boxShadow: `0 3px 0 0px ${theme.colors.chonk.blue100}`,
       };
   }
 }
@@ -80,17 +79,17 @@ function getChonkToastIconContainerTheme(
     case 'success':
       return {
         background: theme.colors.chonk.green400,
-        borderRight: `1px solid ${chonkFor(theme, theme.colors.chonk.green400)}`,
+        borderRight: `1px solid ${theme.colors.chonk.green100}`,
       };
     case 'error':
       return {
         background: theme.colors.chonk.red400,
-        borderRight: `1px solid ${chonkFor(theme, theme.colors.chonk.red400)}`,
+        borderRight: `1px solid ${theme.colors.chonk.red100}`,
       };
     default:
       return {
         background: theme.colors.background.primary,
-        borderRight: `1px solid ${chonkFor(theme, theme.colors.chonk.blue400)}`,
+        borderRight: `1px solid ${theme.colors.chonk.blue100}`,
       };
   }
 }

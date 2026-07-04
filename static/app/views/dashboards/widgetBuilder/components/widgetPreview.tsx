@@ -1,9 +1,6 @@
-import {useState} from 'react';
-
 import PanelAlert from 'sentry/components/panels/panelAlert';
 import {dedupeArray} from 'sentry/utils/dedupeArray';
 import type {TableDataWithTitle} from 'sentry/utils/discover/discoverQuery';
-import type {Sort} from 'sentry/utils/discover/fields';
 import {useLocation} from 'sentry/utils/useLocation';
 import {useNavigate} from 'sentry/utils/useNavigate';
 import useOrganization from 'sentry/utils/useOrganization';
@@ -15,12 +12,10 @@ import {
   WidgetType,
 } from 'sentry/views/dashboards/types';
 import {useWidgetBuilderContext} from 'sentry/views/dashboards/widgetBuilder/contexts/widgetBuilderContext';
-import {BuilderStateAction} from 'sentry/views/dashboards/widgetBuilder/hooks/useWidgetBuilderState';
 import {convertBuilderStateToWidget} from 'sentry/views/dashboards/widgetBuilder/utils/convertBuilderStateToWidget';
 import WidgetCard from 'sentry/views/dashboards/widgetCard';
 import WidgetLegendNameEncoderDecoder from 'sentry/views/dashboards/widgetLegendNameEncoderDecoder';
 import WidgetLegendSelectionState from 'sentry/views/dashboards/widgetLegendSelectionState';
-import type {TabularColumn} from 'sentry/views/dashboards/widgets/common/types';
 
 interface WidgetPreviewProps {
   dashboard: DashboardDetails;
@@ -30,7 +25,7 @@ interface WidgetPreviewProps {
   shouldForceDescriptionTooltip?: boolean;
 }
 
-const MIN_TABLE_COLUMN_WIDTH_PX = 125;
+const MIN_TABLE_COLUMN_WIDTH = '125px';
 
 function WidgetPreview({
   dashboard,
@@ -44,10 +39,9 @@ function WidgetPreview({
   const navigate = useNavigate();
   const pageFilters = usePageFilters();
 
-  const {state, dispatch} = useWidgetBuilderContext();
-  const [tableWidths, setTableWidths] = useState<number[]>();
+  const {state} = useWidgetBuilderContext();
 
-  const widget = {...convertBuilderStateToWidget(state), tableWidths};
+  const widget = convertBuilderStateToWidget(state);
 
   const widgetLegendState = new WidgetLegendSelectionState({
     location,
@@ -80,18 +74,6 @@ function WidgetPreview({
       };
     }),
   };
-
-  function handleWidgetTableSort(sort: Sort) {
-    dispatch({
-      payload: [sort],
-      type: BuilderStateAction.SET_SORT,
-    });
-  }
-
-  function handleWidgetTableResizeColumn(columns: TabularColumn[]) {
-    const widths = columns.map(column => column.width as number);
-    setTableWidths(widths);
-  }
 
   return (
     <WidgetCard
@@ -132,11 +114,9 @@ function WidgetPreview({
 
       showConfidenceWarning={widget.widgetType === WidgetType.SPANS}
       // ensure table columns are at least a certain width (helps with lack of truncation on large fields)
-      minTableColumnWidth={MIN_TABLE_COLUMN_WIDTH_PX}
+      minTableColumnWidth={MIN_TABLE_COLUMN_WIDTH}
       disableZoom
       showLoadingText
-      onWidgetTableSort={handleWidgetTableSort}
-      onWidgetTableResizeColumn={handleWidgetTableResizeColumn}
     />
   );
 }

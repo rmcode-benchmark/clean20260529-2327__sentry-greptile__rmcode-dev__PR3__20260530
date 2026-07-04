@@ -718,7 +718,7 @@ const TimeAxis = styled('div')<{hasProfileMeasurementsChart: boolean}>`
   background-color: ${p => p.theme.background};
   color: ${p => p.theme.subText};
   font-size: 10px;
-  ${p => p.theme.fontWeight.normal};
+  ${p => p.theme.fontWeightNormal};
   font-variant-numeric: tabular-nums;
   overflow: hidden;
 `;

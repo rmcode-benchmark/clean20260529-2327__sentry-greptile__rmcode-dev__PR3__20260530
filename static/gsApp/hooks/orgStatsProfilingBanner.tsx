@@ -73,10 +73,10 @@ const BannerGrid = styled('div')`
   border-radius: ${p => p.theme.borderRadius};
   margin-bottom: ${space(2)};
 
-  @media (min-width: ${p => p.theme.breakpoints.md}) {
+  @media (min-width: ${p => p.theme.breakpoints.medium}) {
     grid-template-columns: repeat(2, 1fr);
   }
-  @media (min-width: ${p => p.theme.breakpoints.lg}) {
+  @media (min-width: ${p => p.theme.breakpoints.large}) {
     grid-template-columns: repeat(3, 1fr);
   }
 `;
@@ -88,12 +88,12 @@ const HeaderItem = styled('div')`
   background-color: ${p => p.theme.backgroundSecondary};
   border-bottom: 1px solid ${p => p.theme.border};
 
-  @media (min-width: ${p => p.theme.breakpoints.md}) {
+  @media (min-width: ${p => p.theme.breakpoints.medium}) {
     grid-column: span 2;
     border-bottom: 1px solid ${p => p.theme.border};
   }
 
-  @media (min-width: ${p => p.theme.breakpoints.lg}) {
+  @media (min-width: ${p => p.theme.breakpoints.large}) {
     grid-column: span 1;
     border-bottom: none;
   }
@@ -104,11 +104,11 @@ const CategoryItemLeft = styled('div')`
   border-bottom: 1px solid ${p => p.theme.border};
   padding: ${space(2)};
 
-  @media (min-width: ${p => p.theme.breakpoints.md}) {
+  @media (min-width: ${p => p.theme.breakpoints.medium}) {
     border-right: 1px solid ${p => p.theme.border};
     border-bottom: none;
   }
-  @media (min-width: ${p => p.theme.breakpoints.lg}) {
+  @media (min-width: ${p => p.theme.breakpoints.large}) {
     border-left: 1px solid ${p => p.theme.border};
     border-right: 1px solid ${p => p.theme.border};
     border-bottom: none;

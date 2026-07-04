@@ -128,7 +128,7 @@ export function UptimeDataSection({group, event, project}: Props) {
   const bucketedData = alertRuleId ? (uptimeStats?.[alertRuleId] ?? []) : [];
 
   const actions = (
-    <ButtonBar>
+    <ButtonBar gap={1}>
       {defined(alertRuleId) && (
         <LinkButton
           icon={<IconSettings />}
@@ -192,7 +192,7 @@ const DowntimeTooltipTitle = styled('div')`
 `;
 
 const DowntimeLabel = styled('div')`
-  font-weight: ${p => p.theme.fontWeight.bold};
+  font-weight: ${p => p.theme.fontWeightBold};
 `;
 
 const Text = styled('div')`

@@ -259,7 +259,7 @@ export function Threads({data, event, projectSlug, groupingCurrentLevel, group}:
               <ThreadHeading>{t('Threads')}</ThreadHeading>
               {activeThread && (
                 <Wrapper>
-                  <ButtonBar merged gap="none">
+                  <ButtonBar merged>
                     <Button
                       title={t('Previous Thread')}
                       tooltipProps={{delay: 1000}}
@@ -409,7 +409,7 @@ export function Threads({data, event, projectSlug, groupingCurrentLevel, group}:
         type={SectionKey.STACKTRACE}
         disableCollapsePersistence
       >
-        <Flex direction="column" gap="xl">
+        <Flex direction="column" gap={space(2)}>
           {threadComponent}
         </Flex>
       </InterimSection>
@@ -444,7 +444,7 @@ const ThreadStateWrapper = styled('div')`
 `;
 
 const LockReason = styled(TextOverflow)`
-  font-weight: ${p => p.theme.fontWeight.normal};
+  font-weight: ${p => p.theme.fontWeightNormal};
   color: ${p => p.theme.subText};
 `;
 
@@ -462,7 +462,7 @@ const ThreadTraceWrapper = styled('div')`
   flex-direction: column;
   gap: ${space(2)};
   padding: ${space(1)} ${space(4)};
-  @media (max-width: ${p => p.theme.breakpoints.md}) {
+  @media (max-width: ${p => p.theme.breakpoints.medium}) {
     padding: ${space(1)} ${space(2)};
   }
 `;
@@ -470,6 +470,6 @@ const ThreadTraceWrapper = styled('div')`
 const ThreadHeading = styled('h3')`
   color: ${p => p.theme.subText};
   font-size: ${p => p.theme.fontSize.md};
-  font-weight: ${p => p.theme.fontWeight.bold};
+  font-weight: ${p => p.theme.fontWeightBold};
   margin-bottom: ${space(1)};
 `;

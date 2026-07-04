@@ -5,9 +5,10 @@ import type {EventTransaction} from 'sentry/types/event';
 import {useApiQueries} from 'sentry/utils/queryClient';
 import {MutableSearch} from 'sentry/utils/tokenizeSearch';
 import useOrganization from 'sentry/utils/useOrganization';
-import {useSpans} from 'sentry/views/insights/common/queries/useDiscover';
-import {SpanFields} from 'sentry/views/insights/types';
-import {useIsEAPTraceEnabled} from 'sentry/views/performance/newTraceDetails/useIsEAPTraceEnabled';
+import {useSyncedLocalStorageState} from 'sentry/utils/useSyncedLocalStorageState';
+import {useSpansIndexed} from 'sentry/views/insights/common/queries/useDiscover';
+import {SpanIndexedField} from 'sentry/views/insights/types';
+import {TRACE_FORMAT_PREFERENCE_KEY} from 'sentry/views/performance/newTraceDetails/traceHeader/styles';
 
 import type {ConnectedTraceConnection} from './traceLinkNavigationButton';
 
@@ -30,7 +31,7 @@ export function useFindNextTrace({
   linkedTraceStartTimestamp?: number;
   projectID?: string;
 }): TraceContextType | undefined {
-  const {data: indexedSpans} = useSpans(
+  const {data: indexedSpans} = useSpansIndexed(
     {
       limit: direction === 'next' && projectID ? 100 : 1,
       noPagination: true,
@@ -49,14 +50,18 @@ export function useFindNextTrace({
         },
       },
       search: MutableSearch.fromQueryObject({is_transaction: 1}),
-      fields: [SpanFields.TRANSACTION_SPAN_ID, SpanFields.PROJECT_ID, SpanFields.PROJECT],
+      fields: [
+        SpanIndexedField.TRANSACTION_ID,
+        SpanIndexedField.PROJECT_ID,
+        SpanIndexedField.PROJECT,
+      ],
     },
     'api.trace-view.linked-traces'
   );
 
   const traceData = indexedSpans.map(span => ({
     projectSlug: span.project,
-    eventId: span['transaction.span_id'],
+    eventId: span['transaction.id'],
   }));
 
   const rootEvents = useTraceRootEvents(traceData);
@@ -80,7 +85,10 @@ function useTraceRootEvents(
   traceData: Array<{eventId?: string; projectSlug?: string}> | null
 ) {
   const organization = useOrganization();
-  const isEAP = useIsEAPTraceEnabled();
+  const [storedTraceFormat] = useSyncedLocalStorageState(
+    TRACE_FORMAT_PREFERENCE_KEY,
+    'non-eap'
+  );
 
   const queryKeys = useMemo(() => {
     if (!traceData) {
@@ -99,6 +107,7 @@ function useTraceRootEvents(
   return useApiQueries<EventTransaction>(queryKeys, {
     // 10 minutes
     staleTime: 1000 * 60 * 10,
-    enabled: Array.isArray(traceData) && traceData.length > 0 && !isEAP,
+    enabled:
+      Array.isArray(traceData) && traceData.length > 0 && storedTraceFormat === 'non-eap',
   });
 }

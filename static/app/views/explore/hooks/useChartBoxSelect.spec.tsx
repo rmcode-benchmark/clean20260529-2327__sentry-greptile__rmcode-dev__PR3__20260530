@@ -26,13 +26,6 @@ describe('useChartBoxSelect', () => {
   const mockChartInstance = {
     getModel: jest.fn(),
     dispatchAction: jest.fn(),
-    convertToPixel: jest.fn().mockReturnValue([100, 200]),
-    getDom: jest.fn().mockReturnValue({
-      getBoundingClientRect: jest.fn().mockReturnValue({
-        left: 50,
-        top: 100,
-      }),
-    }),
   };
 
   const mockAxis = {

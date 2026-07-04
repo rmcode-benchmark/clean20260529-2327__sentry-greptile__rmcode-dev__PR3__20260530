@@ -249,7 +249,7 @@ function UsageHistoryRow({history, subscription}: RowProps) {
             </small>
           </div>
         </div>
-        <ButtonBar>
+        <ButtonBar gap={1}>
           <StyledDropdown>
             <DropdownMenu
               triggerProps={{

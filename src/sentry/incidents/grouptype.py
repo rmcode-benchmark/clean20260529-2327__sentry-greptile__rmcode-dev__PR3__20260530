@@ -1,15 +1,19 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import UTC, datetime
 
+from sentry import features
 from sentry.constants import CRASH_RATE_ALERT_AGGREGATE_ALIAS
 from sentry.incidents.handlers.condition import *  # noqa
 from sentry.incidents.metric_issue_detector import MetricIssueDetectorValidator
 from sentry.incidents.models.alert_rule import AlertRuleDetectionType, ComparisonDeltaChoices
 from sentry.incidents.utils.format_duration import format_duration_idiomatic
-from sentry.incidents.utils.types import AnomalyDetectionUpdate, ProcessedSubscriptionUpdate
+from sentry.incidents.utils.metric_issue_poc import QUERY_AGGREGATION_DISPLAY
+from sentry.incidents.utils.types import QuerySubscriptionUpdate
 from sentry.integrations.metric_alerts import TEXT_COMPARISON_DELTA
 from sentry.issues.grouptype import GroupCategory, GroupType
+from sentry.models.organization import Organization
 from sentry.ratelimits.sliding_windows import Quota
 from sentry.snuba.metrics import format_mri_field, is_mri_field
 from sentry.snuba.models import QuerySubscription, SnubaQuery
@@ -26,30 +30,17 @@ from sentry.workflow_engine.types import DetectorException, DetectorPriorityLeve
 COMPARISON_DELTA_CHOICES: list[None | int] = [choice.value for choice in ComparisonDeltaChoices]
 COMPARISON_DELTA_CHOICES.append(None)
 
-QUERY_AGGREGATION_DISPLAY = {
-    "count()": "Number of events",
-    "count_unique(tags[sentry:user])": "Number of users affected",
-    "percentage(sessions_crashed, sessions)": "Crash free session rate",
-    "percentage(users_crashed, users)": "Crash free user rate",
-    "failure_rate()": "Failure rate",
-    "apdex()": "Apdex score",
-}
-
-
-MetricUpdate = ProcessedSubscriptionUpdate | AnomalyDetectionUpdate
-MetricResult = float | dict
-
 
 @dataclass
-class MetricIssueEvidenceData(EvidenceData[MetricResult]):
+class MetricIssueEvidenceData(EvidenceData[float]):
     alert_id: int
 
 
-class MetricIssueDetectorHandler(StatefulDetectorHandler[MetricUpdate, MetricResult]):
+class MetricIssueDetectorHandler(StatefulDetectorHandler[QuerySubscriptionUpdate, int]):
     def create_occurrence(
         self,
         evaluation_result: ProcessedDataConditionGroup,
-        data_packet: DataPacket[MetricUpdate],
+        data_packet: DataPacket[QuerySubscriptionUpdate],
         priority: DetectorPriorityLevel,
     ) -> tuple[DetectorOccurrence, EventData]:
         try:
@@ -105,15 +96,11 @@ class MetricIssueDetectorHandler(StatefulDetectorHandler[MetricUpdate, MetricRes
             {},
         )
 
-    def extract_dedupe_value(self, data_packet: DataPacket[MetricUpdate]) -> int:
-        return int(data_packet.packet.timestamp.timestamp())
+    def extract_dedupe_value(self, data_packet: DataPacket[QuerySubscriptionUpdate]) -> int:
+        return int(data_packet.packet.get("timestamp", datetime.now(UTC)).timestamp())
 
-    def extract_value(self, data_packet: DataPacket[MetricUpdate]) -> MetricResult:
-        # this is a bit of a hack - anomaly detection data packets send extra data we need to pass along
-        values = data_packet.packet.values
-        if isinstance(data_packet.packet, AnomalyDetectionUpdate):
-            return {None: values}
-        return values.get("value")
+    def extract_value(self, data_packet: DataPacket[QuerySubscriptionUpdate]) -> int:
+        return data_packet.packet["values"]["value"]
 
     def construct_title(
         self,
@@ -122,7 +109,6 @@ class MetricIssueDetectorHandler(StatefulDetectorHandler[MetricUpdate, MetricRes
         priority: DetectorPriorityLevel,
     ) -> str:
         comparison_delta = self.detector.config.get("comparison_delta")
-        detection_type = self.detector.config.get("detection_type")
         agg_display_key = snuba_query.aggregate
 
         if is_mri_field(agg_display_key):
@@ -134,10 +120,6 @@ class MetricIssueDetectorHandler(StatefulDetectorHandler[MetricUpdate, MetricRes
             aggregate = QUERY_AGGREGATION_DISPLAY.get(agg_display_key, agg_display_key)
         else:
             aggregate = QUERY_AGGREGATION_DISPLAY.get(agg_display_key, agg_display_key)
-
-        if detection_type == "dynamic":
-            alert_type = aggregate
-            return f"Detected an anomaly in the query for {alert_type}"
 
         # Determine the higher or lower comparison
         higher_or_lower = ""
@@ -184,7 +166,6 @@ class MetricIssue(GroupType):
     default_priority = PriorityLevel.HIGH
     enable_auto_resolve = False
     enable_escalation_detection = False
-    enable_status_change_workflow_notifications = False
     detector_settings = DetectorSettings(
         handler=MetricIssueDetectorHandler,
         validator=MetricIssueDetectorValidator,
@@ -192,13 +173,9 @@ class MetricIssue(GroupType):
             "$schema": "https://json-schema.org/draft/2020-12/schema",
             "description": "A representation of a metric alert firing",
             "type": "object",
-            "required": ["detection_type"],
+            "required": ["threshold_period", "detection_type"],
             "properties": {
-                "threshold_period": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 20,
-                },  # remove after we complete backfill
+                "threshold_period": {"type": "integer", "minimum": 1, "maximum": 20},
                 "comparison_delta": {
                     "type": ["integer", "null"],
                     "enum": COMPARISON_DELTA_CHOICES,
@@ -207,8 +184,12 @@ class MetricIssue(GroupType):
                     "type": "string",
                     "enum": [detection_type.value for detection_type in AlertRuleDetectionType],
                 },
-                "sensitivity": {"type": ["string", "null"]},  # remove after we complete backfill
-                "seasonality": {"type": ["string", "null"]},  # remove after we complete backfill
+                "sensitivity": {"type": ["string", "null"]},
+                "seasonality": {"type": ["string", "null"]},
             },
         },
     )
+
+    @classmethod
+    def allow_post_process_group(cls, organization: Organization) -> bool:
+        return features.has("organizations:workflow-engine-metric-alert-processing", organization)

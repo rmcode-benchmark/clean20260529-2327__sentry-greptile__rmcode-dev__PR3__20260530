@@ -3,7 +3,6 @@ import styled from '@emotion/styled';
 
 import GuideAnchor from 'sentry/components/assistant/guideAnchor';
 import {ButtonBar} from 'sentry/components/core/button/buttonBar';
-import {ExternalLink} from 'sentry/components/core/link';
 import {SegmentedControl} from 'sentry/components/core/segmentedControl';
 import {EventTags} from 'sentry/components/events/eventTags';
 import {
@@ -13,6 +12,7 @@ import {
   TagFilterData,
   TAGS_DOCS_LINK,
 } from 'sentry/components/events/eventTags/util';
+import ExternalLink from 'sentry/components/links/externalLink';
 import {t, tct} from 'sentry/locale';
 import {space} from 'sentry/styles/space';
 import type {Event} from 'sentry/types/event';
@@ -68,7 +68,7 @@ export function EventTagsDataSection({
   }, [event.tags]);
 
   const actions = (
-    <ButtonBar>
+    <ButtonBar gap={1}>
       {additionalActions}
       <SegmentedControl
         size="xs"
@@ -113,7 +113,7 @@ export function EventTagsDataSection({
 const StyledEventDataSection = styled(InterimSection)`
   padding: ${space(0.5)} ${space(2)} ${space(1)};
 
-  @media (min-width: ${p => p.theme.breakpoints.md}) {
+  @media (min-width: ${p => p.theme.breakpoints.medium}) {
     padding: ${space(1)} ${space(4)} ${space(1.5)};
   }
 `;

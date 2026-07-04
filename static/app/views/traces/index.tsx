@@ -23,8 +23,7 @@ export default function TracesPage({children}: Props) {
 
   return (
     <Feature
-      features={['performance-trace-explorer', 'visibility-explore-view']}
-      requireAll={false}
+      features={['performance-trace-explorer']}
       organization={organization}
       renderDisabled={NoAccess}
     >

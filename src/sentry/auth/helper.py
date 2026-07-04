@@ -20,6 +20,7 @@ from django.http.response import HttpResponse, HttpResponseBase
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from django.views import View
 
 from sentry import audit_log, features
 from sentry.api.invite_helper import ApiInviteHelper, remove_invite_details_from_session
@@ -35,7 +36,6 @@ from sentry.auth.provider import MigratingIdentityId, Provider
 from sentry.auth.providers.fly.provider import FlyOAuth2Provider
 from sentry.auth.store import FLOW_LOGIN, FLOW_SETUP_PROVIDER, AuthHelperSessionStore
 from sentry.auth.superuser import is_active_superuser
-from sentry.auth.view import AuthView
 from sentry.hybridcloud.models.outbox import outbox_context
 from sentry.locks import locks
 from sentry.models.authidentity import AuthIdentity
@@ -49,6 +49,7 @@ from sentry.organizations.services.organization import (
     organization_service,
 )
 from sentry.pipeline.base import Pipeline
+from sentry.pipeline.provider import PipelineProvider
 from sentry.signals import sso_enabled, user_signup
 from sentry.tasks.auth.auth import email_missing_links_control
 from sentry.users.models.user import User
@@ -298,7 +299,6 @@ class AuthIdentityHandler:
                 auth_identity = self._get_auth_identity(user_id=self.user.id)
 
             if auth_identity is None:
-                assert self.user.is_authenticated
                 auth_is_new = True
                 auth_identity = AuthIdentity.objects.create(
                     auth_provider=self.auth_provider,
@@ -370,7 +370,6 @@ class AuthIdentityHandler:
         # so that the new identifier gets used (other we'll hit a constraint)
         # violation since one might exist for (provider, user) as well as
         # (provider, ident)
-        assert self.user.is_authenticated
         with outbox_context(transaction.atomic(router.db_for_write(AuthIdentity))):
             deletion_result = (
                 AuthIdentity.objects.exclude(id=auth_identity.id)
@@ -628,9 +627,7 @@ class AuthIdentityHandler:
                     data=self.identity.get("data", {}),
                 )
         except IntegrityError:
-            auth_identity = AuthIdentity.objects.get(
-                auth_provider_id=self.auth_provider.id, ident=self.identity["id"]
-            )
+            auth_identity = self._get_auth_identity(ident=self.identity["id"])
             auth_identity.update(user=user, data=self.identity.get("data", {}))
 
         user.send_confirm_emails(is_new_user=True)
@@ -670,6 +667,7 @@ class AuthHelper(Pipeline[AuthProvider, AuthHelperSessionStore]):
     """
 
     pipeline_name = "pipeline"
+    provider_manager = manager
     provider_model_cls = AuthProvider
     session_store_cls = AuthHelperSessionStore
 
@@ -719,23 +717,19 @@ class AuthHelper(Pipeline[AuthProvider, AuthHelperSessionStore]):
 
         # Override superclass's type hints to be narrower
         self.organization: RpcOrganization = self.organization
+        self.provider: Provider = self.provider
 
-    def _get_provider(self, provider_key: str | None) -> Provider:
+    def get_provider(
+        self, provider_key: str | None, *, organization: RpcOrganization | None
+    ) -> PipelineProvider[AuthProvider, AuthHelperSessionStore]:
         if self.provider_model:
             return self.provider_model.get_provider()
         elif provider_key:
-            return manager.get(provider_key)
+            return super().get_provider(provider_key, organization=organization)
         else:
             raise NotImplementedError
 
-    @cached_property
-    def provider(self) -> Provider:
-        ret = self._get_provider(self._provider_key)
-        ret.set_pipeline(self)
-        ret.update_config(self.config)
-        return ret
-
-    def get_pipeline_views(self) -> Sequence[AuthView]:
+    def get_pipeline_views(self) -> Sequence[View]:
         assert isinstance(self.provider, Provider)
         if self.flow == FLOW_LOGIN:
             return self.provider.get_auth_pipeline()
@@ -777,7 +771,6 @@ class AuthHelper(Pipeline[AuthProvider, AuthHelperSessionStore]):
         return response
 
     def auth_handler(self, identity: Mapping[str, Any]) -> AuthIdentityHandler:
-        assert self.provider_model is not None
         return AuthIdentityHandler(
             auth_provider=self.provider_model,
             provider=self.provider,

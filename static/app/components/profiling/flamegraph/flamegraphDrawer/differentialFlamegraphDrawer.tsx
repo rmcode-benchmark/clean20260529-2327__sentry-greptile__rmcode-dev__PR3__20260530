@@ -305,7 +305,7 @@ const FrameDrawerLabel = styled('label')`
   white-space: nowrap;
   margin-bottom: 0;
   height: 100%;
-  font-weight: ${p => p.theme.fontWeight.normal};
+  font-weight: ${p => p.theme.fontWeightNormal};
   gap: ${space(0.5)};
 `;
 
@@ -372,7 +372,7 @@ const ProfilingDetailsListItem = styled('li')<{
     border-top: 2px solid transparent;
     border-bottom: 2px solid transparent;
     border-radius: 0;
-    font-weight: ${p => p.theme.fontWeight.normal};
+    font-weight: ${p => p.theme.fontWeightNormal};
     margin: 0;
     padding: ${p => (p.size === 'sm' ? space(0.25) : space(0.5))} 0;
     color: ${p => p.theme.textColor};
@@ -381,7 +381,7 @@ const ProfilingDetailsListItem = styled('li')<{
     &::after {
       display: block;
       content: attr(data-title);
-      font-weight: ${p => p.theme.fontWeight.bold};
+      font-weight: ${p => p.theme.fontWeightBold};
       height: 1px;
       color: transparent;
       overflow: hidden;
@@ -395,7 +395,7 @@ const ProfilingDetailsListItem = styled('li')<{
   }
 
   &.active button {
-    font-weight: ${p => p.theme.fontWeight.bold};
+    font-weight: ${p => p.theme.fontWeightBold};
     border-bottom: 2px solid ${prop => prop.theme.active};
   }
 `;

@@ -122,7 +122,7 @@ function ForcedTrialModal(props: ForcedTrialModalProps) {
           <br />
           <p>{secondParagraph}</p>
         </TrialCheckInfo>
-        <StyledButtonBar gap="xl">
+        <StyledButtonBar gap={2}>
           <UpgradeOrTrialButton
             source="force_trial_modal"
             action="upgrade"

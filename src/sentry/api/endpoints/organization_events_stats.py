@@ -244,8 +244,6 @@ class OrganizationEventsStatsEndpoint(OrganizationEventsV2EndpointBase):
                         config=SearchResolverConfig(
                             auto_fields=False,
                             use_aggregate_conditions=True,
-                            disable_aggregate_extrapolation="disableAggregateExtrapolation"
-                            in request.GET,
                         ),
                         sampling_mode=snuba_params.sampling_mode,
                         equations=self.get_equation_list(organization, request),
@@ -284,8 +282,6 @@ class OrganizationEventsStatsEndpoint(OrganizationEventsV2EndpointBase):
                     config=SearchResolverConfig(
                         auto_fields=False,
                         use_aggregate_conditions=True,
-                        disable_aggregate_extrapolation="disableAggregateExtrapolation"
-                        in request.GET,
                     ),
                     sampling_mode=snuba_params.sampling_mode,
                     comparison_delta=comparison_delta,

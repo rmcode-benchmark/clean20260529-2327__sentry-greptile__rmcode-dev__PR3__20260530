@@ -14,10 +14,10 @@ function ReplayZendeskFeedback() {
       organization={organization}
       Component={({href, onClick}) => (
         <LinkButton
-          href={href ?? ''}
+          href={href}
           size="sm"
           icon={<IconMegaphone size="sm" />}
-          onClick={e => onClick?.(e)}
+          onClick={onClick}
         >
           {t('Contact Us')}
         </LinkButton>

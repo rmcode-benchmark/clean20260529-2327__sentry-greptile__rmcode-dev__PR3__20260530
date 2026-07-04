@@ -1,8 +1,8 @@
 import {Fragment} from 'react';
 import styled from '@emotion/styled';
 
-import {ExternalLink} from 'sentry/components/core/link';
 import Hook from 'sentry/components/hook';
+import ExternalLink from 'sentry/components/links/externalLink';
 import {IconSentry, IconSentryPrideLogo} from 'sentry/icons';
 import type {SVGIconProps} from 'sentry/icons/svgIcon';
 import {t} from 'sentry/locale';
@@ -117,7 +117,7 @@ const SentryLogoLink = styled(ExternalLink)`
 const Build = styled('span')`
   font-size: ${p => p.theme.fontSizeRelativeSmall};
   color: ${p => p.theme.subText};
-  font-weight: ${p => p.theme.fontWeight.bold};
+  font-weight: ${p => p.theme.fontWeightBold};
   margin-left: ${space(1)};
 `;
 
@@ -131,11 +131,11 @@ const Footer = styled(BaseFooter)`
   padding: ${space(2)} ${space(4)};
   margin-top: auto; /* pushes footer to the bottom of the page when loading */
 
-  @media (max-width: ${p => p.theme.breakpoints.md}) {
+  @media (max-width: ${p => p.theme.breakpoints.medium}) {
     padding: ${space(2)};
   }
 
-  @media (max-width: ${p => p.theme.breakpoints.sm}) {
+  @media (max-width: ${p => p.theme.breakpoints.small}) {
     display: none;
   }
 `;

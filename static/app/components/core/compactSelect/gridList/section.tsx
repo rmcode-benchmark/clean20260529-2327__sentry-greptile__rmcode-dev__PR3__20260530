@@ -13,13 +13,14 @@ import {
 } from 'sentry/components/core/compactSelect/styles';
 import type {SelectKey, SelectSection} from 'sentry/components/core/compactSelect/types';
 import {SectionToggle} from 'sentry/components/core/compactSelect/utils';
+import type {FormSize} from 'sentry/utils/theme';
 
-import {GridListOption, type GridListOptionProps} from './option';
+import {GridListOption} from './option';
 
 interface GridListSectionProps {
   listState: ListState<any>;
   node: Node<any>;
-  size: GridListOptionProps['size'];
+  size: FormSize;
   onToggle?: (section: SelectSection<SelectKey>, type: 'select' | 'unselect') => void;
 }
 

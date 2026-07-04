@@ -205,6 +205,7 @@ export function EventSearch({
 
   return (
     <SearchQueryBuilder
+      searchOnChange={organization.features.includes('ui-search-on-change')}
       initialQuery={query}
       onSearch={handleSearch}
       filterKeys={filterKeys}
@@ -214,6 +215,7 @@ export function EventSearch({
       label={hasStreamlinedUI ? t('Filter events\u2026') : t('Search events')}
       searchSource={searchSource}
       className={className}
+      showUnsubmittedIndicator
       {...queryBuilderProps}
     />
   );

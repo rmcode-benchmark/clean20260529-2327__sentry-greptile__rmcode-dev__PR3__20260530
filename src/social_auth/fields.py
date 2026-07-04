@@ -1,5 +1,3 @@
-"""XXX: this is unused.  remove after the next migrations squash!"""
-
 from __future__ import annotations
 
 from django.core.exceptions import ValidationError

@@ -76,7 +76,6 @@ export function parseQueryBuilderValue(
     disallowLogicalOperators?: boolean;
     disallowUnsupportedFilters?: boolean;
     disallowWildcard?: boolean;
-    filterKeyAliases?: TagCollection;
     getFilterTokenWarning?: (key: string) => React.ReactNode;
     invalidMessages?: SearchConfig['invalidMessages'];
   }
@@ -94,10 +93,7 @@ export function parseQueryBuilderValue(
       disallowParens: options?.disallowLogicalOperators,
       ...getSearchConfigFromKeys(options?.filterKeys ?? {}, getFieldDefinition),
       invalidMessages: options?.invalidMessages,
-      supportedTags: {
-        ...(options?.filterKeys ? options.filterKeys : {}),
-        ...(options?.filterKeyAliases ? options.filterKeyAliases : {}),
-      },
+      supportedTags: options?.filterKeys,
     })
   );
 }

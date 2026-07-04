@@ -113,7 +113,7 @@ export default function FeatureFlagInlineCTA({
   }
 
   const actions = (
-    <ButtonBar>
+    <ButtonBar gap={1}>
       {feedbackButton}
       <FeatureFlagSettingsButton orgSlug={organization.slug} />
     </ButtonBar>
@@ -179,7 +179,7 @@ const ActionButton = styled('div')`
 const BannerTitle = styled('div')`
   font-size: ${p => p.theme.fontSize.xl};
   margin-bottom: ${space(1)};
-  font-weight: ${p => p.theme.fontWeight.bold};
+  font-weight: ${p => p.theme.fontWeightBold};
 `;
 
 const BannerDescription = styled('div')`

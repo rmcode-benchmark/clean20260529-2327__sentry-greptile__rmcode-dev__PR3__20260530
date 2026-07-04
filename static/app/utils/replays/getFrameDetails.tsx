@@ -2,7 +2,7 @@ import {Fragment, type ReactNode} from 'react';
 import type {Theme} from '@emotion/react';
 import styled from '@emotion/styled';
 
-import {ExternalLink} from 'sentry/components/core/link';
+import ExternalLink from 'sentry/components/links/externalLink';
 import QuestionTooltip from 'sentry/components/questionTooltip';
 import CrumbErrorTitle from 'sentry/components/replays/breadcrumbs/errorTitle';
 import SelectorList from 'sentry/components/replays/breadcrumbs/selectorList';
@@ -97,7 +97,7 @@ const MAPPER_FOR_FRAME: Record<string, (frame: any) => Details> = {
   }),
   feedback: (frame: FeedbackFrame) => ({
     colorGraphicsToken: 'promotion',
-    description: frame.message,
+    description: frame.data.projectSlug,
     tabKey: TabKey.BREADCRUMBS,
     title: defaultTitle(frame),
     icon: <IconMegaphone size="xs" />,
@@ -470,11 +470,7 @@ export default function getFrameDetails(frame: ReplayFrame): Details {
 
 export function defaultTitle(frame: ReplayFrame | RawBreadcrumbFrame) {
   // Override title for User Feedback frames
-  if (
-    'message' in frame &&
-    typeof frame.message === 'string' &&
-    frame.category === 'feedback'
-  ) {
+  if ('message' in frame && frame.message === 'User Feedback') {
     return t('User Feedback');
   }
   if ('category' in frame && frame.category) {

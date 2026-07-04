@@ -48,7 +48,7 @@ function OverwriteWidgetModal({
         </CardWrapper>
       </Body>
       <Footer>
-        <ButtonBar gap="lg">
+        <ButtonBar gap={1.5}>
           <Button onClick={closeModal}>{t('Cancel')}</Button>
           <Button priority="primary" onClick={handleConfirm}>
             {t('Confirm')}

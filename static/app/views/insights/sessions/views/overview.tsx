@@ -156,7 +156,7 @@ const FilterWrapper = styled('div')`
   gap: ${space(1)};
   display: grid;
   grid-template-columns: auto 1fr;
-  @media (max-width: ${p => p.theme.breakpoints.md}) {
+  @media (max-width: ${p => p.theme.breakpoints.medium}) {
     grid-template-rows: auto auto;
   }
 `;

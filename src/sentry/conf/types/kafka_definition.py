@@ -55,7 +55,6 @@ class Topic(Enum):
     INGEST_REPLAYS_RECORDINGS = "ingest-replay-recordings"
     INGEST_OCCURRENCES = "ingest-occurrences"
     INGEST_MONITORS = "ingest-monitors"
-    PREPROD_ARTIFACT_EVENTS = "preprod-artifact-events"
     MONITORS_CLOCK_TICK = "monitors-clock-tick"
     MONITORS_CLOCK_TASKS = "monitors-clock-tasks"
     MONITORS_INCIDENT_OCCURRENCES = "monitors-incident-occurrences"
@@ -76,8 +75,6 @@ class Topic(Enum):
     TASKWORKER_DLQ = "taskworker-dlq"
     TASKWORKER_BILLING = "taskworker-billing"
     TASKWORKER_BILLING_DLQ = "taskworker-billing-dlq"
-    TASKWORKER_BUFFER = "taskworker-buffer"
-    TASKWORKER_BUFFER_DLQ = "taskworker-buffer-dlq"
     TASKWORKER_CONTROL = "taskworker-control"
     TASKWORKER_CONTROL_DLQ = "taskworker-control-dlq"
     TASKWORKER_CUTOVER = "taskworker-cutover"
@@ -107,8 +104,6 @@ class Topic(Enum):
     TASKWORKER_SYMBOLICATION_DLQ = "taskworker-symbolication-dlq"
     TASKWORKER_USAGE = "taskworker-usage"
     TASKWORKER_USAGE_DLQ = "taskworker-usage-dlq"
-    TASKWORKER_WORKFLOWS_ENGINE = "taskworker-workflows-engine"
-    TASKWORKER_WORKFLOWS_ENGINE_DLQ = "taskworker-workflows-engine-dlq"
 
 
 class ConsumerDefinition(TypedDict, total=False):
@@ -127,9 +122,6 @@ class ConsumerDefinition(TypedDict, total=False):
 
     # Hardcoded additional kwargs for strategy_factory
     static_args: Mapping[str, Any]
-
-    # Pass the consumer group ID to the strategy factory as 'consumer_group' kwarg
-    pass_consumer_group: bool
 
     require_synchronization: bool
     synchronize_commit_group_default: str

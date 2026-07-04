@@ -379,7 +379,7 @@ const CardTitleSpacer = styled('div')`
 const CardTitleText = styled('p')`
   margin: 0;
   font-size: ${p => p.theme.fontSize.md};
-  font-weight: ${p => p.theme.fontWeight.bold};
+  font-weight: ${p => p.theme.fontWeightBold};
   margin-top: 1px;
 `;
 

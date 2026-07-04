@@ -435,7 +435,7 @@ function AutofixHighlightPopup(props: Props) {
   const [isFocused, setIsFocused] = useState(false);
 
   const theme = useTheme();
-  const isSmallScreen = useMedia(`(max-width: ${theme.breakpoints.sm})`);
+  const isSmallScreen = useMedia(`(max-width: ${theme.breakpoints.small})`);
 
   useLayoutEffect(() => {
     if (!referenceElement || !popupRef.current) {

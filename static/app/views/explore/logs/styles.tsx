@@ -2,11 +2,11 @@ import type {Theme} from '@emotion/react';
 import styled from '@emotion/styled';
 
 import {Button} from 'sentry/components/core/button';
+import {GRID_BODY_ROW_HEIGHT} from 'sentry/components/gridEditable/styles';
 import {HighlightComponent} from 'sentry/components/highlight';
 import {Body} from 'sentry/components/layouts/thirds';
 import PageFilterBar from 'sentry/components/organizations/pageFilterBar';
 import Panel from 'sentry/components/panels/panel';
-import {GRID_BODY_ROW_HEIGHT} from 'sentry/components/tables/gridEditable/styles';
 import {space} from 'sentry/styles/space';
 import {chonkStyled} from 'sentry/utils/theme/theme.chonk';
 import {withChonk} from 'sentry/utils/theme/withChonk';
@@ -149,7 +149,7 @@ export const ColoredLogText = styled('span')<{
   logColors: ReturnType<typeof getLogColors>;
 }>`
   color: ${p => p.logColors.color};
-  font-weight: ${p => p.theme.fontWeight.bold};
+  font-weight: ${p => p.theme.fontWeightBold};
   font-family: ${p => p.theme.text.familyMono};
 `;
 
@@ -159,17 +159,17 @@ export const LogDate = styled('span')<{align?: 'left' | 'center' | 'right'}>`
 `;
 
 export const LogsHighlight = styled(HighlightComponent)`
-  font-weight: ${p => p.theme.fontWeight.bold};
+  font-weight: ${p => p.theme.fontWeightBold};
   background-color: ${p => p.theme.gray200};
   margin-right: 2px;
   margin-left: 2px;
 `;
 
 export const WrappingText = styled('div')<{wrap?: boolean}>`
-  white-space: ${p => (p.wrap ? 'pre-wrap' : 'nowrap')};
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  ${p => (p.wrap ? '' : '')}
+  ${p => (p.wrap ? 'text-wrap: auto;' : '')}
 `;
 
 export const AlignedCellContent = styled('div')<{
@@ -310,7 +310,7 @@ export const TopSectionBody = styled(Body)`
   padding-bottom: 0;
   flex: 0 0 auto;
 
-  @media (min-width: ${p => p.theme.breakpoints.md}) {
+  @media (min-width: ${p => p.theme.breakpoints.medium}) {
     padding-bottom: ${space(2)};
   }
 `;
@@ -321,7 +321,7 @@ export const BottomSectionBody = styled('div')`
   background-color: ${p => p.theme.backgroundSecondary};
   border-top: 1px solid ${p => p.theme.border};
 
-  @media (min-width: ${p => p.theme.breakpoints.md}) {
+  @media (min-width: ${p => p.theme.breakpoints.medium}) {
     padding: ${space(2)} ${space(4)};
     padding-top: ${space(1)};
   }
@@ -329,9 +329,7 @@ export const BottomSectionBody = styled('div')`
 
 export const ToolbarAndBodyContainer = styled('div')<{sidebarOpen: boolean}>`
   height: 100%;
-  flex: 1 1 auto;
-
-  @media (min-width: ${p => p.theme.breakpoints.lg}) {
+  @media (min-width: ${p => p.theme.breakpoints.large}) {
     display: grid;
     grid-template-columns: ${p => (p.sidebarOpen ? '325px minmax(100px, auto)' : 'auto')};
   }
@@ -347,7 +345,7 @@ export const LogsSidebarCollapseButton = withChonk(
     margin-left: -31px;
     display: none;
 
-    @media (min-width: ${p => p.theme.breakpoints.md}) {
+    @media (min-width: ${p => p.theme.breakpoints.medium}) {
       display: block;
     }
   `,
@@ -356,7 +354,7 @@ export const LogsSidebarCollapseButton = withChonk(
     display: none;
     margin-left: -31px;
 
-    @media (min-width: ${p => p.theme.breakpoints.md}) {
+    @media (min-width: ${p => p.theme.breakpoints.medium}) {
       display: inline-flex;
     }
 

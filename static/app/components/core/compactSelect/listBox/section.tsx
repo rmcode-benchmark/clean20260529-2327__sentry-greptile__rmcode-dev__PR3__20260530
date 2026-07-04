@@ -14,15 +14,16 @@ import {
 } from 'sentry/components/core/compactSelect/styles';
 import type {SelectKey, SelectSection} from 'sentry/components/core/compactSelect/types';
 import {SectionToggle} from 'sentry/components/core/compactSelect/utils';
+import type {FormSize} from 'sentry/utils/theme';
 
-import {ListBoxOption, type ListBoxOptionProps} from './option';
+import {ListBoxOption} from './option';
 
 interface ListBoxSectionProps extends AriaListBoxSectionProps {
   hiddenOptions: Set<SelectKey>;
   item: Node<any>;
   listState: ListState<any>;
   showSectionHeaders: boolean;
-  size: ListBoxOptionProps['size'];
+  size: FormSize;
   onToggle?: (section: SelectSection<SelectKey>, type: 'select' | 'unselect') => void;
   showDetails?: boolean;
 }

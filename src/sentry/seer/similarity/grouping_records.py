@@ -1,7 +1,4 @@
-from __future__ import annotations
-
 import logging
-from collections.abc import Sequence
 from typing import NotRequired, TypedDict
 
 from django.conf import settings
@@ -21,7 +18,6 @@ from sentry.utils import json, metrics
 logger = logging.getLogger(__name__)
 
 POST_BULK_GROUPING_RECORDS_TIMEOUT = 10000
-DELETE_HASH_METRIC = "grouping.similarity.delete_records_by_hash"
 
 
 class CreateGroupingRecordData(TypedDict):
@@ -51,7 +47,7 @@ seer_grouping_connection_pool = connection_from_url(settings.SEER_GROUPING_URL)
 def post_bulk_grouping_records(
     grouping_records_request: CreateGroupingRecordsRequest,
 ) -> BulkCreateGroupingRecordsResponse:
-    """Call Seer's /v0/issues/similar-issues/grouping-record endpoint"""
+    """Call /v0/issues/similar-issues/grouping-record endpoint from seer."""
     if not grouping_records_request.get("data"):
         return {"success": True}
 
@@ -85,7 +81,7 @@ def post_bulk_grouping_records(
         return {"success": False, "reason": response.reason}
 
 
-def call_seer_to_delete_project_grouping_records(
+def delete_project_grouping_records(
     project_id: int,
 ) -> bool:
     try:
@@ -126,7 +122,7 @@ def call_seer_to_delete_project_grouping_records(
         return False
 
 
-def call_seer_to_delete_these_hashes(project_id: int, hashes: Sequence[str]) -> bool:
+def delete_grouping_records_by_hash(project_id: int, hashes: list[str]) -> bool:
     extra = {"project_id": project_id, "hashes": hashes}
     try:
         body = {"project_id": project_id, "hash_list": hashes}
@@ -143,11 +139,6 @@ def call_seer_to_delete_these_hashes(project_id: int, hashes: Sequence[str]) -> 
             "seer.delete_grouping_records.hashes.timeout",
             extra=extra,
         )
-        metrics.incr(
-            DELETE_HASH_METRIC,
-            sample_rate=options.get("seer.similarity.metrics_sample_rate"),
-            tags={"success": False, "reason": "ReadTimeoutError"},
-        )
         return False
 
     if response.status >= 200 and response.status < 300:
@@ -156,7 +147,7 @@ def call_seer_to_delete_these_hashes(project_id: int, hashes: Sequence[str]) -> 
             extra=extra,
         )
         metrics.incr(
-            DELETE_HASH_METRIC,
+            "grouping.similarity.delete_records_by_hash",
             sample_rate=options.get("seer.similarity.metrics_sample_rate"),
             tags={"success": True},
         )
@@ -164,7 +155,7 @@ def call_seer_to_delete_these_hashes(project_id: int, hashes: Sequence[str]) -> 
     else:
         logger.error("seer.delete_grouping_records.hashes.failure", extra=extra)
         metrics.incr(
-            DELETE_HASH_METRIC,
+            "grouping.similarity.delete_records_by_hash",
             sample_rate=options.get("seer.similarity.metrics_sample_rate"),
             tags={"success": False},
         )

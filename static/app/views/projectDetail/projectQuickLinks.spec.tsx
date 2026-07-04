@@ -35,7 +35,7 @@ describe('ProjectDetail > ProjectQuickLinks', function () {
 
     await userEvent.click(userFeedback);
     expect(router.push).toHaveBeenCalledWith({
-      pathname: '/organizations/org-slug/feedback/',
+      pathname: '/organizations/org-slug/user-feedback/',
       query: {project: '2'},
     });
 
